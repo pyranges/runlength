@@ -128,10 +128,18 @@ It targets the stable ABI for Python 3.11+ (pyo3-arrow's buffer support needs
   positions null until `fill` (0 by default) is applied; `fill=None` keeps
   them null.
 
+## Slice views
+
+Copying many slices (`getitems`) is slow when each is only reduced: 1M slices
+of 1000 positions copy about 20M runs. `SliceView` borrows the runs a slice
+touches and clips the first and last, so `slice_reduce` / `slice_agg` reduce
+each slice without allocating (about 25 ms for 1M slices, against 230 ms for
+`getitems` and 123 ms for Bioconductor's `viewSums`). In the Arrow layer,
+`slice_agg` skips nulls, as polars and pandas do, so it composes with
+coverage left null where uncovered.
+
 ## Later
 
-- An `overlap_plan` per key, and `RleBatch` versions of `shift`, `concat` and
-  friends (today: map over the Rles).
 - A positioned wrapper (`start` + `Rle`) if a use appears.
 
 ## Dropped from pyrle

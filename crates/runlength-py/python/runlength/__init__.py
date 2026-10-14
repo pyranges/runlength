@@ -15,6 +15,7 @@ from runlength._runlength import (
     coverage,
     coverage_by_key,
     overlap_plan,
+    overlap_plan_by_key,
     plan_many,
     zip_many,
 )
@@ -26,6 +27,7 @@ __all__ = [
     "coverage",
     "coverage_by_key",
     "overlap_plan",
+    "overlap_plan_by_key",
     "plan_many",
     "zip_many",
     "__version__",

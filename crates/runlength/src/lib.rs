@@ -65,7 +65,7 @@ pub use batch::{How, RleBatch};
 pub use coverage::{
     OverlapPlan, coverage_count, coverage_count_by_key, coverage_max, coverage_max_by_key,
     coverage_min, coverage_min_by_key, coverage_sum, coverage_sum_by_key, coverage_sum_opt,
-    overlap_plan,
+    overlap_plan, overlap_plan_by_key,
 };
 pub use error::{Error, Result};
 pub use identical::Identical;
@@ -75,9 +75,10 @@ pub use num::Num;
 pub use ops::{zip_with, zip_with_raw};
 pub use plan::{Plan, plan};
 pub use rle::{Rle, RleLike, RleRef};
+pub use slice::SliceView;
 pub use transform::concat;
 
 /// The types and traits needed for everyday use.
 pub mod prelude {
-    pub use crate::{How, Identical, Keep, Num, Rle, RleBatch, RleLike, RleRef};
+    pub use crate::{How, Identical, Keep, Num, Rle, RleBatch, RleLike, RleRef, SliceView};
 }

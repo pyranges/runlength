@@ -25,6 +25,8 @@ pub enum Error {
     UnexpectedNulls,
     /// An aggregation needs values but none were given.
     MissingValues,
+    /// An operation needs at least one input but was given none.
+    NoInputs,
     /// An operation failed for the key at `position` in the output.
     InKey { position: usize, source: Box<Error> },
 }
@@ -61,6 +63,7 @@ impl fmt::Display for Error {
             Error::UnsupportedType(t) => write!(f, "unsupported value type {t}"),
             Error::UnexpectedNulls => write!(f, "values must not contain nulls"),
             Error::MissingValues => write!(f, "this aggregation needs values"),
+            Error::NoInputs => write!(f, "this operation needs at least one input"),
             Error::InKey { position, source } => {
                 write!(f, "key at output position {position}: {source}")
             }

@@ -10,7 +10,7 @@ use pyo3::types::{PyCapsule, PySlice, PyTuple};
 use pyo3_arrow::PyArray;
 use runlength::Keep;
 use runlength_arrow::kernels::{self, Kernel};
-use runlength_arrow::{ArrowRle, common_numeric_type};
+use runlength_arrow::{ArrowRle, SliceAgg, common_numeric_type};
 
 use crate::batch::PyRleBatch;
 use crate::convert::{
@@ -120,6 +120,21 @@ pub(crate) fn call_python(
         array_from_py(&result)
     };
     call().map_err(|e| ArrowError::ExternalError(Box::new(e)))
+}
+
+pub(crate) fn parse_slice_agg(agg: &str, ddof: i64) -> PyResult<SliceAgg> {
+    match agg {
+        "sum" => Ok(SliceAgg::Sum),
+        "count" => Ok(SliceAgg::Count),
+        "mean" => Ok(SliceAgg::Mean),
+        "var" => Ok(SliceAgg::Var { ddof }),
+        "std" => Ok(SliceAgg::Std { ddof }),
+        "min" => Ok(SliceAgg::Min),
+        "max" => Ok(SliceAgg::Max),
+        other => Err(PyValueError::new_err(format!(
+            "agg must be 'sum', 'count', 'mean', 'var', 'std', 'min' or 'max', got {other:?}"
+        ))),
+    }
 }
 
 /// A single fill value of `data_type`: the given value, null, or the type's
@@ -349,6 +364,30 @@ impl PyRle {
             .detach(|| inner.getitems(&starts, &ends))
             .or_raise()?
             .into())
+    }
+
+    /// Reduces many slices without copying them, in parallel: entry k reduces
+    /// positions starts[k]:ends[k] (ends past the sequence are clamped).
+    /// `agg` is "sum", "count", "mean", "var", "std", "min" or "max"; nulls
+    /// are skipped and `ddof` applies to "var" and "std". Values must be
+    /// numeric or boolean.
+    #[pyo3(signature = (starts, ends, agg="mean", ddof=1))]
+    fn slice_agg(
+        &self,
+        py: Python<'_>,
+        starts: &Bound<'_, PyAny>,
+        ends: &Bound<'_, PyAny>,
+        agg: &str,
+        ddof: i64,
+    ) -> PyResult<PyArray> {
+        let agg = parse_slice_agg(agg, ddof)?;
+        let starts = ints_from_py(starts, "starts")?;
+        let ends = ints_from_py(ends, "ends")?;
+        let inner = &self.inner;
+        let out = py
+            .detach(|| inner.slice_agg(&starts, &ends, agg))
+            .or_raise()?;
+        Ok(array_to_py(out))
     }
 
     /// Merges neighbouring runs. Without a mask, runs merge when their values

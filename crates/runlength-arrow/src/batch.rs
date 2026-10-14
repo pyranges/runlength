@@ -208,7 +208,7 @@ impl ArrowRleBatch {
         Ok(theirs.iter().map(|row| index.get(&row).copied()).collect())
     }
 
-    fn check_key_schema(&self, keys: &RecordBatch) -> Result<()> {
+    pub(crate) fn check_key_schema(&self, keys: &RecordBatch) -> Result<()> {
         let (mine, theirs) = (self.keys.schema(), keys.schema());
         let same = mine.fields().len() == theirs.fields().len()
             && mine

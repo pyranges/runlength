@@ -7,15 +7,15 @@ mod rle;
 use std::sync::Arc;
 
 use arrow_array::Int64Array;
-use pyo3::exceptions::PyValueError;
+use pyo3::exceptions::{PyTypeError, PyValueError};
 use pyo3::prelude::*;
-use pyo3_arrow::PyArray;
+use pyo3_arrow::{PyArray, PyTable};
 use runlength_arrow::{Agg, ArrowRle, ArrowRleBatch};
 
 use crate::batch::PyRleBatch;
 use crate::convert::{
     FillArg, OrRaise, array_from_py, array_to_py, indices_to_py, ints_from_py, scalar_of_type,
-    table_from_py,
+    table_from_py, table_to_py,
 };
 use crate::rle::{PyRle, call_python, parse_backend};
 
@@ -139,11 +139,25 @@ fn coverage_by_key(
     )
 }
 
-/// Joins Rles end to end, merging identical neighbours.
+/// Joins Rles end to end, merging identical neighbours. Given RleBatches,
+/// joins them key by key: each key's Rles are joined in order, and a batch
+/// without the key adds nothing.
 #[pyfunction]
-fn concat(rles: Vec<PyRef<'_, PyRle>>) -> PyResult<PyRle> {
-    let rles: Vec<ArrowRle> = rles.iter().map(|r| r.inner.clone()).collect();
-    Ok(runlength_arrow::concat(&rles).or_raise()?.into())
+fn concat(py: Python<'_>, items: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
+    if let Ok(rles) = items.extract::<Vec<PyRef<'_, PyRle>>>() {
+        let rles: Vec<ArrowRle> = rles.iter().map(|r| r.inner.clone()).collect();
+        let out: PyRle = runlength_arrow::concat(&rles).or_raise()?.into();
+        return Ok(out.into_pyobject(py)?.into_any().unbind());
+    }
+    let batches = items
+        .extract::<Vec<PyRef<'_, PyRleBatch>>>()
+        .map_err(|_| PyTypeError::new_err("concat needs a list of Rles or a list of RleBatches"))?;
+    let batches: Vec<ArrowRleBatch> = batches.iter().map(|b| b.inner.clone()).collect();
+    let out: PyRleBatch = py
+        .detach(|| ArrowRleBatch::concat(&batches))
+        .or_raise()?
+        .into();
+    Ok(out.into_pyobject(py)?.into_any().unbind())
 }
 
 /// The plan for combining several Rles: (ends, [idx per Rle]). An index
@@ -207,6 +221,26 @@ fn overlap_plan(
     ))
 }
 
+/// `overlap_plan` per key, as one table: the key columns, then start and end
+/// of each segment and ids, a list of the intervals covering it (row numbers
+/// in the input). `keys` is as in `coverage_by_key`. Explode ids and join
+/// interval values onto them to aggregate per segment in any way.
+#[pyfunction]
+fn overlap_plan_by_key(
+    py: Python<'_>,
+    keys: &Bound<'_, PyAny>,
+    starts: &Bound<'_, PyAny>,
+    ends: &Bound<'_, PyAny>,
+) -> PyResult<PyTable> {
+    let keys = table_from_py(keys)?;
+    let starts = ints_from_py(starts, "starts")?;
+    let ends = ints_from_py(ends, "ends")?;
+    let table = py
+        .detach(|| runlength_arrow::overlap_plan_by_key(&keys, &starts, &ends))
+        .or_raise()?;
+    table_to_py(table)
+}
+
 #[pymodule]
 fn _runlength(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyRle>()?;
@@ -217,6 +251,7 @@ fn _runlength(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(plan_many, m)?)?;
     m.add_function(wrap_pyfunction!(zip_many, m)?)?;
     m.add_function(wrap_pyfunction!(overlap_plan, m)?)?;
+    m.add_function(wrap_pyfunction!(overlap_plan_by_key, m)?)?;
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
     Ok(())
 }

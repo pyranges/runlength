@@ -8,7 +8,7 @@ use crate::num::Num;
 use crate::ops;
 use crate::plan::{self, Plan, Segments};
 use crate::reduce;
-use crate::slice;
+use crate::slice::{self, SliceView};
 use crate::transform;
 
 /// A run-length encoded sequence that owns its data.
@@ -322,6 +322,27 @@ pub trait RleLike<V> {
         slice::getitems(self.view(), starts, ends)
     }
 
+    /// The positions `start..end` without copying them, clamped like
+    /// [`slice`](RleLike::slice). See [`SliceView`].
+    fn slice_view(&self, start: i64, end: i64) -> SliceView<'_, V> {
+        SliceView::new(self.view(), start, end)
+    }
+
+    /// Reduces many slices with `f` without copying them, in parallel, for
+    /// example `rle.slice_reduce(&starts, &ends, |s| s.mean())`.
+    ///
+    /// Each interval must have `0 <= start <= end`; ends past the sequence are
+    /// clamped.
+    fn slice_reduce<'a, T, F>(&'a self, starts: &[i64], ends: &[i64], f: F) -> Result<Vec<T>>
+    where
+        V: Sync + 'a,
+        T: Send,
+        F: Fn(SliceView<'a, V>) -> T + Sync,
+    {
+        let rle = self.view();
+        slice::slice_reduce(starts, ends, |_| rle, f)
+    }
+
     /// Whether no two neighbouring runs hold identical values.
     fn is_merged(&self) -> bool
     where
@@ -488,7 +509,7 @@ pub trait RleLike<V> {
     where
         V: Num,
     {
-        reduce::sum(self.view())
+        reduce::sum(reduce::weighted(self.view()))
     }
 
     /// The mean over all positions, or `None` if the sequence is empty.
@@ -496,7 +517,7 @@ pub trait RleLike<V> {
     where
         V: Num,
     {
-        reduce::mean(self.view())
+        reduce::mean(reduce::weighted(self.view()), self.len())
     }
 
     /// The variance over all positions with `ddof` delta degrees of freedom
@@ -505,7 +526,7 @@ pub trait RleLike<V> {
     where
         V: Num,
     {
-        reduce::variance(self.view(), ddof)
+        reduce::variance(reduce::weighted(self.view()), self.len(), ddof)
     }
 
     /// The square root of [`variance`](RleLike::variance).

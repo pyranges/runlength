@@ -11,7 +11,8 @@ use crate::error::{Error, Result};
 use crate::identical::Identical;
 use crate::ops;
 use crate::rle::{Rle, RleLike, RleRef, validate_ends};
-use crate::slice;
+use crate::slice::{self, SliceView};
+use crate::transform;
 
 /// Which keys a combination of two batches keeps, as in a DataFrame join.
 ///
@@ -165,6 +166,24 @@ impl<K, V> RleBatch<K, V> {
         F: Fn(RleRef<'_, V>) -> Rle<W> + Sync,
     {
         RleBatch::from_rles_unchecked(self.keys.clone(), self.reduce(f))
+    }
+
+    /// Shifts every sequence; see [`RleLike::shift`].
+    pub fn shift(&self, distance: i64, fill: V) -> RleBatch<K, V>
+    where
+        K: Clone + Send + Sync,
+        V: Clone + Identical + Send + Sync,
+    {
+        self.map_rles(|r| r.shift(distance, fill.clone()))
+    }
+
+    /// Reverses every sequence; see [`RleLike::reversed`].
+    pub fn reversed(&self) -> RleBatch<K, V>
+    where
+        K: Clone + Send + Sync,
+        V: Clone + Send + Sync,
+    {
+        self.map_rles(|r| r.reversed())
     }
 }
 
@@ -348,6 +367,64 @@ impl<K: Hash + Eq + Clone, V> RleBatch<K, V> {
                 slice::slice_into(rle, starts[k], ends[k], out_ends, out_values)
             },
         ))
+    }
+
+    /// Reduces many slices with `f` without copying them, in parallel: slice
+    /// `k` is `keys[k]`'s sequence at `starts[k]..ends[k]`, clamped. A missing
+    /// key gives an empty slice.
+    pub fn slice_reduce<'a, Q, T, F>(
+        &'a self,
+        keys: &[Q],
+        starts: &[i64],
+        ends: &[i64],
+        f: F,
+    ) -> Result<Vec<T>>
+    where
+        K: Borrow<Q> + Send + Sync,
+        Q: Hash + Eq + Sync,
+        V: Sync,
+        T: Send,
+        F: Fn(SliceView<'a, V>) -> T + Sync,
+    {
+        if keys.len() != starts.len() {
+            return Err(Error::LengthMismatch {
+                what: "keys and starts",
+                left: keys.len(),
+                right: starts.len(),
+            });
+        }
+        let positions: Vec<Option<usize>> = keys.iter().map(|k| self.position(k)).collect();
+        slice::slice_reduce(
+            starts,
+            ends,
+            |k| positions[k].map_or_else(RleRef::empty, |p| self.rle_at(p)),
+            f,
+        )
+    }
+
+    /// Joins the batches end to end key by key, in parallel: each key's
+    /// sequences are concatenated in batch order, and a batch without the key
+    /// contributes nothing. Keys appear in order of first appearance.
+    pub fn concat(batches: &[&RleBatch<K, V>]) -> RleBatch<K, V>
+    where
+        K: Send + Sync,
+        V: Clone + Identical + Send + Sync,
+    {
+        let mut keys: Vec<K> = Vec::new();
+        let mut seen: HashMap<&K, usize> = HashMap::new();
+        for batch in batches {
+            for key in &batch.keys {
+                seen.entry(key).or_insert_with(|| {
+                    keys.push(key.clone());
+                    keys.len() - 1
+                });
+            }
+        }
+        let rles = keys
+            .par_iter()
+            .map(|key| transform::concat(batches.iter().filter_map(|b| b.get(key))))
+            .collect();
+        RleBatch::from_rles_unchecked(keys, rles)
     }
 
     /// The output keys of a join and the position of each on both sides.

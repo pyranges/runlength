@@ -55,6 +55,14 @@ fn main() {
     time("getitems, 1M slices of 1000", || {
         a.getitems(&slice_starts, &slice_ends).unwrap()
     });
+    time("slice_reduce sum, same slices", || {
+        a.slice_reduce(&slice_starts, &slice_ends, |s| s.sum())
+            .unwrap()
+    });
+    time("slice_reduce mean, same slices", || {
+        a.slice_reduce(&slice_starts, &slice_ends, |s| s.mean())
+            .unwrap()
+    });
 
     let keys: Vec<u32> = (0..n).map(|_| rng.below(25) as u32).collect();
     let weights = vec![1i64; n];

@@ -31,6 +31,7 @@ pl.DataFrame(cov.mean())         # Chromosome, Strand, mean
 per_chrom = cov.collapse(drop="Strand")          # add the strands together
 starts, ends = (per_chrom.get("chr1") > 0).ranges()   # back to intervals
 best = rl.coverage_by_key(keys, df["Start"], df["End"], df["Score"], agg="max", fill=None)
+cov.slice_agg(keys, df["Start"], df["End"], agg="mean")   # mean coverage per interval, no copies
 
 a = rl.Rle([3, 2], ["x", "y"])              # values of any type
 b = rl.Rle([1, 4], pl.Series(["p", "q"]))
@@ -71,12 +72,12 @@ assert_eq!((&a + &b).to_dense(), vec![11, 21, 21, 22, 22]);
 | Sequences | `Rle<V>` (owned), `RleRef<V>` (borrowed), shared methods on `RleLike` |
 | Combining | `plan`, `zip_with`, `zip_with_raw`, `+ - * / & \| ^`, unary `-` and `!`, `elem_eq/ne/lt/le/gt/ge` |
 | Merging | `merge`, `merge_by(pred)`, `merge_mask(mask, Keep)`, `merge_plan(mask)`, `is_merged` |
-| Slicing | `get`, `slice`, `getitems` (many slices → batch) |
+| Slicing | `get`, `slice`, `getitems` (many slices → batch), `slice_view` and `slice_reduce` (reduce many slices without copying) |
 | Rearranging | `shift`, `reversed`, `concat`, `ranges_where` |
 | Many inputs | `plan_many`, `zip_many` |
 | Reductions | `sum`, `mean`, `variance(ddof)`, `std(ddof)`, `min`, `max` (all weighted by run length) |
-| Batches | `RleBatch<K, V>`: many sequences under any hashable keys, joins with `How::{Outer, Inner, Left, Right}`, `collapse`, parallel with rayon |
-| Coverage | `coverage_sum`, `coverage_count`, `coverage_max`, `coverage_min` (with `_by_key` variants), and `overlap_plan` for any other aggregation |
+| Batches | `RleBatch<K, V>`: many sequences under any hashable keys, joins with `How::{Outer, Inner, Left, Right}`, `collapse`, `concat`, `shift`, `reversed`, `slice_reduce`, parallel with rayon |
+| Coverage | `coverage_sum`, `coverage_count`, `coverage_max`, `coverage_min` (with `_by_key` variants), and `overlap_plan` / `overlap_plan_by_key` for any other aggregation |
 
 ## Conventions
 

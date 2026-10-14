@@ -1,22 +1,26 @@
 use std::sync::Arc;
 
-use arrow_array::{Array, ArrayRef, Float64Array, RecordBatch};
+use arrow_array::{Array, ArrayRef, Float64Array, RecordBatch, RecordBatchOptions};
+use arrow_cast::cast;
 use arrow_schema::{DataType, Field, Schema};
 use arrow_select::concat::concat;
 use pyo3::basic::CompareOp;
 use pyo3::exceptions::{PyIndexError, PyTypeError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::{PyCapsule, PyTuple};
-use pyo3_arrow::PyTable;
+use pyo3_arrow::{PyArray, PyTable};
 use runlength::How;
 use runlength_arrow::kernels::{self, Kernel};
 use runlength_arrow::{ArrowRle, ArrowRleBatch, common_numeric_type};
 
 use crate::convert::{
-    OrRaise, scalar_of_type, table_capsule, table_from_py, table_to_py, to_arrow, to_pandas,
-    to_polars, value_to_py,
+    FillArg, OrRaise, array_from_py, array_to_py, ints_from_py, scalar_of_type, table_capsule,
+    table_from_py, table_to_py, to_arrow, to_pandas, to_polars, value_to_py,
 };
-use crate::rle::{PyRle, call_python, fill_of, format_values, kernel_for, parse_backend};
+use crate::rle::{
+    PyRle, call_python, fill_array, fill_of, format_values, kernel_for, parse_backend,
+    parse_slice_agg,
+};
 
 /// Many Rles, each identified by a row of key columns of any types (for
 /// example Chromosome and Strand).
@@ -149,6 +153,40 @@ impl PyRleBatch {
             .collect::<PyResult<Vec<_>>>()?;
         PyTuple::new(py, values)
     }
+}
+
+/// Reads lookup keys for a batch: a table whose columns have the batch's key
+/// names (cast to the batch's key types), or a single array if the batch has
+/// one key column.
+fn keys_like(batch: &ArrowRleBatch, obj: &Bound<'_, PyAny>) -> PyResult<RecordBatch> {
+    let schema = batch.keys().schema();
+    let table = match table_from_py(obj) {
+        Ok(table) => table,
+        Err(err) if schema.fields().len() == 1 => match array_from_py(obj) {
+            Ok(array) => {
+                let name = schema.field(0).name().clone();
+                RecordBatch::try_from_iter([(name, array)]).or_raise()?
+            }
+            Err(_) => return Err(err),
+        },
+        Err(err) => return Err(err),
+    };
+    let columns = schema
+        .fields()
+        .iter()
+        .map(|field| {
+            let column = table.column_by_name(field.name()).ok_or_else(|| {
+                PyValueError::new_err(format!("keys have no column {:?}", field.name()))
+            })?;
+            cast(column.as_ref(), field.data_type()).or_raise()
+        })
+        .collect::<PyResult<Vec<_>>>()?;
+    RecordBatch::try_new_with_options(
+        schema,
+        columns,
+        &RecordBatchOptions::new().with_row_count(Some(table.num_rows())),
+    )
+    .or_raise()
 }
 
 fn cast_batch(batch: &ArrowRleBatch, data_type: &DataType) -> PyResult<ArrowRleBatch> {
@@ -314,6 +352,48 @@ impl PyRleBatch {
         let keep: Vec<&str> = keep.iter().map(String::as_str).collect();
         let kernel = binary_kernel(op)?;
         Ok(self.inner.collapse(&keep, kernel).or_raise()?.into())
+    }
+
+    /// Reduces many slices without copying them, in parallel: entry k reduces
+    /// positions starts[k]:ends[k] of the Rle for row k of `keys` (a table
+    /// with the batch's key columns, or one array if there is one key
+    /// column). A key not in the batch gives an empty slice. `agg` and `ddof`
+    /// are as in `Rle.slice_agg`.
+    #[pyo3(signature = (keys, starts, ends, agg="mean", ddof=1))]
+    fn slice_agg(
+        &self,
+        py: Python<'_>,
+        keys: &Bound<'_, PyAny>,
+        starts: &Bound<'_, PyAny>,
+        ends: &Bound<'_, PyAny>,
+        agg: &str,
+        ddof: i64,
+    ) -> PyResult<PyArray> {
+        let agg = parse_slice_agg(agg, ddof)?;
+        let keys = keys_like(&self.inner, keys)?;
+        let starts = ints_from_py(starts, "starts")?;
+        let ends = ints_from_py(ends, "ends")?;
+        let inner = &self.inner;
+        let out = py
+            .detach(|| inner.slice_agg(&keys, &starts, &ends, agg))
+            .or_raise()?;
+        Ok(array_to_py(out))
+    }
+
+    /// Shifts every Rle; see `Rle.shift`.
+    #[pyo3(signature = (distance, fill=FillArg::Default))]
+    fn shift(&self, py: Python<'_>, distance: i64, fill: FillArg) -> PyResult<Self> {
+        let fill = fill_array(py, fill, self.inner.values().data_type())?;
+        let inner = &self.inner;
+        Ok(py
+            .detach(|| inner.shift(distance, fill.as_ref()))
+            .or_raise()?
+            .into())
+    }
+
+    /// Reverses every Rle.
+    fn reverse(&self) -> PyResult<Self> {
+        Ok(self.inner.reversed().or_raise()?.into())
     }
 
     /// Sum per key, as a table of the key columns plus `sum`.

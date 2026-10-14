@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 
 use arrow_array::cast::AsArray;
-use arrow_array::{Array, ArrayRef, RecordBatch, UInt64Array};
+use arrow_array::{Array, ArrayRef, RecordBatch, RecordBatchOptions, UInt64Array};
 use arrow_schema::{ArrowError, DataType};
 use arrow_select::concat::concat as concat_arrays;
+use arrow_select::interleave::interleave;
 use arrow_select::take::take;
 use arrow_select::zip::zip;
 use rayon::prelude::*;
@@ -198,5 +199,84 @@ impl ArrowRleBatch {
             .first()
             .map_or(data_type.clone(), |r| r.data_type().clone());
         ArrowRleBatch::from_rles(new_keys, rles, &out_type)
+    }
+}
+
+impl ArrowRleBatch {
+    /// Shifts every sequence, in parallel; see [`ArrowRle::shift`].
+    pub fn shift(&self, distance: i64, fill: &dyn Array) -> Result<ArrowRleBatch> {
+        self.map_rles(|r| r.shift(distance, fill))
+    }
+
+    /// Reverses every sequence, in parallel.
+    pub fn reversed(&self) -> Result<ArrowRleBatch> {
+        self.map_rles(ArrowRle::reversed)
+    }
+
+    /// Transforms every sequence in parallel, keeping the keys. All results
+    /// must have the same value type.
+    pub fn map_rles<F>(&self, f: F) -> Result<ArrowRleBatch>
+    where
+        F: Fn(&ArrowRle) -> Result<ArrowRle> + Sync,
+    {
+        let rles = (0..self.len())
+            .into_par_iter()
+            .map(|i| f(&self.get_index(i).expect("in range")).map_err(|e| e.in_key(i)))
+            .collect::<Result<Vec<_>>>()?;
+        let data_type = rles
+            .first()
+            .map_or(self.values().data_type().clone(), |r| r.data_type().clone());
+        ArrowRleBatch::from_rles(self.keys().clone(), rles, &data_type)
+    }
+
+    /// Joins batches end to end key by key, in parallel: each key's sequences
+    /// are concatenated in batch order, and a batch without the key adds
+    /// nothing. Keys appear in order of first appearance. All batches must
+    /// have the same key columns and value type.
+    pub fn concat(batches: &[ArrowRleBatch]) -> Result<ArrowRleBatch> {
+        let Some(first) = batches.first() else {
+            return Err(Error::NoInputs);
+        };
+        let converter = key_converter(first.keys())?;
+        let mut groups: Vec<Vec<(usize, usize)>> = Vec::new();
+        let mut positions = HashMap::new();
+        for (b, batch) in batches.iter().enumerate() {
+            first.check_key_schema(batch.keys())?;
+            let rows = key_rows(&converter, batch.keys())?;
+            for (i, row) in rows.iter().enumerate() {
+                let g = *positions.entry(row.owned()).or_insert_with(|| {
+                    groups.push(Vec::new());
+                    groups.len() - 1
+                });
+                groups[g].push((b, i));
+            }
+        }
+        let rles = groups
+            .par_iter()
+            .enumerate()
+            .map(|(position, members)| {
+                let parts: Vec<ArrowRle> = members
+                    .iter()
+                    .map(|&(b, i)| batches[b].get_index(i).expect("in range"))
+                    .collect();
+                concat(&parts).map_err(|e| e.in_key(position))
+            })
+            .collect::<Result<Vec<_>>>()?;
+        let sources: Vec<(usize, usize)> = groups.iter().map(|g| g[0]).collect();
+        let columns = (0..first.keys().num_columns())
+            .map(|c| {
+                let arrays: Vec<&dyn Array> = batches
+                    .iter()
+                    .map(|b| b.keys().column(c).as_ref())
+                    .collect();
+                interleave(&arrays, &sources)
+            })
+            .collect::<std::result::Result<Vec<_>, _>>()?;
+        let keys = RecordBatch::try_new_with_options(
+            first.keys().schema(),
+            columns,
+            &RecordBatchOptions::new().with_row_count(Some(sources.len())),
+        )?;
+        ArrowRleBatch::from_rles(keys, rles, first.values().data_type())
     }
 }

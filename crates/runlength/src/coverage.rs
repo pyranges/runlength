@@ -593,3 +593,34 @@ pub fn overlap_plan(starts: &[i64], ends: &[i64], length: Option<i64>) -> Result
     }
     Ok(plan)
 }
+
+/// [`overlap_plan`] per key, computed in parallel. Returns the keys in order
+/// of first appearance and one plan per key, covering `0..max(end)` of that
+/// key's intervals. Interval ids are positions in the input, not per key.
+///
+/// ```
+/// use runlength::overlap_plan_by_key;
+///
+/// let (keys, plans) = overlap_plan_by_key(&["a", "b", "a"], &[0, 0, 1], &[2, 1, 3]).unwrap();
+/// assert_eq!(keys, vec!["a", "b"]);
+/// assert_eq!(plans[0].ends, vec![1, 2, 3]);
+/// assert_eq!(plans[0].ids(1), &[0, 2]);
+/// assert_eq!(plans[1].ids(0), &[1]);
+/// ```
+pub fn overlap_plan_by_key<K>(
+    keys: &[K],
+    starts: &[i64],
+    ends: &[i64],
+) -> Result<(Vec<K>, Vec<OverlapPlan>)>
+where
+    K: Hash + Eq + Clone + Send + Sync,
+{
+    validate_intervals(starts, ends)?;
+    check_keys(keys, starts)?;
+    let (unique, groups) = group_by_key(keys);
+    let plans = groups
+        .par_iter()
+        .map(|idx| overlap(starts, ends, idx))
+        .collect();
+    Ok((unique, plans))
+}

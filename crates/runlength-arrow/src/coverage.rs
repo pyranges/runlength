@@ -4,10 +4,11 @@ use std::sync::Arc;
 use arrow_array::cast::AsArray;
 use arrow_array::types::Int64Type;
 use arrow_array::{
-    Array, ArrayRef, ArrowPrimitiveType, PrimitiveArray, RecordBatch, StringArray, UInt64Array,
+    Array, ArrayRef, ArrowPrimitiveType, Int64Array, LargeListArray, PrimitiveArray, RecordBatch,
+    RecordBatchOptions, StringArray, UInt64Array,
 };
-use arrow_buffer::ScalarBuffer;
-use arrow_schema::DataType;
+use arrow_buffer::{OffsetBuffer, ScalarBuffer};
+use arrow_schema::{DataType, Field, Schema};
 use arrow_select::take::take;
 use rayon::prelude::*;
 use runlength::{Rle, RleBatch};
@@ -254,4 +255,69 @@ pub fn coverage_by_key(
         let batch = runlength::coverage_sum_by_key(&ids, starts, ends, native::<T>(values)?)?;
         into_arrow_batch::<T>(keys, first_rows, batch)
     })
+}
+
+/// [`runlength::overlap_plan`] per key, as one long table: the key columns,
+/// then `start` and `end` of each segment and `ids`, a list of the intervals
+/// covering it (positions in the input, sorted). Keys appear in order of
+/// first appearance; each key's segments cover `0..max(end)` of its own
+/// intervals.
+///
+/// Exploding `ids` and joining interval values onto them gives any
+/// aggregation per segment, for example with a polars `group_by`.
+pub fn overlap_plan_by_key(
+    keys: &RecordBatch,
+    starts: &[i64],
+    ends: &[i64],
+) -> Result<RecordBatch> {
+    let (ids, first_rows) = group_rows(keys)?;
+    let (groups, plans) = runlength::overlap_plan_by_key(&ids, starts, ends)?;
+    debug_assert!(groups.iter().enumerate().all(|(i, &g)| i == g));
+    let segments: usize = plans.iter().map(|p| p.num_segments()).sum();
+    let mut key_rows = Vec::with_capacity(segments);
+    let mut seg_starts = Vec::with_capacity(segments);
+    let mut seg_ends = Vec::with_capacity(segments);
+    let mut list_offsets = Vec::with_capacity(segments + 1);
+    list_offsets.push(0i64);
+    let mut items = Vec::new();
+    for (plan, &row) in plans.iter().zip(&first_rows) {
+        let mut prev = 0;
+        for s in 0..plan.num_segments() {
+            key_rows.push(row);
+            seg_starts.push(prev);
+            seg_ends.push(plan.ends[s]);
+            prev = plan.ends[s];
+            items.extend(plan.ids(s).iter().map(|&i| i as i64));
+            list_offsets.push(items.len() as i64);
+        }
+    }
+    let key_rows = UInt64Array::from(key_rows);
+    let mut columns = keys
+        .columns()
+        .iter()
+        .map(|c| take(c.as_ref(), &key_rows, None))
+        .collect::<std::result::Result<Vec<_>, _>>()?;
+    let mut fields: Vec<Field> = keys
+        .schema()
+        .fields()
+        .iter()
+        .map(|f| f.as_ref().clone())
+        .collect();
+    let item = Arc::new(Field::new("item", DataType::Int64, false));
+    fields.push(Field::new("start", DataType::Int64, false));
+    fields.push(Field::new("end", DataType::Int64, false));
+    fields.push(Field::new("ids", DataType::LargeList(item.clone()), false));
+    columns.push(Arc::new(Int64Array::from(seg_starts)));
+    columns.push(Arc::new(Int64Array::from(seg_ends)));
+    columns.push(Arc::new(LargeListArray::new(
+        item,
+        OffsetBuffer::new(ScalarBuffer::from(list_offsets)),
+        Arc::new(Int64Array::from(items)),
+        None,
+    )));
+    Ok(RecordBatch::try_new_with_options(
+        Arc::new(Schema::new(fields)),
+        columns,
+        &RecordBatchOptions::new().with_row_count(Some(segments)),
+    )?)
 }
