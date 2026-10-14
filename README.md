@@ -2,8 +2,14 @@
 
 Generic run-length encoded sequences in Rust, with plan-based arithmetic. It is
 the successor to [pyrle](https://github.com/pyranges/pyrle), with a new API and
-any value type, not just `f64`. Python bindings will come later as a separate
-crate (`runlength-py`).
+any value type, not just `f64`.
+
+| Crate | Contents |
+|---|---|
+| `runlength` | The core: generic `Rle<V>`, plans, merging, batches, coverage. Depends only on rayon. |
+| `runlength-arrow` | The same over Apache Arrow arrays, so values can be any Arrow type, and batch keys are Arrow tables. |
+
+Python bindings will come as a separate crate (`runlength-py`).
 
 ```rust
 use runlength::prelude::*;

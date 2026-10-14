@@ -65,7 +65,7 @@ pub use coverage::{
 };
 pub use error::{Error, Result};
 pub use identical::Identical;
-pub use merge::{Keep, MergePlan};
+pub use merge::{Keep, MergePlan, merge_plan};
 pub use num::Num;
 pub use ops::{zip_with, zip_with_raw};
 pub use plan::{Plan, plan};

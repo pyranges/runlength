@@ -75,9 +75,17 @@ type. When no interval is active, the running sum resets to exactly zero, so
 float rounding cannot leave noise in gaps. The length is the largest interval
 end, including empty intervals.
 
+## Arrow layer
+
+`runlength-arrow` stores values as an Arrow array and reuses the core's plans
+and merge plans. Combining gathers values with Arrow's `take` and applies any
+kernel; merging uses the core's identity rule for every Arrow type (floats are
+checked directly, since Arrow's total order treats NaNs with different bit
+patterns as different). Batch keys are a `RecordBatch` of any columns,
+hashed with Arrow's row format. It uses Arrow 59 to match pyo3-arrow.
+
 ## Later
 
-- Arrow layer: generic gather and merge over any Arrow type.
 - `runlength-py`: pyo3 bindings holding Arrow arrays, with `to_polars`,
   `to_pandas`, `to_numpy` and `to_arrow`. Neither polars nor pandas is the
   primary backend.

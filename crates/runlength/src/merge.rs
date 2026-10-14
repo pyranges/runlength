@@ -50,7 +50,9 @@ fn check_mask(num_runs: usize, mask: &[bool]) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn merge_plan(ends: &[i64], mask: &[bool]) -> Result<MergePlan> {
+/// Groups runs with cumulative `ends` by a mask over neighbouring pairs.
+/// See [`MergePlan`].
+pub fn merge_plan(ends: &[i64], mask: &[bool]) -> Result<MergePlan> {
     check_mask(ends.len(), mask)?;
     let mut out = MergePlan {
         ends: Vec::new(),

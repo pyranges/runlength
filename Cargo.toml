@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["crates/runlength"]
+members = ["crates/runlength", "crates/runlength-arrow"]
 
 [workspace.package]
 edition = "2024"
