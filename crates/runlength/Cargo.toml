@@ -6,6 +6,8 @@ keywords = ["run-length", "rle", "compression", "intervals"]
 categories = ["data-structures"]
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+readme = "../../README.md"
 rust-version.workspace = true
 
 [dependencies]

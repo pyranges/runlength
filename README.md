@@ -102,3 +102,23 @@ cd crates/runlength-py && maturin develop --release && pytest tests
 # Regenerate the pyrle cross-check cases (needs a Python that imports pyrle):
 PYTHONPATH=~/code/pyrle python3.12 scripts/gen_pyrle_fixtures.py
 ```
+
+## Releasing
+
+Versions of all three crates move together. Bump `version` in each
+`crates/*/Cargo.toml` (and the `runlength` version that `runlength-arrow`
+requires), commit, then push a tag:
+
+```sh
+git tag py-v0.2.0 && git push origin py-v0.2.0       # wheels + sdist to PyPI
+git tag rust-v0.2.0 && git push origin rust-v0.2.0   # runlength, runlength-arrow to crates.io
+```
+
+`.github/workflows/release.yml` checks that the tag matches the crate
+versions, builds wheels for Linux (x86_64, aarch64), macOS (universal2) and
+Windows, tests them, and publishes. Run it by hand from the Actions tab to
+build and test the wheels without publishing.
+
+One-time setup: add `pyranges/runlength` with workflow `release.yml` as a
+trusted publisher on PyPI, and save a crates.io token as the
+`CARGO_REGISTRY_TOKEN` repository secret.
