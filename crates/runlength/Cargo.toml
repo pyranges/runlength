@@ -1,0 +1,15 @@
+[package]
+name = "runlength"
+version = "0.1.0"
+description = "Generic run-length encoded sequences with plan-based arithmetic."
+keywords = ["run-length", "rle", "compression", "intervals"]
+categories = ["data-structures"]
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+rayon = "1.10"
+
+[dev-dependencies]
+proptest = "1.5"

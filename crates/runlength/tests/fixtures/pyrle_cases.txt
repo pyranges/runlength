@@ -1,0 +1,9299 @@
+case add
+a_runs 4 1 3 4 4 3 4
+a_values 0 2 -1 2 -1 0 -1
+b_runs 3 2
+b_values 0 -2
+out_runs 3 1 1 3 4 4 3 4
+out_values 0 -2 0 -1 2 -1 0 -1
+
+case sub
+a_runs 3 4
+a_values 2 -2
+b_runs 4 3 2 4 4 3
+b_values -2 2 -2 -2 3 1
+out_runs 3 1 3 6 4 3
+out_values 4 0 -4 2 -3 -1
+
+case mul
+a_runs 4
+a_values 0
+b_runs 3 1 2 2
+b_values -1 -1 2 1
+out_runs 8
+out_values 0
+
+case coverage
+starts 2 10
+ends 7 14
+weights -2 0
+out_runs 2 5 7
+out_values 0 -2 0
+
+case add
+a_runs 1 3 2 3 4
+a_values -2 2 1 0 2
+b_runs 3 2 2 2
+b_values -2 2 3 0
+out_runs 1 2 1 1 1 1 2 4
+out_values -4 0 4 3 4 3 0 2
+
+case sub
+a_runs 1 1 2 2 1 1 4 3
+a_values 2 -1 -1 3 2 1 2 0
+b_runs 4 3 1 3 1 4 3 2
+b_values -1 -2 3 0 -2 3 -1 0
+out_runs 1 3 2 1 1 3 1 4 3 2
+out_values 3 0 5 4 -2 2 4 -3 1 0
+
+case mul
+a_runs 3 4 1
+a_values -2 -1 3
+b_runs 1 1 1 1
+b_values 3 -1 2 2
+out_runs 1 1 1 1 4
+out_values -6 2 -4 -2 0
+
+case coverage
+starts 12 2
+ends 15 3
+weights -2 2
+out_runs 2 1 9 3
+out_values 0 2 0 -2
+
+case add
+a_runs 2
+a_values -1
+b_runs 4 2
+b_values 3 -2
+out_runs 2 2 2
+out_values 2 3 -2
+
+case sub
+a_runs 4
+a_values 2
+b_runs 3 1
+b_values -1 -2
+out_runs 3 1
+out_values 3 4
+
+case mul
+a_runs 3 4 2 1 4
+a_values -2 2 -2 3 1
+b_runs 3 3 4 2
+b_values 3 3 -1 -2
+out_runs 3 3 1 2 1 2 2
+out_values -6 6 -2 2 -3 -2 0
+
+case coverage
+starts 5 10 8
+ends 6 15 12
+weights 3 -1 -2
+out_runs 5 1 2 2 2 3
+out_values 0 3 0 -2 -3 -1
+
+case add
+a_runs 4 3 3 4 3 2 1 4
+a_values 3 -2 0 3 -2 2 0 -1
+b_runs 4 3 3 3
+b_values 2 3 2 -1
+out_runs 4 3 6 1 3 2 1 4
+out_values 5 1 2 3 -2 2 0 -1
+
+case sub
+a_runs 4 4 1 1 2
+a_values 3 0 -1 -1 -1
+b_runs 4 4 1 4 4 1 2 4
+b_values -2 0 3 -1 1 2 1 2
+out_runs 4 4 1 3 1 4 1 2 4
+out_values 5 0 -4 0 1 -1 -2 -1 -2
+
+case mul
+a_runs 1
+a_values 1
+b_runs 3 4 1 4 2 1
+b_values 3 -1 -2 1 3 1
+out_runs 1 14
+out_values 3 0
+
+case coverage
+starts 0 6 0 0 3 6
+ends 1 11 6 2 6 9
+weights 3 -1 -2 1 4 1
+out_runs 1 1 1 3 3 2
+out_values 2 -1 -2 2 0 -1
+
+case add
+a_runs 1 3
+a_values 1 -2
+b_runs 2 3 1 2 3
+b_values -2 -2 -2 -1 3
+out_runs 1 3 2 2 3
+out_values -1 -4 -2 -1 3
+
+case sub
+a_runs 3 3 1 4 4
+a_values 3 1 0 2 -1
+b_runs 4 3 1 2
+b_values -1 0 0 0
+out_runs 3 1 2 1 4 4
+out_values 4 2 1 0 2 -1
+
+case mul
+a_runs 1 3 1 1 3 2
+a_values -1 2 0 0 1 2
+b_runs 3 1 4
+b_values 3 -1 -2
+out_runs 1 2 1 2 2 3
+out_values -3 6 -2 0 -2 0
+
+case coverage
+starts 5 2 9 12 10
+ends 8 6 10 13 15
+weights 1 1 0 4 4
+out_runs 2 3 1 2 2 2 1 2
+out_values 0 1 2 1 0 4 8 4
+
+case add
+a_runs 1 4 1 4 4 1
+a_values 0 0 3 3 -1 -1
+b_runs 1 1 1 2 2 1 4
+b_values -2 -2 1 2 2 0 1
+out_runs 2 1 2 2 1 2 2 3
+out_values -2 1 2 5 3 4 0 -1
+
+case sub
+a_runs 2 4 1 3 2 3 2 4
+a_values -1 0 -2 -2 3 -2 2 1
+b_runs 1 4 4 3
+b_values -1 3 -2 -1
+out_runs 1 1 3 1 3 1 2 3 2 4
+out_values 0 -4 -3 2 0 -1 4 -2 2 1
+
+case mul
+a_runs 1 2 4
+a_values 1 0 2
+b_runs 1 4 2
+b_values 2 1 3
+out_runs 1 2 2 2
+out_values 2 0 2 6
+
+case coverage
+starts 15 10 15 15 6 7 0
+ends 18 16 21 18 9 8 5
+weights -1 4 0 2 4 -1 4
+out_runs 5 1 1 1 1 1 5 1 2 3
+out_values 4 0 4 3 4 0 4 5 1 0
+
+case add
+a_runs 3 4 1 1 1 1 2
+a_values -1 -2 0 -2 1 0 -1
+b_runs 4 3 4
+b_values 2 2 -2
+out_runs 3 4 1 1 1 1 2
+out_values 1 0 -2 -4 -1 -2 -1
+
+case sub
+a_runs 1 4
+a_values -1 0
+b_runs 4 4 2 1 1 2 3
+b_values 2 2 0 0 -2 1 0
+out_runs 1 7 3 1 2 3
+out_values -3 -2 0 2 -1 0
+
+case mul
+a_runs 4 4 4 1 2
+a_values 3 -1 -1 0 3
+b_runs 1 1 4 4 2 4
+b_values 2 3 -2 3 3 -1
+out_runs 1 1 2 2 6 1 2 1
+out_values 6 9 -6 2 -3 0 -3 0
+
+case coverage
+starts 13 1 14 12 14 1
+ends 14 5 16 13 15 6
+weights 2 -1 3 0 -2 3
+out_runs 1 4 1 7 1 1 1
+out_values 0 2 3 0 2 1 3
+
+case add
+a_runs 2 4 4 1 1 4
+a_values 2 3 0 3 -2 3
+b_runs 2 4 3 1 2
+b_values -2 1 1 0 -1
+out_runs 2 4 3 1 1 1 4
+out_values 0 4 1 0 2 -3 3
+
+case sub
+a_runs 3 1 1 1 4 3 1 2
+a_values -1 -2 3 2 3 2 1 2
+b_runs 1 2 4 4 1
+b_values -2 1 -2 -2 1
+out_runs 1 2 1 1 1 4 1 1 1 1 2
+out_values 1 -2 0 5 4 5 4 1 2 1 2
+
+case mul
+a_runs 1 4 4
+a_values 3 1 -2
+b_runs 3 3 1 3 1 1 3 1
+b_values 0 0 -1 -2 -1 0 -2 2
+out_runs 6 1 2 7
+out_values 0 2 4 0
+
+case coverage
+starts 6 0 6
+ends 12 6 12
+weights -2 3 -2
+out_runs 6 6
+out_values 3 -4
+
+case add
+a_runs 3 1 2 2 2
+a_values 1 -2 1 0 3
+b_runs 2 1 2 3 3
+b_values 1 0 0 2 3
+out_runs 2 1 1 1 1 2 2 1
+out_values 2 1 -2 1 3 2 6 3
+
+case sub
+a_runs 2 1 1 3 2 4
+a_values -1 -1 -1 0 2 -1
+b_runs 2 3 3 4
+b_values 3 -2 -1 2
+out_runs 2 2 1 2 1 1 3 1
+out_values -4 1 2 1 3 0 -3 -1
+
+case mul
+a_runs 4
+a_values -2
+b_runs 2 4
+b_values 0 2
+out_runs 2 2 2
+out_values 0 -4 0
+
+case coverage
+starts 4 13 9 11 2 7 14
+ends 10 16 15 16 3 11 18
+weights -2 1 3 0 1 -1 0
+out_runs 2 1 1 3 2 1 1 2 2 1 2
+out_values 0 1 0 -2 -3 0 2 3 4 1 0
+
+case add
+a_runs 4 1 2 1 3
+a_values -2 2 2 3 -1
+b_runs 4 2 4 4 2 2 4 3
+b_values 2 -1 0 1 3 3 -2 1
+out_runs 4 2 1 1 2 1 3 4 4 3
+out_values 0 1 2 3 -1 0 1 3 -2 1
+
+case sub
+a_runs 3 1 4 4
+a_values -2 -1 0 -2
+b_runs 2 4 4 1 4
+b_values -1 2 1 0 3
+out_runs 2 1 1 2 2 2 1 1 3
+out_values -1 -4 -3 -2 -1 -3 -2 -5 -3
+
+case mul
+a_runs 1
+a_values 0
+b_runs 1
+b_values 0
+out_runs 1
+out_values 0
+
+case coverage
+starts 12 14 3 8 11 9 6
+ends 17 15 4 9 14 12 11
+weights 0 -2 2 4 -1 4 -1
+out_runs 3 1 2 2 4 2 1 2
+out_values 0 2 0 -1 3 -1 -2 0
+
+case add
+a_runs 4 3
+a_values 0 2
+b_runs 2 1 4
+b_values 3 2 1
+out_runs 2 1 1 3
+out_values 3 2 1 3
+
+case sub
+a_runs 3 4 3 2 2
+a_values -2 3 -2 1 1
+b_runs 2 3 3 4 4 2 4 4
+b_values 3 2 0 1 3 -2 1 0
+out_runs 2 1 2 2 1 2 2 2 2 2 4 4
+out_values -5 -4 1 3 -2 -3 0 -2 -3 2 -1 0
+
+case mul
+a_runs 4 1 2
+a_values -2 0 1
+b_runs 1 1 1 4 1 3 1
+b_values -2 2 -2 0 3 3 0
+out_runs 1 1 1 9
+out_values 4 -4 4 0
+
+case coverage
+starts 4 9 6 3
+ends 8 13 12 6
+weights 1 -1 0 1
+out_runs 3 1 2 2 1 4
+out_values 0 1 2 1 0 -1
+
+case add
+a_runs 2 4 2 3 2 2 2
+a_values 1 0 1 1 1 1 3
+b_runs 2 4 2 1
+b_values 1 -2 -1 3
+out_runs 2 4 2 1 6 2
+out_values 2 -2 0 4 1 3
+
+case sub
+a_runs 2 3
+a_values -2 3
+b_runs 2 3 1
+b_values 3 2 0
+out_runs 2 3 1
+out_values -5 1 0
+
+case mul
+a_runs 4 4 1 4 4 4
+a_values 0 3 1 -1 0 0
+b_runs 1
+b_values -2
+out_runs 21
+out_values 0
+
+case coverage
+starts 11 0 9
+ends 17 1 11
+weights -2 4 1
+out_runs 1 8 2 6
+out_values 4 0 1 -2
+
+case add
+a_runs 4 2 4 2
+a_values 0 2 -2 2
+b_runs 3 3
+b_values 2 1
+out_runs 3 1 2 4 2
+out_values 2 1 3 -2 2
+
+case sub
+a_runs 3 1 1 2 3 1
+a_values -1 2 0 -1 -1 0
+b_runs 3 4 3 4 3
+b_values 3 -1 -2 0 2
+out_runs 3 1 1 2 3 4 3
+out_values -4 3 1 0 1 0 -2
+
+case mul
+a_runs 1 4
+a_values 1 3
+b_runs 1 4 4 4 4 1 1 1
+b_values -1 -2 -1 1 -1 1 2 -2
+out_runs 1 4 15
+out_values -1 -6 0
+
+case coverage
+starts 12 1 5 7 15 7 4
+ends 15 4 8 11 16 12 7
+weights 2 2 4 -1 3 0 4
+out_runs 1 3 1 2 1 3 1 3 1
+out_values 0 2 4 8 3 -1 0 2 3
+
+case add
+a_runs 4 3 3 2 1 1 1 2
+a_values 3 1 -1 -1 0 3 3 -2
+b_runs 1 1 4 3 1 3 2
+b_values 3 3 3 2 3 0 -1
+out_runs 4 2 1 2 1 2 1 2 2
+out_values 6 4 3 1 2 -1 0 2 -2
+
+case sub
+a_runs 1 3 3 2
+a_values 0 3 1 0
+b_runs 2 1 3
+b_values 0 2 3
+out_runs 1 1 1 1 2 1 2
+out_values 0 3 1 0 -2 1 0
+
+case mul
+a_runs 2
+a_values 1
+b_runs 2 1 2
+b_values -1 1 2
+out_runs 2 3
+out_values -1 0
+
+case coverage
+starts 7 4 7 12
+ends 10 9 12 14
+weights 3 1 -2 2
+out_runs 4 3 2 1 2 2
+out_values 0 1 2 1 -2 2
+
+case add
+a_runs 3
+a_values 1
+b_runs 3 1 2 2 4 4 3 1
+b_values 0 -1 2 1 3 -1 0 0
+out_runs 3 1 2 2 4 4 4
+out_values 1 -1 2 1 3 -1 0
+
+case sub
+a_runs 1 2 1 3 2 3 4
+a_values 3 3 3 3 -1 0 0
+b_runs 3 1 3
+b_values 2 2 -2
+out_runs 4 3 2 7
+out_values 1 5 -1 0
+
+case mul
+a_runs 3 1 4
+a_values 3 -2 -2
+b_runs 1 1 2 3
+b_values -2 -2 0 3
+out_runs 2 2 3 1
+out_values -6 0 -6 0
+
+case coverage
+starts 4 6 14 13 4 11 9
+ends 6 12 17 19 10 15 13
+weights -2 1 0 2 2 4 3
+out_runs 6 3 1 1 1 1 2 4
+out_values 0 3 6 4 8 7 6 2
+
+case add
+a_runs 1 1 4 4 2 1 2 2
+a_values -2 0 -1 -1 -1 -2 -1 3
+b_runs 1 4 1
+b_values 2 3 1
+out_runs 1 1 3 1 6 1 2 2
+out_values 0 3 2 0 -1 -2 -1 3
+
+case sub
+a_runs 1 3 3
+a_values 3 3 1
+b_runs 1
+b_values 1
+out_runs 1 3 3
+out_values 2 3 1
+
+case mul
+a_runs 3 3
+a_values 3 -1
+b_runs 2 3 2 4 3 3 4 4
+b_values -2 0 2 0 2 1 -2 2
+out_runs 2 3 1 19
+out_values -6 0 -2 0
+
+case coverage
+starts 1 14 12 3 12
+ends 4 18 13 4 15
+weights 3 -2 0 3 3
+out_runs 1 2 1 8 2 1 3
+out_values 0 3 6 0 3 1 -2
+
+case add
+a_runs 2 3 4 3 2
+a_values -2 2 0 -1 2
+b_runs 2 2 3 1 1 2
+b_values 0 0 0 3 0 0
+out_runs 2 3 2 1 1 3 2
+out_values -2 2 0 3 0 -1 2
+
+case sub
+a_runs 4 4 2 1 2 1 4 2
+a_values 0 -2 3 1 3 3 0 3
+b_runs 1 4 3 2
+b_values 2 -1 -2 3
+out_runs 1 3 1 5 1 3 4 2
+out_values -2 1 -1 0 1 3 0 3
+
+case mul
+a_runs 1 4 4
+a_values 0 0 0
+b_runs 4
+b_values 3
+out_runs 9
+out_values 0
+
+case coverage
+starts 8 10 10 6 13
+ends 10 11 15 8 19
+weights 3 4 2 1 0
+out_runs 6 2 2 1 4 4
+out_values 0 1 3 6 2 0
+
+case add
+a_runs 1 4 2 1 3 2 2 3
+a_values 3 3 1 -2 3 3 -1 2
+b_runs 3 2 4 1
+b_values 2 1 -1 3
+out_runs 3 2 2 1 1 1 3 2 3
+out_values 5 4 0 -3 2 6 3 -1 2
+
+case sub
+a_runs 1 2 2 4 1 4 4 3
+a_values 0 1 0 2 0 -2 0 -2
+b_runs 1 3 2 4 4 4 4 1
+b_values 2 1 0 2 -1 2 3 0
+out_runs 1 2 1 1 1 3 1 4 4 3 1 1
+out_values -2 0 -1 0 2 0 -2 -1 -2 -5 -3 0
+
+case mul
+a_runs 1 4 4 2 1 1
+a_values 2 0 0 -2 -2 -1
+b_runs 4 1
+b_values 0 -2
+out_runs 13
+out_values 0
+
+case coverage
+starts 12 4 8 13 4 4
+ends 16 7 13 14 6 6
+weights -1 1 3 3 3 4
+out_runs 4 2 1 1 4 2 2
+out_values 0 8 1 0 3 2 -1
+
+case add
+a_runs 1
+a_values 2
+b_runs 2 3 1 1 2 3 2
+b_values 0 0 3 3 0 0 2
+out_runs 1 4 2 5 2
+out_values 2 0 3 0 2
+
+case sub
+a_runs 2 4 2 1 2 1 3 1
+a_values -1 3 1 2 -1 1 2 -1
+b_runs 2 4 1 1 3 1
+b_values -2 -2 1 2 0 2
+out_runs 2 4 1 1 1 3 3 1
+out_values 1 5 0 -1 2 -1 2 -1
+
+case mul
+a_runs 3 4 3 1 2 3 1 2
+a_values 3 -1 -2 0 2 -1 -2 1
+b_runs 3
+b_values 1
+out_runs 3 16
+out_values 3 0
+
+case coverage
+starts 5
+ends 8
+weights 4
+out_runs 5 3
+out_values 0 4
+
+case add
+a_runs 4 1
+a_values 1 0
+b_runs 3 4 4 2 1
+b_values 1 0 -1 1 -2
+out_runs 3 1 3 4 2 1
+out_values 2 1 0 -1 1 -2
+
+case sub
+a_runs 1 1 1 3 1 2
+a_values 1 2 3 3 -2 0
+b_runs 4 4 1 1 4 3 1 1
+b_values -2 0 0 -2 1 -2 -1 2
+out_runs 1 1 2 2 1 2 1 4 3 1 1
+out_values 3 4 5 3 -2 0 2 -1 2 1 -2
+
+case mul
+a_runs 1 1 4 3 2
+a_values 2 3 -1 -1 -1
+b_runs 2 3 1
+b_values 1 3 3
+out_runs 1 1 4 5
+out_values 2 3 -3 0
+
+case coverage
+starts 1 7 7 9 10 5 7
+ends 4 9 9 13 14 8 12
+weights -1 1 2 4 -2 -1 2
+out_runs 1 3 1 2 1 1 1 2 1 1
+out_values 0 -1 0 -1 4 5 6 4 2 -2
+
+case add
+a_runs 4
+a_values 3
+b_runs 2 1 1
+b_values 0 2 -2
+out_runs 2 1 1
+out_values 3 5 1
+
+case sub
+a_runs 1
+a_values -2
+b_runs 2 4 1
+b_values 1 1 2
+out_runs 1 5 1
+out_values -3 -1 -2
+
+case mul
+a_runs 2 2 3 2 4 1
+a_values -1 1 2 3 0 -2
+b_runs 4 2 4 4 2 4 2
+b_values 3 1 1 2 -2 0 0
+out_runs 2 2 3 2 4 1 8
+out_values -3 3 2 3 0 -4 0
+
+case coverage
+starts 0 15 7 8 1 10
+ends 4 21 8 13 2 12
+weights 3 1 -2 4 1 3
+out_runs 1 1 2 3 1 2 2 1 2 6
+out_values 3 4 3 0 -2 4 7 4 0 1
+
+case add
+a_runs 4 1 4 4 2 2 3
+a_values 1 1 -1 2 0 2 -2
+b_runs 3 2 3 4 1 2
+b_values 0 -1 3 2 0 0
+out_runs 3 2 3 1 3 1 2 2 3
+out_values 1 0 2 1 4 2 0 2 -2
+
+case sub
+a_runs 1 3 4 1 4 3 4
+a_values 3 -1 0 -1 -1 -2 2
+b_runs 2 1 4 4 4 1
+b_values 3 3 3 3 -2 1
+out_runs 1 3 4 3 2 2 1 4
+out_values 0 -4 -3 -4 1 0 -3 2
+
+case mul
+a_runs 2 2 2
+a_values -1 -1 -2
+b_runs 4 3 3
+b_values 3 0 3
+out_runs 4 6
+out_values -3 0
+
+case coverage
+starts 13 8
+ends 15 11
+weights 3 2
+out_runs 8 3 2 2
+out_values 0 2 0 3
+
+case add
+a_runs 2 4 3 2 4 3
+a_values 1 1 2 0 1 1
+b_runs 2 2
+b_values -2 2
+out_runs 2 2 2 3 2 7
+out_values -1 3 1 2 0 1
+
+case sub
+a_runs 2 1
+a_values 0 3
+b_runs 4 1 1
+b_values -2 -2 0
+out_runs 2 1 2 1
+out_values 2 5 2 0
+
+case mul
+a_runs 3 1 4 3 3 4 2 2
+a_values 2 2 -2 2 -1 -2 3 -1
+b_runs 2 4 4 3 1 2 4
+b_values -1 1 2 -2 1 -2 3
+out_runs 2 2 2 2 2 1 2 1 2 2 2 2
+out_values -2 2 -2 -4 4 -4 2 -1 4 -6 9 0
+
+case coverage
+starts 10 7 14 1 15 3 8
+ends 15 11 19 7 19 7 11
+weights -1 -1 2 0 -1 0 4
+out_runs 7 1 2 1 3 5
+out_values 0 -1 3 2 -1 1
+
+case add
+a_runs 4 1 1
+a_values 1 1 2
+b_runs 1 3 4 2 1 3 2
+b_values 0 -2 -1 3 -2 3 -1
+out_runs 1 3 1 1 2 2 1 3 2
+out_values 1 -1 0 1 -1 3 -2 3 -1
+
+case sub
+a_runs 1 1 4 4
+a_values 3 3 -2 1
+b_runs 3 1 1 2 2 4
+b_values 0 0 -1 -2 1 0
+out_runs 2 2 1 1 1 2 1 3
+out_values 3 -2 -1 0 3 0 1 0
+
+case mul
+a_runs 1 1 3 4 2 3
+a_values 1 -1 -1 0 -1 3
+b_runs 3 3 4 2 1 4 3 4
+b_values -1 3 3 0 3 0 1 0
+out_runs 1 2 2 4 1 2 1 11
+out_values -1 1 -3 0 -3 0 9 0
+
+case coverage
+starts 12 9 3 15 9 3
+ends 16 11 6 17 15 5
+weights 0 1 -1 -2 3 1
+out_runs 5 1 3 2 4 2
+out_values 0 -1 0 4 3 -2
+
+case add
+a_runs 4 4 2 4 3 4 2
+a_values 0 2 3 -2 -2 1 0
+b_runs 2 4 1 1 4 1 3
+b_values -1 3 0 -1 -2 -1 3
+out_runs 2 2 2 1 3 2 1 3 1 4 2
+out_values -1 3 5 2 1 -4 -3 1 -2 1 0
+
+case sub
+a_runs 1 2 1 1 4 1
+a_values -1 -2 2 2 -1 -2
+b_runs 2 1 4 1 2 2 2 4
+b_values 1 1 -2 1 -1 1 -2 2
+out_runs 1 2 2 2 1 1 3 2 4
+out_values -2 -3 4 1 -2 0 -1 2 -2
+
+case mul
+a_runs 1 3 3 3 4
+a_values 3 -1 2 2 -2
+b_runs 1 1 3 1 2
+b_values 2 3 -1 1 -1
+out_runs 1 1 2 1 1 2 6
+out_values 6 -3 1 -2 2 -2 0
+
+case coverage
+starts 6 13 3 3 15 3
+ends 11 17 7 5 19 8
+weights 0 -1 1 0 1 -2
+out_runs 3 4 1 5 2 2 2
+out_values 0 -1 -2 0 -1 0 1
+
+case add
+a_runs 2 4 2 3 4 4
+a_values -2 1 3 -2 2 1
+b_runs 2 4 2 3 4 4 2 2
+b_values 1 0 0 3 1 2 -1 2
+out_runs 2 4 2 3 8 2 2
+out_values -1 1 3 1 3 -1 2
+
+case sub
+a_runs 2 3
+a_values 2 3
+b_runs 1 2
+b_values 0 -2
+out_runs 1 1 1 2
+out_values 2 4 5 3
+
+case mul
+a_runs 2 4 4 2 4 4
+a_values -1 -1 1 -2 0 3
+b_runs 3 2 4 2
+b_values 3 3 2 1
+out_runs 5 1 3 1 1 9
+out_values -3 -2 2 1 -2 0
+
+case coverage
+starts 14 1 7 15
+ends 19 4 12 21
+weights -1 -2 -2 -2
+out_runs 1 3 3 5 2 1 4 2
+out_values 0 -2 0 -2 0 -1 -3 -2
+
+case add
+a_runs 2 4 2
+a_values 3 3 -2
+b_runs 3 3 4 2 2 3 3
+b_values 3 1 1 1 3 0 1
+out_runs 3 3 2 4 2 3 3
+out_values 6 4 -1 1 3 0 1
+
+case sub
+a_runs 2 2
+a_values -2 -1
+b_runs 4 2 3 1 1 4 2
+b_values -2 1 2 2 1 2 -1
+out_runs 2 2 2 4 1 4 2
+out_values 0 1 -1 -2 -1 -2 1
+
+case mul
+a_runs 2
+a_values 2
+b_runs 3 4 1 1 4 1 2 4
+b_values 2 0 0 -2 3 -2 -1 2
+out_runs 2 18
+out_values 4 0
+
+case coverage
+starts 11
+ends 13
+weights 1
+out_runs 11 2
+out_values 0 1
+
+case add
+a_runs 1 4 3 2 4
+a_values 1 3 2 0 -1
+b_runs 1 1 2 3 4
+b_values -2 2 1 1 0
+out_runs 1 1 3 2 1 2 4
+out_values -1 5 4 3 2 0 -1
+
+case sub
+a_runs 1 1 4 2 2 1 1
+a_values 3 1 -1 -2 3 0 0
+b_runs 1 3 3 3 2 1 3
+b_values 2 2 -2 -1 1 -2 3
+out_runs 1 1 2 2 1 1 2 2 1 3
+out_values 1 -1 -3 1 0 -1 4 -1 2 -3
+
+case mul
+a_runs 3 2 3 1 4
+a_values -2 0 2 -2 2
+b_runs 2 4
+b_values -2 2
+out_runs 2 1 2 1 7
+out_values 4 -4 0 4 0
+
+case coverage
+starts 11 3 6 5
+ends 17 9 8 9
+weights -1 2 3 3
+out_runs 3 2 1 2 1 2 6
+out_values 0 2 5 8 5 0 -1
+
+case add
+a_runs 3 2 3 3 2 2 4 3
+a_values -1 0 2 3 -2 -2 3 0
+b_runs 3 1 1 1 3
+b_values -2 -1 3 0 -1
+out_runs 3 1 1 1 2 1 2 4 4 3
+out_values -3 -1 3 2 1 2 3 -2 3 0
+
+case sub
+a_runs 4 1 4 4 1 1
+a_values 2 1 0 -1 0 -1
+b_runs 3 1 1 1 3 1 3
+b_values 0 2 3 0 -2 3 -1
+out_runs 3 1 1 1 3 1 4 1
+out_values 2 0 -2 0 2 -4 0 -1
+
+case mul
+a_runs 3 1 4
+a_values 1 0 2
+b_runs 3 3 4 4
+b_values 3 -2 1 0
+out_runs 3 1 2 2 6
+out_values 3 0 -4 2 0
+
+case coverage
+starts 1 7 15
+ends 5 8 17
+weights -2 0 -2
+out_runs 1 4 10 2
+out_values 0 -2 0 -2
+
+case add
+a_runs 2 4 1
+a_values 0 2 1
+b_runs 2 4
+b_values 0 0
+out_runs 2 4 1
+out_values 0 2 1
+
+case sub
+a_runs 4 4 1 2 3 2 2
+a_values -1 -1 0 -1 -1 2 0
+b_runs 2
+b_values -1
+out_runs 2 6 1 5 2 2
+out_values 0 -1 0 -1 2 0
+
+case mul
+a_runs 2 2 2 2 2 3 1
+a_values 3 1 -1 -2 1 -1 1
+b_runs 2 4 4 1 2 1 1
+b_values -2 -2 3 -1 3 1 1
+out_runs 2 2 2 2 2 1 2 1 1
+out_values -6 -2 2 -6 3 1 -3 1 0
+
+case coverage
+starts 13 11 12 8 2
+ends 15 16 14 14 4
+weights 4 -2 4 4 -2
+out_runs 2 2 4 3 1 1 1 1 1
+out_values 0 -2 0 4 2 6 10 2 -2
+
+case add
+a_runs 4 2
+a_values 1 3
+b_runs 3 1 2
+b_values 0 3 0
+out_runs 3 1 2
+out_values 1 4 3
+
+case sub
+a_runs 3 3 2 1 4 2
+a_values 2 1 0 1 0 1
+b_runs 4 3 3
+b_values 0 3 2
+out_runs 3 1 2 1 1 1 1 3 2
+out_values 2 1 -2 -3 -2 -1 -2 0 1
+
+case mul
+a_runs 4 4 3 2 2 4 2
+a_values 0 2 -1 2 -1 2 2
+b_runs 3 3 4 3 4 1 2 3
+b_values 1 3 -2 -2 -1 2 -2 0
+out_runs 4 2 2 3 2 2 2 1 2 3
+out_values 0 6 -4 2 -4 1 -2 4 -4 0
+
+case coverage
+starts 6
+ends 8
+weights 2
+out_runs 6 2
+out_values 0 2
+
+case add
+a_runs 3 3 1
+a_values 3 3 -2
+b_runs 2
+b_values 0
+out_runs 6 1
+out_values 3 -2
+
+case sub
+a_runs 4 4 3 3
+a_values -2 2 1 -2
+b_runs 2
+b_values -2
+out_runs 2 2 4 3 3
+out_values 0 -2 2 1 -2
+
+case mul
+a_runs 3 2 4 2 3
+a_values -1 -1 1 3 -1
+b_runs 2 1 1 4 1 2 1
+b_values 1 0 0 3 3 2 -1
+out_runs 2 2 1 4 2 1 2
+out_values -1 0 -3 3 6 1 0
+
+case coverage
+starts 10
+ends 12
+weights 0
+out_runs 12
+out_values 0
+
+case add
+a_runs 4 4 3 3 1
+a_values 1 -1 -2 2 0
+b_runs 4 4 2 4 2 1 1
+b_values -1 3 1 0 3 3 -2
+out_runs 4 4 2 1 3 3 1
+out_values 0 2 -1 -2 2 3 -2
+
+case sub
+a_runs 3 3 1 3 1 1 1
+a_values 2 -2 -1 -2 1 1 1
+b_runs 3
+b_values 3
+out_runs 3 3 1 3 3
+out_values -1 -2 -1 -2 1
+
+case mul
+a_runs 1 4 2
+a_values -2 -1 1
+b_runs 1
+b_values 2
+out_runs 1 6
+out_values -4 0
+
+case coverage
+starts 4 9 13 12 1 14 4
+ends 9 11 19 14 6 16 5
+weights 2 1 0 0 0 -1 1
+out_runs 4 1 4 2 3 2 3
+out_values 0 3 2 1 0 -1 0
+
+case add
+a_runs 1
+a_values 2
+b_runs 1 3
+b_values -1 -1
+out_runs 1 3
+out_values 1 -1
+
+case sub
+a_runs 1 3 1
+a_values 3 0 -1
+b_runs 1 1 3 2 3 4
+b_values 0 3 1 1 2 2
+out_runs 1 1 2 1 2 7
+out_values 3 -3 -1 -2 -1 -2
+
+case mul
+a_runs 1 3
+a_values 1 1
+b_runs 4 4 1 2 2 4 3
+b_values -1 -2 -1 -1 -2 1 3
+out_runs 4 16
+out_values -1 0
+
+case coverage
+starts 2 8
+ends 7 11
+weights 0 3
+out_runs 8 3
+out_values 0 3
+
+case add
+a_runs 4 3 4 3 2 1 4 3
+a_values 0 2 -2 -1 2 -2 1 -2
+b_runs 4 2 1 1 1 3
+b_values -2 0 -1 0 0 1
+out_runs 4 2 1 2 2 1 2 2 1 4 3
+out_values -2 2 1 -2 -1 0 -1 2 -2 1 -2
+
+case sub
+a_runs 4 1 2 4 3 2 1 4
+a_values 2 3 -1 1 3 0 3 2
+b_runs 2 1 4 2 4 3 3 4
+b_values 2 3 -1 2 1 1 -1 0
+out_runs 2 1 1 1 2 2 2 3 2 1 2 2 2
+out_values 0 -1 3 4 0 -1 0 2 -1 4 3 2 0
+
+case mul
+a_runs 3 2 2 3 2 3 4
+a_values -1 2 0 2 3 -1 0
+b_runs 2 3 2 1
+b_values 1 1 -1 3
+out_runs 3 2 2 1 11
+out_values -1 2 0 6 0
+
+case coverage
+starts 11 7 2
+ends 16 11 4
+weights 0 1 0
+out_runs 7 4 5
+out_values 0 1 0
+
+case add
+a_runs 3 4 3 1
+a_values -2 -1 -1 2
+b_runs 4 1 3
+b_values 2 0 3
+out_runs 3 1 1 3 2 1
+out_values 0 1 -1 2 -1 2
+
+case sub
+a_runs 4 3 4 1 1 1 3 2
+a_values 0 2 3 2 1 0 2 1
+b_runs 3 2 1 1 1 1 3 1
+b_values 2 -1 -2 -2 -2 3 0 -2
+out_runs 3 1 1 2 1 1 2 1 1 1 3 2
+out_values -2 1 3 4 5 0 3 2 3 0 2 1
+
+case mul
+a_runs 2 2 3 3 2 2 2
+a_values -1 -1 -1 0 1 0 -1
+b_runs 2 1 2 4 2
+b_values -1 2 -2 0 2
+out_runs 2 1 2 5 1 5
+out_values 1 -2 2 0 2 0
+
+case coverage
+starts 4 8 2 8 7 0 4 6
+ends 10 13 8 9 11 2 6 10
+weights 2 -2 2 0 -1 3 -1 1
+out_runs 2 2 2 1 1 2 1 2
+out_values 3 2 3 5 4 0 -3 -2
+
+case add
+a_runs 4 2 3 2 1 3
+a_values 1 0 0 2 2 0
+b_runs 3 4 1 2
+b_values 1 -2 2 3
+out_runs 3 1 3 1 1 1 2 3
+out_values 2 -1 -2 2 3 5 2 0
+
+case sub
+a_runs 2 4
+a_values -1 1
+b_runs 2 2 1 3 4
+b_values 0 1 2 -2 0
+out_runs 2 2 1 1 2 4
+out_values -1 0 -1 3 2 0
+
+case mul
+a_runs 4 2 2 1 3 4 4
+a_values -1 1 -1 1 -2 -2 2
+b_runs 1 4 2 1 2 2 2
+b_values -2 2 1 1 -2 2 -1
+out_runs 1 3 1 1 2 1 1 2 2 6
+out_values 2 -2 2 1 -1 -2 4 -4 2 0
+
+case coverage
+starts 6 15 2 6
+ends 7 20 4 11
+weights -1 2 2 2
+out_runs 2 2 2 1 4 4 5
+out_values 0 2 0 1 2 0 2
+
+case add
+a_runs 4 3 4 1 3 3 2
+a_values 3 3 -2 -1 1 -1 2
+b_runs 1 2 2 4
+b_values 1 -2 2 0
+out_runs 1 2 2 2 4 1 3 3 2
+out_values 4 1 5 3 -2 -1 1 -1 2
+
+case sub
+a_runs 4 3 3 1 1
+a_values 1 0 2 2 3
+b_runs 2 2
+b_values 1 -1
+out_runs 2 2 3 4 1
+out_values 0 2 0 2 3
+
+case mul
+a_runs 4
+a_values 0
+b_runs 3 2 1
+b_values 2 0 0
+out_runs 6
+out_values 0
+
+case coverage
+starts 11 6
+ends 13 9
+weights 2 3
+out_runs 6 3 2 2
+out_values 0 3 0 2
+
+case add
+a_runs 4 4 1 2 4 1 3
+a_values 3 3 -1 2 -1 2 1
+b_runs 2 2 4 3 2 1
+b_values -1 -1 1 2 1 -1
+out_runs 4 4 1 2 2 1 1 1 3
+out_values 2 4 1 4 0 -2 -1 2 1
+
+case sub
+a_runs 3
+a_values 1
+b_runs 3 1
+b_values -2 1
+out_runs 3 1
+out_values 3 -1
+
+case mul
+a_runs 1 1 1 4
+a_values 0 3 2 0
+b_runs 2 2 1 2 4 2 1
+b_values -1 -1 3 2 3 -1 3
+out_runs 1 1 1 11
+out_values 0 -3 -2 0
+
+case coverage
+starts 5 2 3
+ends 8 3 6
+weights 2 1 2
+out_runs 2 1 2 1 2
+out_values 0 1 2 4 2
+
+case add
+a_runs 4 1 1 2 4
+a_values -2 0 0 0 3
+b_runs 4 1 3 2 2 1 2
+b_values -1 2 -1 1 0 -2 0
+out_runs 4 1 3 2 2 1 2
+out_values -3 2 -1 4 3 -2 0
+
+case sub
+a_runs 2 3 4 2 3 1 4
+a_values 3 3 0 -1 3 0 0
+b_runs 3 2
+b_values 1 -2
+out_runs 3 2 4 2 3 5
+out_values 2 5 0 -1 3 0
+
+case mul
+a_runs 4 1 3 4 4 2 2
+a_values -2 0 -2 1 3 0 -1
+b_runs 4 3 4 2 4 3 2 1
+b_values -1 0 0 3 3 -2 3 -2
+out_runs 4 7 1 4 2 2 3
+out_values 2 0 3 9 0 2 0
+
+case coverage
+starts 9 10 6 10 13 4 3
+ends 11 13 12 14 17 6 9
+weights 4 0 1 4 1 1 0
+out_runs 4 5 1 1 1 1 1 3
+out_values 0 1 5 9 5 4 5 1
+
+case add
+a_runs 1 4
+a_values -1 -2
+b_runs 4
+b_values 3
+out_runs 1 3 1
+out_values 2 1 -2
+
+case sub
+a_runs 2 4 1 4 1 3 2 3
+a_values 0 2 -2 2 3 3 0 -2
+b_runs 1 1 3
+b_values 0 1 -1
+out_runs 1 1 3 1 1 4 4 2 3
+out_values 0 -1 3 2 -2 2 3 0 -2
+
+case mul
+a_runs 3 4 3 2
+a_values 1 1 -2 -2
+b_runs 1
+b_values 0
+out_runs 12
+out_values 0
+
+case coverage
+starts 9 3 9 2
+ends 10 8 14 5
+weights 3 -2 -1 4
+out_runs 2 1 2 3 1 1 4
+out_values 0 4 2 -2 0 2 -1
+
+case add
+a_runs 2 4
+a_values -1 -1
+b_runs 3 2 4 1 4 1 1 1
+b_values 0 -2 3 1 -1 0 3 1
+out_runs 3 2 1 3 1 4 1 1 1
+out_values -1 -3 2 3 1 -1 0 3 1
+
+case sub
+a_runs 4 3 2 4
+a_values 3 -2 2 1
+b_runs 3 3 3 4
+b_values 3 3 1 3
+out_runs 4 2 1 2 4
+out_values 0 -5 -3 1 -2
+
+case mul
+a_runs 3 3 2 2 2
+a_values 1 0 3 -2 0
+b_runs 3 2 1 1 4 2 2 4
+b_values 3 2 0 2 -1 -2 1 1
+out_runs 3 3 1 1 2 9
+out_values 3 0 6 -3 2 0
+
+case coverage
+starts 14 11 0 6 6 2 15 4
+ends 20 12 6 11 12 8 20 8
+weights 2 0 -1 -2 1 -2 2 1
+out_runs 2 2 4 3 1 2 1 5
+out_values -1 -3 -2 -1 1 0 2 4
+
+case add
+a_runs 1 2 3 4 4 3
+a_values -2 -2 -2 0 1 3
+b_runs 4 2 3 4 4 1 4
+b_values 3 0 3 1 -1 1 3
+out_runs 4 2 3 1 3 1 3 1 4
+out_values 1 -2 3 1 2 0 2 1 3
+
+case sub
+a_runs 4 3 4 3 3 4 2
+a_values 0 -2 1 1 1 0 -2
+b_runs 3 2 4 1
+b_values 2 0 -1 -1
+out_runs 3 1 1 2 3 7 4 2
+out_values -2 0 -2 -1 2 1 0 -2
+
+case mul
+a_runs 1 1 2 1 2 2 1 4
+a_values 3 1 -1 0 1 1 0 2
+b_runs 2
+b_values 1
+out_runs 1 1 12
+out_values 3 1 0
+
+case coverage
+starts 3 3 15
+ends 9 6 21
+weights 4 0 0
+out_runs 3 6 12
+out_values 0 4 0
+
+case add
+a_runs 1 3 3 4 1 1 3
+a_values -1 1 3 0 2 -1 1
+b_runs 4 1
+b_values -2 -2
+out_runs 1 3 1 2 4 1 1 3
+out_values -3 -1 1 3 0 2 -1 1
+
+case sub
+a_runs 1 3 3 1 1 1
+a_values 2 -2 -1 2 -1 1
+b_runs 2 1
+b_values 3 2
+out_runs 1 1 1 1 3 1 1 1
+out_values -1 -5 -4 -2 -1 2 -1 1
+
+case mul
+a_runs 1 1 1
+a_values 2 3 -2
+b_runs 1 4 4 1
+b_values -2 1 3 1
+out_runs 1 1 1 7
+out_values -4 3 -2 0
+
+case coverage
+starts 3 4 11
+ends 9 8 16
+weights -1 -2 3
+out_runs 3 1 4 1 2 5
+out_values 0 -1 -3 -1 0 3
+
+case add
+a_runs 2
+a_values -2
+b_runs 3 3 4 3 2 1 2
+b_values 2 1 0 3 0 0 2
+out_runs 2 1 3 4 3 3 2
+out_values 0 2 1 0 3 0 2
+
+case sub
+a_runs 1 1 1 2 3 2
+a_values 3 -1 -1 -2 1 3
+b_runs 2 3 3 2 1 2 3 3
+b_values -1 3 -2 2 1 -1 3 0
+out_runs 1 1 1 2 3 2 1 2 3 3
+out_values 4 0 -4 -5 3 1 -1 1 -3 0
+
+case mul
+a_runs 2 1 2 3 4 1
+a_values 0 1 2 0 -2 3
+b_runs 2 4 1 4 3 2
+b_values 0 -2 3 0 3 -2
+out_runs 2 1 2 6 1 1 3
+out_values 0 -2 -4 0 -6 9 0
+
+case coverage
+starts 13 0 8 7 5 8
+ends 16 5 14 8 7 12
+weights -1 4 2 2 2 -2
+out_runs 5 3 4 1 1 2
+out_values 4 2 0 2 1 -1
+
+case add
+a_runs 3 1 3 1 1 2 3
+a_values -1 1 -1 2 2 -1 -2
+b_runs 4 4 3 3
+b_values 0 -2 -2 1
+out_runs 3 1 3 2 2 3
+out_values -1 1 -3 0 -3 -1
+
+case sub
+a_runs 2 4 2 4 1 2
+a_values 2 3 1 1 1 -1
+b_runs 4 4 4
+b_values 3 3 3
+out_runs 2 4 6 1 2
+out_values -1 0 -2 1 -1
+
+case mul
+a_runs 3 1 2 1
+a_values 0 3 -1 -2
+b_runs 3 2 4
+b_values 0 2 3
+out_runs 3 1 1 1 1 2
+out_values 0 6 -2 -3 -6 0
+
+case coverage
+starts 10 13 15 14 3 8 10
+ends 13 16 21 17 7 13 15
+weights -2 1 3 2 2 -1 1
+out_runs 3 4 1 2 3 1 1 1 1 4
+out_values 0 2 0 -1 -2 2 4 6 5 3
+
+case add
+a_runs 4 1 1 4 1
+a_values 0 3 -2 -2 1
+b_runs 3 4 4 4 2 1 3
+b_values -1 0 1 -2 -1 -2 -1
+out_runs 3 1 1 2 3 1 4 2 1 3
+out_values -1 0 3 -2 -1 2 -2 -1 -2 -1
+
+case sub
+a_runs 2 4 3 4 2 4 3 4
+a_values 0 3 2 3 -1 -2 0 2
+b_runs 4 1 3 2 2
+b_values -1 -2 0 -1 -2
+out_runs 2 2 1 1 2 1 1 2 1 2 4 3 4
+out_values 1 4 5 3 2 3 4 5 3 -1 -2 0 2
+
+case mul
+a_runs 4
+a_values 1
+b_runs 1 2
+b_values 3 1
+out_runs 1 2 1
+out_values 3 1 0
+
+case coverage
+starts 8 2 9
+ends 11 4 13
+weights 0 -2 0
+out_runs 2 2 9
+out_values 0 -2 0
+
+case add
+a_runs 1 1
+a_values 0 3
+b_runs 3 2 1 4 4
+b_values 1 3 -1 -2 1
+out_runs 1 1 1 2 1 4 4
+out_values 1 4 1 3 -1 -2 1
+
+case sub
+a_runs 4 4 4 4 2
+a_values 1 -1 1 3 -1
+b_runs 1 2 4 3 3
+b_values 0 1 0 -1 -1
+out_runs 1 2 1 3 1 4 1 3 2
+out_values 1 0 1 -1 0 2 4 3 -1
+
+case mul
+a_runs 2 3 2 4 2 1 4 3
+a_values -1 -2 3 0 -1 0 0 3
+b_runs 1 4
+b_values 0 0
+out_runs 21
+out_values 0
+
+case coverage
+starts 10 0 6 9 5
+ends 12 5 8 13 7
+weights -2 3 2 0 3
+out_runs 6 1 1 2 2 1
+out_values 3 5 2 0 -2 0
+
+case add
+a_runs 1 4
+a_values 3 -2
+b_runs 4 4 2 2 1 1 2
+b_values 3 -2 1 2 -2 0 -2
+out_runs 1 3 1 3 2 2 1 1 2
+out_values 6 1 -4 -2 1 2 -2 0 -2
+
+case sub
+a_runs 2 3
+a_values 1 -1
+b_runs 3 3 2 4 3 2 2 1
+b_values -1 3 2 0 3 3 1 3
+out_runs 2 1 2 1 2 4 5 2 1
+out_values 2 0 -4 -3 -2 0 -3 -1 -3
+
+case mul
+a_runs 3 4
+a_values 0 1
+b_runs 2
+b_values 0
+out_runs 7
+out_values 0
+
+case coverage
+starts 15 7 7
+ends 16 9 11
+weights 1 -2 0
+out_runs 7 2 6 1
+out_values 0 -2 0 1
+
+case add
+a_runs 1 3 2 2
+a_values -1 2 2 0
+b_runs 3 4 3 3 1 2 3 2
+b_values 2 2 3 -2 0 1 -1 -2
+out_runs 1 5 1 3 3 1 2 3 2
+out_values 1 4 2 3 -2 0 1 -1 -2
+
+case sub
+a_runs 4
+a_values 2
+b_runs 4 3 3 2 3 4 2
+b_values 2 3 3 -2 3 1 -1
+out_runs 4 6 2 3 4 2
+out_values 0 -3 2 -3 -1 1
+
+case mul
+a_runs 1
+a_values 2
+b_runs 2
+b_values -2
+out_runs 1 1
+out_values -4 0
+
+case coverage
+starts 10
+ends 13
+weights 3
+out_runs 10 3
+out_values 0 3
+
+case add
+a_runs 1 1 2 2
+a_values 0 1 3 2
+b_runs 4 2 4 1 2 1
+b_values 1 3 -2 1 -1 -1
+out_runs 1 1 2 2 4 1 3
+out_values 1 2 4 5 -2 1 -1
+
+case sub
+a_runs 2 3
+a_values 0 0
+b_runs 3 4 4 3 3 3 4 3
+b_values 1 3 0 1 0 3 -2 -1
+out_runs 3 4 4 3 3 3 4 3
+out_values -1 -3 0 -1 0 -3 2 1
+
+case mul
+a_runs 3 4 4 2 2 4 2 2
+a_values 2 -1 -2 0 2 2 -1 2
+b_runs 4 1 4
+b_values -1 1 -1
+out_runs 3 1 1 2 2 14
+out_values -2 1 -1 1 2 0
+
+case coverage
+starts 1 1
+ends 7 7
+weights -2 4
+out_runs 1 6
+out_values 0 2
+
+case add
+a_runs 2 2
+a_values 2 -1
+b_runs 3 1 1 4 4 2
+b_values 0 2 2 -1 2 -1
+out_runs 2 1 1 1 4 4 2
+out_values 2 -1 1 2 -1 2 -1
+
+case sub
+a_runs 3 1 2 4 1 2 2 2
+a_values 3 0 0 3 0 -1 1 3
+b_runs 1 1 4 1 1 2
+b_values 0 1 -1 0 1 2
+out_runs 1 1 1 3 1 1 2 1 2 2 2
+out_values 3 2 4 1 3 2 1 0 -1 1 3
+
+case mul
+a_runs 3 1
+a_values 1 2
+b_runs 3 2 4 1 3 3 2 1
+b_values 2 0 1 -2 2 3 -1 -1
+out_runs 3 16
+out_values 2 0
+
+case coverage
+starts 14 2 12 8 14 9
+ends 15 6 13 12 15 11
+weights 4 4 0 0 0 2
+out_runs 2 4 3 2 3 1
+out_values 0 4 0 2 0 4
+
+case add
+a_runs 4 4 1
+a_values 2 0 -1
+b_runs 1 3 2 2 1 4 4
+b_values 2 3 -1 1 0 -1 3
+out_runs 1 3 2 2 5 4
+out_values 4 5 -1 1 -1 3
+
+case sub
+a_runs 2 1 1 2 1 2
+a_values 1 3 3 -1 -2 1
+b_runs 3 3 3 4 1 3
+b_values 1 1 -1 3 3 1
+out_runs 2 2 2 1 2 5 3
+out_values 0 2 -2 -1 2 -3 -1
+
+case mul
+a_runs 4
+a_values 3
+b_runs 2 3 3 2 2 3
+b_values -1 -2 0 3 1 -1
+out_runs 2 2 11
+out_values -3 -6 0
+
+case coverage
+starts 8 5 12 0 2
+ends 10 9 16 1 3
+weights 3 2 -1 2 -2
+out_runs 1 1 1 2 3 1 1 2 4
+out_values 2 0 -2 0 2 5 3 0 -1
+
+case add
+a_runs 3 4 1 2
+a_values -1 2 2 2
+b_runs 4
+b_values 0
+out_runs 3 7
+out_values -1 2
+
+case sub
+a_runs 1 4 1 1
+a_values 3 -2 2 -1
+b_runs 4 2 3
+b_values 2 3 2
+out_runs 1 3 1 1 1 2
+out_values 1 -4 -5 -1 -3 -2
+
+case mul
+a_runs 2 3
+a_values 2 -2
+b_runs 3 2 3 1 4 3
+b_values -2 0 0 0 -2 0
+out_runs 2 1 13
+out_values -4 4 0
+
+case coverage
+starts 11 1 0
+ends 17 6 4
+weights -2 1 -1
+out_runs 1 3 2 5 6
+out_values -1 0 1 0 -2
+
+case add
+a_runs 4 3 1 2 4 1 1
+a_values 3 -2 -2 -1 1 1 2
+b_runs 2 1 1
+b_values -2 1 1
+out_runs 2 2 4 2 5 1
+out_values 1 4 -2 -1 1 2
+
+case sub
+a_runs 2 4 1 3 4
+a_values 2 -1 2 0 2
+b_runs 1 4 4 1
+b_values -1 0 1 3
+out_runs 1 1 3 1 1 2 1 4
+out_values 3 2 -1 -2 1 -1 -3 2
+
+case mul
+a_runs 2 2 1
+a_values -1 -2 0
+b_runs 3 3 2 2 4 3
+b_values -2 1 -2 2 1 -1
+out_runs 2 1 1 13
+out_values 2 4 -2 0
+
+case coverage
+starts 7 13 12 4 14 11 1
+ends 13 18 17 6 16 16 5
+weights 1 -1 2 3 -2 2 -2
+out_runs 1 3 1 1 1 4 1 1 1 3 1
+out_values 0 -2 1 3 0 1 3 5 3 1 -1
+
+case add
+a_runs 2 3 1
+a_values 0 -2 -1
+b_runs 4 3 1
+b_values 0 -1 -2
+out_runs 2 2 1 1 1 1
+out_values 0 -2 -3 -2 -1 -2
+
+case sub
+a_runs 4 3 4 1
+a_values -1 2 0 -1
+b_runs 1 3 4 3 3 1
+b_values 0 3 -2 0 0 -1
+out_runs 1 3 3 1 3 1 2 1
+out_values -1 -4 4 2 0 -1 0 1
+
+case mul
+a_runs 2 2 2 2 4 1
+a_values 2 0 3 -1 0 1
+b_runs 1
+b_values 2
+out_runs 1 12
+out_values 4 0
+
+case coverage
+starts 3 8 6 9 2 3 13
+ends 9 13 9 11 4 4 16
+weights 3 4 4 3 4 0 -1
+out_runs 2 1 1 2 2 1 2 2 3
+out_values 0 4 7 3 7 11 7 4 -1
+
+case add
+a_runs 3 2 2 1 4 2 3 4
+a_values 0 0 -2 -1 1 3 0 2
+b_runs 1 4 4
+b_values 1 0 2
+out_runs 1 6 1 1 3 2 3 4
+out_values 1 0 1 3 1 3 0 2
+
+case sub
+a_runs 4 2 3 1 4
+a_values 3 -2 1 2 -1
+b_runs 1 4
+b_values -1 0
+out_runs 1 3 2 3 1 4
+out_values 4 3 -2 1 2 -1
+
+case mul
+a_runs 4 3
+a_values 2 -2
+b_runs 4
+b_values 3
+out_runs 4 3
+out_values 6 0
+
+case coverage
+starts 11 7 7 5 3 3 4
+ends 14 10 11 10 5 7 6
+weights 2 2 -1 0 -1 4 3
+out_runs 3 1 1 1 1 3 1 3
+out_values 0 3 6 7 4 1 -1 2
+
+case add
+a_runs 3
+a_values -1
+b_runs 3 2
+b_values -2 3
+out_runs 3 2
+out_values -3 3
+
+case sub
+a_runs 4 4
+a_values 0 0
+b_runs 2 1
+b_values 3 1
+out_runs 2 1 5
+out_values -3 -1 0
+
+case mul
+a_runs 3 2 3 3 1
+a_values 1 -1 -2 3 -2
+b_runs 3 3 3 4 1 3 3 2
+b_values 0 3 0 0 3 1 -1 -2
+out_runs 3 2 1 16
+out_values 0 -3 -6 0
+
+case coverage
+starts 9 12 0 3 10 0 13
+ends 11 13 2 4 16 5 16
+weights -1 4 3 0 -1 2 -2
+out_runs 2 3 4 1 1 1 1 3
+out_values 5 2 0 -1 -2 -1 3 -3
+
+case add
+a_runs 4 3 3 1
+a_values -2 1 0 3
+b_runs 2 2 4 1 2 1 2
+b_values 2 3 -2 -2 0 -2 3
+out_runs 2 2 3 2 1 1 1 2
+out_values 0 1 -1 -2 0 3 -2 3
+
+case sub
+a_runs 2 4 3 3
+a_values 2 0 3 3
+b_runs 4 1 2 2 2 2
+b_values -2 -1 -2 -2 2 2
+out_runs 2 2 1 1 3 3 1
+out_values 4 2 1 2 5 1 -2
+
+case mul
+a_runs 4 4
+a_values 3 1
+b_runs 1 3 2 2 3 3 4
+b_values 2 2 -2 1 2 2 -1
+out_runs 4 2 2 10
+out_values 6 -2 1 0
+
+case coverage
+starts 8 9 3 10 8 8 14
+ends 12 10 8 13 11 14 15
+weights 3 1 4 0 3 -2 4
+out_runs 3 6 1 1 1 2 1
+out_values 0 4 5 4 1 -2 4
+
+case add
+a_runs 3 1
+a_values 2 -1
+b_runs 1
+b_values -2
+out_runs 1 2 1
+out_values 0 2 -1
+
+case sub
+a_runs 4 1 1 4 2
+a_values 0 2 0 0 -1
+b_runs 4 4 3 3 1 3 1
+b_values 0 3 -2 -1 1 1 0
+out_runs 4 1 3 2 1 1 2 4 1
+out_values 0 -1 -3 2 1 0 1 -1 0
+
+case mul
+a_runs 3 2 2 4 4 3
+a_values 1 -2 -2 3 -1 2
+b_runs 3
+b_values 0
+out_runs 18
+out_values 0
+
+case coverage
+starts 11 1 12 10 5 9
+ends 15 2 17 15 8 12
+weights 0 4 2 3 0 -2
+out_runs 1 1 7 1 2 3 2
+out_values 0 4 0 -2 1 5 2
+
+case add
+a_runs 1 4 2 3 3 3
+a_values 1 -2 1 -1 -1 0
+b_runs 1 1 4 4
+b_values 1 3 2 -2
+out_runs 1 1 3 1 1 3 3 3
+out_values 2 1 0 3 -1 -3 -1 0
+
+case sub
+a_runs 1 1 4 3 2 2
+a_values 1 -2 3 3 1 2
+b_runs 3
+b_values -2
+out_runs 1 1 1 6 2 2
+out_values 3 0 5 3 1 2
+
+case mul
+a_runs 1 1 3
+a_values 1 2 3
+b_runs 1 3 4 3 3
+b_values 0 -1 -2 3 2
+out_runs 1 1 2 1 9
+out_values 0 -2 -3 -6 0
+
+case coverage
+starts 14 0 12 10
+ends 15 5 14 16
+weights 3 -2 2 -1
+out_runs 5 5 2 2 1 1
+out_values -2 0 -1 1 2 -1
+
+case add
+a_runs 3
+a_values -1
+b_runs 4 4 4 2
+b_values 1 0 -1 -2
+out_runs 3 1 4 4 2
+out_values 0 1 0 -1 -2
+
+case sub
+a_runs 3 3 3 2 4 1
+a_values -2 3 -2 -1 2 0
+b_runs 1 1 2
+b_values 2 -1 -2
+out_runs 1 1 1 1 2 3 2 4 1
+out_values -4 -1 0 5 3 -2 -1 2 0
+
+case mul
+a_runs 2 2 4
+a_values 1 -2 0
+b_runs 3 1 2 1 3
+b_values 0 0 -2 2 3
+out_runs 10
+out_values 0
+
+case coverage
+starts 11 2 13 6 11 8
+ends 13 4 18 8 16 10
+weights 4 2 4 -2 0 2
+out_runs 2 2 2 2 2 1 7
+out_values 0 2 0 -2 2 0 4
+
+case add
+a_runs 2 3
+a_values 0 1
+b_runs 4 2 4 4 3
+b_values -2 0 -1 0 -1
+out_runs 2 2 1 1 4 4 3
+out_values -2 -1 1 0 -1 0 -1
+
+case sub
+a_runs 4 1 3 3 3 3
+a_values -1 1 -1 -1 -1 2
+b_runs 4 2 1 3 2 1 4 4
+b_values 2 -2 -2 1 0 2 3 -1
+out_runs 4 1 2 3 2 1 1 3 4
+out_values -3 3 1 -2 -1 -3 -4 -1 1
+
+case mul
+a_runs 1 2 4 4 4 4 4
+a_values 1 -2 0 -1 -1 0 -2
+b_runs 2 4 2 2 3 1 4 3
+b_values 1 0 2 -1 0 2 -2 1
+out_runs 1 1 5 1 2 3 1 1 4 2 2
+out_values 1 -2 0 -2 1 0 -2 2 0 -2 0
+
+case coverage
+starts 8 6 11
+ends 9 9 16
+weights 1 3 -1
+out_runs 6 2 1 2 5
+out_values 0 3 4 0 -1
+
+case add
+a_runs 2
+a_values 2
+b_runs 2 3 2 2 4 4 3
+b_values 3 1 2 3 -1 -2 3
+out_runs 2 3 2 2 4 4 3
+out_values 5 1 2 3 -1 -2 3
+
+case sub
+a_runs 4 3 3 2 3 4 3
+a_values 1 3 2 -1 1 -1 3
+b_runs 4 4 1
+b_values 3 3 1
+out_runs 4 3 1 1 1 2 3 4 3
+out_values -2 0 -1 1 2 -1 1 -1 3
+
+case mul
+a_runs 3 4 1 3
+a_values 0 -1 -1 -1
+b_runs 2 2 3 2 2
+b_values -2 -2 -1 0 2
+out_runs 3 1 3 2 2
+out_values 0 2 1 0 -2
+
+case coverage
+starts 9 5 1 8 11
+ends 10 9 4 11 17
+weights 2 2 2 3 0
+out_runs 1 3 1 3 2 1 6
+out_values 0 2 0 2 5 3 0
+
+case add
+a_runs 1 1
+a_values 0 3
+b_runs 4 3 2 1 4 4 1
+b_values 2 0 2 0 3 -1 -2
+out_runs 1 1 2 3 2 1 4 4 1
+out_values 2 5 2 0 2 0 3 -1 -2
+
+case sub
+a_runs 2
+a_values 1
+b_runs 1 3 3 4 1 1
+b_values 2 2 -1 -1 0 3
+out_runs 2 2 7 1 1
+out_values -1 -2 1 0 -3
+
+case mul
+a_runs 2 1 1 1 3 2 4
+a_values 2 3 3 -2 1 -1 0
+b_runs 1 2
+b_values 0 -1
+out_runs 1 1 1 11
+out_values 0 -2 -3 0
+
+case coverage
+starts 6 12 13
+ends 8 14 14
+weights 2 0 1
+out_runs 6 2 5 1
+out_values 0 2 0 1
+
+case add
+a_runs 1 3 3 3
+a_values 2 -1 1 2
+b_runs 1 1 3 4
+b_values 3 -2 -2 -2
+out_runs 1 3 3 2 1
+out_values 5 -3 -1 0 2
+
+case sub
+a_runs 3 1 3 1 2 3
+a_values 2 -2 -2 1 1 -1
+b_runs 2 2 2 2 1 1
+b_values 1 1 2 2 -1 1
+out_runs 3 1 3 1 1 1 3
+out_values 1 -3 -4 -1 2 0 -1
+
+case mul
+a_runs 2 1 3 2
+a_values 3 0 -2 1
+b_runs 2 4 3 4 2 4 2 2
+b_values 2 1 0 1 0 1 -1 -1
+out_runs 2 1 3 17
+out_values 6 0 -2 0
+
+case coverage
+starts 3 7 11 8 0 9 14 6
+ends 7 9 14 13 3 10 17 7
+weights 1 3 4 -2 2 4 3 2
+out_runs 3 3 2 1 1 1 2 1 3
+out_values 2 1 3 1 2 -2 2 4 3
+
+case add
+a_runs 1
+a_values -2
+b_runs 3 4 3 1 4 1 4
+b_values 0 3 -2 0 -2 -2 0
+out_runs 1 2 4 3 1 5 4
+out_values -2 0 3 -2 0 -2 0
+
+case sub
+a_runs 1 1
+a_values 2 2
+b_runs 2
+b_values 2
+out_runs 2
+out_values 0
+
+case mul
+a_runs 3 1 1 2 1 2 2
+a_values -1 1 2 0 1 -1 -2
+b_runs 1 2 2 4 4 1 2 2
+b_values -2 -1 1 3 1 1 0 2
+out_runs 1 3 1 2 1 1 1 2 6
+out_values 2 1 2 0 3 -3 -1 -2 0
+
+case coverage
+starts 1 12 4 15
+ends 7 17 6 16
+weights 0 1 2 1
+out_runs 4 2 6 3 1 1
+out_values 0 2 0 1 2 1
+
+case add
+a_runs 4 3 2 1 3 2 3 3
+a_values -1 2 1 0 0 1 0 3
+b_runs 2 1 3 3 2 1
+b_values -1 1 2 -1 0 -1
+out_runs 2 1 1 2 1 4 1 1 2 3 3
+out_values -2 0 1 4 1 0 -1 0 1 0 3
+
+case sub
+a_runs 4 2 3 3 4 1 4
+a_values 1 3 -2 -1 3 -2 2
+b_runs 3 1 4 4 2
+b_values -2 2 -1 -2 1
+out_runs 3 1 2 2 1 3 2 2 1 4
+out_values 3 -1 4 -1 0 1 2 3 -2 2
+
+case mul
+a_runs 3 4 4 1 3 4 1
+a_values -2 -2 -1 2 2 -1 -1
+b_runs 4 2 3 4 2 1
+b_values 0 -1 2 -1 -1 -1
+out_runs 4 2 1 2 2 4 1 4
+out_values 0 2 -4 -2 1 -2 1 0
+
+case coverage
+starts 0
+ends 4
+weights 0
+out_runs 4
+out_values 0
+
+case add
+a_runs 1 4 4 2 1
+a_values -1 3 -2 2 1
+b_runs 1 3 1 4 2 3
+b_values 1 -2 1 1 1 -1
+out_runs 1 3 1 4 2 1 2
+out_values 0 1 4 -1 3 0 -1
+
+case sub
+a_runs 1 1 2 4
+a_values 0 0 -1 3
+b_runs 3
+b_values 3
+out_runs 2 1 1 4
+out_values -3 -4 -1 3
+
+case mul
+a_runs 1 2 1 4 1
+a_values 1 0 0 1 -1
+b_runs 2
+b_values -1
+out_runs 1 8
+out_values -1 0
+
+case coverage
+starts 6 9 1 1 7 0 11
+ends 9 13 7 6 10 3 16
+weights 0 0 -1 -2 3 1 2
+out_runs 1 2 3 1 3 1 5
+out_values 1 -2 -3 -1 3 0 2
+
+case add
+a_runs 1 2
+a_values -1 0
+b_runs 2 3 3 3 3 1 1
+b_values 3 1 3 -2 2 3 1
+out_runs 1 1 3 3 3 3 1 1
+out_values 2 3 1 3 -2 2 3 1
+
+case sub
+a_runs 1 1 4 2 4 2 4 1
+a_values 0 1 0 0 -1 -2 3 2
+b_runs 3 2 1 2 4 4 2 1
+b_values 3 -1 0 2 -1 0 -2 2
+out_runs 1 1 1 2 1 2 4 2 2 2 1
+out_values -3 -2 -3 1 0 -2 0 -2 3 5 0
+
+case mul
+a_runs 3 4 2 1 2 3
+a_values -1 1 0 -2 -2 1
+b_runs 1 2 1 3 4 2 3
+b_values 1 2 0 2 -1 3 -2
+out_runs 1 2 1 3 2 2 1 1 2 1
+out_values -1 -2 0 2 0 2 -6 3 -2 0
+
+case coverage
+starts 6 1 12 12 8 10
+ends 8 6 18 14 13 15
+weights 2 -2 4 1 4 -1
+out_runs 1 5 2 2 2 1 1 1 3
+out_values 0 -2 2 4 3 8 4 3 4
+
+case add
+a_runs 3 2 2 4
+a_values -1 -2 -2 -1
+b_runs 4 4 1 2 3 3 1
+b_values 2 -1 0 1 1 -2 2
+out_runs 3 1 3 1 1 2 3 3 1
+out_values 1 0 -3 -2 -1 0 1 -2 2
+
+case sub
+a_runs 1 4 3 2 1 1
+a_values 0 3 1 -1 0 0
+b_runs 1 1
+b_values 3 2
+out_runs 1 1 3 3 2 2
+out_values -3 1 3 1 -1 0
+
+case mul
+a_runs 2 4 2 4 4 4 2
+a_values -1 -2 2 1 -2 1 3
+b_runs 2 1 3 4 2 4
+b_values 3 1 -2 -1 0 0
+out_runs 2 1 3 2 2 12
+out_values -3 -2 4 -2 -1 0
+
+case coverage
+starts 13 0 15 2 15
+ends 16 6 19 8 20
+weights 0 1 2 -2 3
+out_runs 2 4 2 7 4 1
+out_values 1 -1 -2 0 5 3
+
+case add
+a_runs 2 4 4 3 4
+a_values 3 -1 3 1 0
+b_runs 3 2
+b_values 2 -1
+out_runs 2 1 2 1 4 3 4
+out_values 5 1 -2 -1 3 1 0
+
+case sub
+a_runs 1 2 1 4 4
+a_values 0 -1 -2 3 1
+b_runs 3 4 1 1 1 2
+b_values 1 3 -2 -2 1 1
+out_runs 1 2 1 3 1 1 3
+out_values -1 -2 -5 0 5 3 0
+
+case mul
+a_runs 1 3 1 2
+a_values 1 2 -2 -2
+b_runs 3
+b_values -1
+out_runs 1 2 4
+out_values -1 -2 0
+
+case coverage
+starts 5 6 7 7 0 1 14 15
+ends 8 8 13 8 1 7 19 16
+weights -2 3 -1 4 1 4 4 0
+out_runs 1 4 1 1 1 5 1 5
+out_values 1 4 2 5 4 -1 0 4
+
+case add
+a_runs 4
+a_values 0
+b_runs 2 1
+b_values 0 3
+out_runs 2 1 1
+out_values 0 3 0
+
+case sub
+a_runs 2 2 3 2 2 2
+a_values 0 -2 -2 0 1 1
+b_runs 2 1 3 4 1
+b_values -1 -2 1 2 -2
+out_runs 2 1 3 1 2 1 1 2
+out_values 1 0 -3 -4 -2 -1 3 1
+
+case mul
+a_runs 3 2 1 1 1
+a_values -2 -1 0 -2 3
+b_runs 3 3
+b_values 1 -2
+out_runs 3 2 3
+out_values -2 2 0
+
+case coverage
+starts 13 7
+ends 16 10
+weights 4 2
+out_runs 7 3 3 3
+out_values 0 2 0 4
+
+case add
+a_runs 2 1
+a_values 0 0
+b_runs 3 1 1 4 3
+b_values 0 0 -2 -1 1
+out_runs 4 1 4 3
+out_values 0 -2 -1 1
+
+case sub
+a_runs 2 2 1 4 3 1
+a_values -1 -1 3 2 -1 2
+b_runs 3 4
+b_values -2 3
+out_runs 3 1 1 2 2 3 1
+out_values 1 -4 0 -1 2 -1 2
+
+case mul
+a_runs 2 4 2 4 1 4
+a_values -1 0 2 0 0 3
+b_runs 4
+b_values 3
+out_runs 2 15
+out_values -3 0
+
+case coverage
+starts 10 12
+ends 14 15
+weights -1 -1
+out_runs 10 2 2 1
+out_values 0 -1 -2 -1
+
+case add
+a_runs 4 4 3 2 2 1
+a_values 1 -1 -1 -1 -2 0
+b_runs 1 1 1 3 2 2 3
+b_values 1 1 0 0 0 0 1
+out_runs 2 2 6 3 2 1
+out_values 2 1 -1 0 -2 0
+
+case sub
+a_runs 4 2 4
+a_values -1 1 2
+b_runs 3 1 1 2 3 3
+b_values 3 -1 -2 3 0 0
+out_runs 3 1 1 1 1 3 3
+out_values -4 0 3 -2 -1 2 0
+
+case mul
+a_runs 1
+a_values 3
+b_runs 2 1 4 4 1 2 1 2
+b_values -1 3 2 -1 0 0 -2 0
+out_runs 1 16
+out_values -3 0
+
+case coverage
+starts 0 10 1 11 5
+ends 4 11 7 17 9
+weights 2 3 -1 3 1
+out_runs 1 3 1 2 2 1 7
+out_values 2 1 -1 0 1 0 3
+
+case add
+a_runs 3 1 3 1 1 4 4 1
+a_values -1 2 -2 3 -2 1 -2 1
+b_runs 4 3 4
+b_values -2 2 -2
+out_runs 3 4 1 1 2 2 4 1
+out_values -3 0 1 -4 -1 1 -2 1
+
+case sub
+a_runs 2 2 4 2
+a_values 1 -1 -2 2
+b_runs 4
+b_values 1
+out_runs 2 6 2
+out_values 0 -2 2
+
+case mul
+a_runs 3 4 3 1 2 1 4
+a_values 1 1 0 1 -1 -2 -2
+b_runs 4 4 2 1 2 3
+b_values -1 3 -1 0 2 2
+out_runs 4 3 4 2 3 2
+out_values -1 3 0 -2 -4 0
+
+case coverage
+starts 13 3 8
+ends 17 5 9
+weights 2 0 4
+out_runs 8 1 4 4
+out_values 0 4 0 2
+
+case add
+a_runs 2 4 4 1 3 4 3
+a_values 0 1 0 1 3 0 -2
+b_runs 4 3 2 1
+b_values 0 -2 1 1
+out_runs 2 2 2 1 4 3 4 3
+out_values 0 1 -1 -2 1 3 0 -2
+
+case sub
+a_runs 4 2 4 3
+a_values -2 -2 -1 3
+b_runs 1 2 3 1 2
+b_values -1 -1 2 3 1
+out_runs 3 4 2 1 3
+out_values -1 -4 -2 -1 3
+
+case mul
+a_runs 3 2 2 4 1 2
+a_values 1 3 2 -2 -2 0
+b_runs 3 2 2 3 3 2 2 3
+b_values 1 3 0 0 1 1 1 -1
+out_runs 3 2 5 2 8
+out_values 1 9 0 -2 0
+
+case coverage
+starts 6 8 13 13 15 1 10 15
+ends 9 14 14 16 19 4 16 21
+weights 1 -2 -2 4 3 4 2 0
+out_runs 1 3 2 2 1 1 3 1 1 1 3 2
+out_values 0 4 0 1 -1 -2 0 2 6 9 3 0
+
+case add
+a_runs 4 3 4 1 3
+a_values 3 1 3 1 2
+b_runs 4
+b_values 2
+out_runs 4 3 4 1 3
+out_values 5 1 3 1 2
+
+case sub
+a_runs 1 3 1 4 4 2
+a_values 3 3 -2 0 2 2
+b_runs 2 1 4 1
+b_values 2 -2 0 0
+out_runs 2 1 1 1 4 6
+out_values 1 5 3 -2 0 2
+
+case mul
+a_runs 1 4 2 1 4 3
+a_values 1 0 2 3 2 3
+b_runs 3 2 2 2
+b_values 1 3 -1 -1
+out_runs 1 4 2 1 1 6
+out_values 1 0 -2 -3 -2 0
+
+case coverage
+starts 11 6 10 4 2
+ends 15 8 12 9 7
+weights -1 4 1 4 -1
+out_runs 2 2 2 1 1 1 1 1 1 3
+out_values 0 -1 3 7 8 4 0 1 0 -1
+
+case add
+a_runs 3 1 1 3 2 1 1 3
+a_values -2 1 0 0 1 1 0 -1
+b_runs 1 3 4 3 1 2
+b_values 2 1 2 2 1 2
+out_runs 1 2 5 3 3 1
+out_values 0 -1 2 3 1 -1
+
+case sub
+a_runs 3 2 2 1 2 1
+a_values 0 -2 3 3 -1 3
+b_runs 4 3 1 4 1 2
+b_values 2 1 -2 1 3 1
+out_runs 3 1 1 2 1 2 1 1 1 2
+out_values -2 -4 -3 2 5 -2 2 -1 -3 -1
+
+case mul
+a_runs 1 1 3 4
+a_values 2 0 3 -1
+b_runs 4 2 3 4 3 1 1 3
+b_values 0 1 -1 2 0 -2 -2 1
+out_runs 4 1 1 3 12
+out_values 0 3 -1 1 0
+
+case coverage
+starts 15 9 4
+ends 17 14 5
+weights 3 -1 2
+out_runs 4 1 4 5 1 2
+out_values 0 2 0 -1 0 3
+
+case add
+a_runs 4 1 1
+a_values 2 0 0
+b_runs 3 2 1 4 4 1 4
+b_values 0 -2 0 2 1 -2 3
+out_runs 3 1 1 1 4 4 1 4
+out_values 2 0 -2 0 2 1 -2 3
+
+case sub
+a_runs 1 3 1 2 3
+a_values 3 -1 0 1 -1
+b_runs 3 1 3 3 4 2 4
+b_values 1 2 3 2 0 1 1
+out_runs 1 2 2 2 3 4 6
+out_values 2 -2 -3 -2 -3 0 -1
+
+case mul
+a_runs 2 2 4 1 2 1 4 1
+a_values -1 -2 -1 2 -1 3 3 -2
+b_runs 4 2
+b_values 2 -2
+out_runs 2 2 2 11
+out_values -2 -4 2 0
+
+case coverage
+starts 12 5 3
+ends 16 8 8
+weights 4 -1 3
+out_runs 3 2 3 4 4
+out_values 0 3 2 0 4
+
+case add
+a_runs 1 1 1 2 1 1 1 1
+a_values -2 -1 0 1 2 2 -1 0
+b_runs 2 3 3 2 4
+b_values -1 0 3 -1 -1
+out_runs 1 1 1 2 2 1 6
+out_values -3 -2 0 1 5 2 -1
+
+case sub
+a_runs 4 4 4
+a_values -2 2 -1
+b_runs 3
+b_values -2
+out_runs 3 1 4 4
+out_values 0 -2 2 -1
+
+case mul
+a_runs 4
+a_values -2
+b_runs 2 3 1
+b_values 3 -1 -2
+out_runs 2 2 2
+out_values -6 2 0
+
+case coverage
+starts 12 13 15 6 8 2 11 15
+ends 16 16 20 7 14 3 12 20
+weights 2 1 1 -1 3 4 1 2
+out_runs 2 1 3 1 1 3 1 1 1 1 1 4
+out_values 0 4 0 -1 0 3 4 5 6 3 6 3
+
+case add
+a_runs 3
+a_values -1
+b_runs 2
+b_values 0
+out_runs 3
+out_values -1
+
+case sub
+a_runs 1 4 3 2 2
+a_values -1 0 -2 2 3
+b_runs 1 1
+b_values -1 0
+out_runs 5 3 2 2
+out_values 0 -2 2 3
+
+case mul
+a_runs 4 3
+a_values 3 -1
+b_runs 4 4 4
+b_values -1 2 -2
+out_runs 4 3 5
+out_values -3 -2 0
+
+case coverage
+starts 3 10 5
+ends 4 16 8
+weights 3 4 1
+out_runs 3 1 1 3 2 6
+out_values 0 3 0 1 0 4
+
+case add
+a_runs 2 2 1 2 2
+a_values 0 0 -2 -2 -1
+b_runs 3 2 1 1 2 2 2 2
+b_values 1 -1 1 2 1 -2 0 1
+out_runs 3 1 1 1 3 2 2 2
+out_values 1 -1 -3 -1 0 -2 0 1
+
+case sub
+a_runs 1 4 2
+a_values 2 3 -1
+b_runs 3 2 2 3 2 4 1
+b_values 1 2 3 1 -2 2 0
+out_runs 1 2 2 2 3 2 4 1
+out_values 1 2 1 -4 -1 2 -2 0
+
+case mul
+a_runs 3 2 1 3
+a_values 1 -2 2 2
+b_runs 3 2 2 1 4 1 2
+b_values 1 0 2 0 0 -2 3
+out_runs 3 2 2 8
+out_values 1 0 4 0
+
+case coverage
+starts 8 2 0 0 14 1
+ends 10 3 1 3 17 7
+weights -2 -2 4 -2 -1 4
+out_runs 2 1 4 1 2 4 3
+out_values 2 0 4 0 -2 0 -1
+
+case add
+a_runs 3
+a_values 0
+b_runs 1 4 4 3 1 2 3 3
+b_values 0 -1 1 -1 1 -2 -2 0
+out_runs 1 4 4 3 1 5 3
+out_values 0 -1 1 -1 1 -2 0
+
+case sub
+a_runs 3 2 1 4
+a_values 0 -1 -2 -2
+b_runs 4 2 2
+b_values 2 3 0
+out_runs 3 1 1 1 4
+out_values -2 -3 -4 -5 -2
+
+case mul
+a_runs 4 1 4 2 3
+a_values 0 -2 0 2 0
+b_runs 2 3 3 3 3
+b_values 1 1 -2 3 -2
+out_runs 4 1 4 2 3
+out_values 0 -2 0 6 0
+
+case coverage
+starts 6 5 6 8 11 14 14
+ends 12 10 10 10 16 18 17
+weights -2 3 -1 2 1 0 2
+out_runs 5 1 2 2 1 1 2 2 1 1
+out_values 0 3 0 2 -2 -1 1 3 2 0
+
+case add
+a_runs 1 1
+a_values -2 3
+b_runs 4 3 1 1
+b_values 1 0 3 1
+out_runs 1 1 2 3 1 1
+out_values -1 4 1 0 3 1
+
+case sub
+a_runs 1 3 4 3 4 2 2 1
+a_values 1 2 -1 -1 2 -1 3 -2
+b_runs 1 4 3 4 3
+b_values -1 2 1 1 -1
+out_runs 1 3 1 6 1 3 2 2 1
+out_values 2 0 -3 -2 1 3 -1 3 -2
+
+case mul
+a_runs 2 2 1 3 4 4 1
+a_values 3 0 0 2 -1 3 3
+b_runs 1 2 3 3 2
+b_values -2 1 -2 2 1
+out_runs 1 1 3 1 2 1 2 6
+out_values -6 3 0 -4 4 -2 -1 0
+
+case coverage
+starts 5 9 3 0 6 7
+ends 8 14 5 3 9 9
+weights 0 -1 4 3 2 4
+out_runs 3 2 1 1 2 5
+out_values 3 4 0 2 6 -1
+
+case add
+a_runs 4
+a_values 0
+b_runs 4 3 1 1 1
+b_values 2 -1 -1 2 -2
+out_runs 4 4 1 1
+out_values 2 -1 2 -2
+
+case sub
+a_runs 3 2 2
+a_values 2 1 -2
+b_runs 3 2 3 1 2 2 2 2
+b_values 0 2 1 0 1 0 -1 0
+out_runs 3 2 2 1 1 2 2 2 2
+out_values 2 -1 -3 -1 0 -1 0 1 0
+
+case mul
+a_runs 2 4 4 2
+a_values 2 -1 1 1
+b_runs 2 3 3 4 2
+b_values 3 1 1 1 1
+out_runs 2 4 6 2
+out_values 6 -1 1 0
+
+case coverage
+starts 1 8 1 15
+ends 6 9 5 20
+weights 2 -1 -2 -2
+out_runs 5 1 2 1 6 5
+out_values 0 2 0 -1 0 -2
+
+case add
+a_runs 2 1 1 3 3
+a_values -2 3 0 1 -2
+b_runs 4 3 2 2 2 4 4
+b_values 0 1 2 3 -1 2 -2
+out_runs 2 1 1 3 2 1 1 2 4 4
+out_values -2 3 0 2 0 1 3 -1 2 -2
+
+case sub
+a_runs 4 1 2 3 2
+a_values 3 2 0 3 1
+b_runs 1 3 4 1 1 2
+b_values -1 3 0 0 -1 -1
+out_runs 1 3 1 2 2 1 2
+out_values 4 0 2 0 3 4 2
+
+case mul
+a_runs 3 3 2
+a_values -1 2 -2
+b_runs 4 3 2 4
+b_values 1 1 -1 1
+out_runs 3 3 1 1 5
+out_values -1 2 -2 2 0
+
+case coverage
+starts 9 7 3 14 13 8 10
+ends 10 8 5 20 15 12 15
+weights -1 -2 1 -1 2 3 1
+out_runs 3 2 2 1 1 1 2 1 1 1 5
+out_values 0 1 0 -2 3 2 4 1 3 2 -1
+
+case add
+a_runs 1 2 2
+a_values -1 2 -2
+b_runs 3 4 3 3 3 3
+b_values -2 0 3 1 -2 3
+out_runs 1 2 2 2 3 3 3 3
+out_values -3 0 -2 0 3 1 -2 3
+
+case sub
+a_runs 3 3 4 1 1 1 2 3
+a_values -1 -2 -2 2 -2 3 0 1
+b_runs 3 3 4 1 2 3 3
+b_values 1 0 -2 -2 -2 -2 0
+out_runs 6 4 1 1 1 2 1 2 1
+out_values -2 0 4 0 5 2 3 1 0
+
+case mul
+a_runs 1 3 3
+a_values 2 3 -1
+b_runs 2 2 2 4 4 2
+b_values -2 0 3 3 3 1
+out_runs 1 1 2 3 9
+out_values -4 -6 0 -3 0
+
+case coverage
+starts 10 9 13 10 6 0
+ends 16 13 15 13 7 2
+weights -1 2 -1 1 0 2
+out_runs 2 7 4 2 1
+out_values 2 0 2 -2 -1
+
+case add
+a_runs 4
+a_values 3
+b_runs 2 4 1 2 4 4 3 2
+b_values -2 -2 0 2 1 3 -1 -1
+out_runs 4 2 1 2 4 4 5
+out_values 1 -2 0 2 1 3 -1
+
+case sub
+a_runs 4 2 2 1
+a_values 3 -1 -2 2
+b_runs 2
+b_values 2
+out_runs 2 2 2 2 1
+out_values 1 3 -1 -2 2
+
+case mul
+a_runs 1 1
+a_values -1 -1
+b_runs 2 3 4
+b_values 2 1 -2
+out_runs 2 7
+out_values -2 0
+
+case coverage
+starts 2 10 12 3 10 1
+ends 3 11 15 6 16 2
+weights 4 -1 -2 0 0 0
+out_runs 2 1 7 1 1 3 1
+out_values 0 4 0 -1 0 -2 0
+
+case add
+a_runs 4 4 2
+a_values 3 3 -1
+b_runs 1 4
+b_values -1 1
+out_runs 1 4 3 2
+out_values 2 4 3 -1
+
+case sub
+a_runs 2 1 1 1 4 2 2 3
+a_values 2 -2 -2 2 2 0 -1 0
+b_runs 4 1 4 1 3 3
+b_values 1 2 0 1 3 0
+out_runs 2 2 1 4 1 1 2 3
+out_values 1 -3 0 2 -1 -3 -4 0
+
+case mul
+a_runs 1
+a_values 1
+b_runs 1 1 2
+b_values 0 -1 -2
+out_runs 4
+out_values 0
+
+case coverage
+starts 6 9 13 9
+ends 10 15 17 14
+weights 3 2 1 -1
+out_runs 6 3 1 3 1 1 2
+out_values 0 3 4 1 2 3 1
+
+case add
+a_runs 1 2 3 2
+a_values 0 -1 -2 2
+b_runs 4 3 2 2 3 1 2
+b_values -2 0 -2 -1 3 -2 2
+out_runs 1 2 1 2 1 1 1 2 3 1 2
+out_values -2 -3 -4 -2 2 0 -2 -1 3 -2 2
+
+case sub
+a_runs 1 1
+a_values -2 -1
+b_runs 3 1 4 1 2 1 2
+b_values -1 -2 2 1 0 0 2
+out_runs 1 1 1 1 4 1 3 2
+out_values -1 0 1 2 -2 -1 0 -2
+
+case mul
+a_runs 4 3 1
+a_values -1 -2 2
+b_runs 4 2 1
+b_values 2 -2 0
+out_runs 4 2 2
+out_values -2 4 0
+
+case coverage
+starts 3 8 8 14
+ends 7 10 11 20
+weights 2 2 1 1
+out_runs 3 4 1 2 1 3 6
+out_values 0 2 0 3 1 0 1
+
+case add
+a_runs 4 2 4 1 4
+a_values 1 -1 -2 3 0
+b_runs 1 1 1 4
+b_values 0 -1 3 -1
+out_runs 1 1 1 1 2 1 3 1 4
+out_values 1 0 4 0 -2 -3 -2 3 0
+
+case sub
+a_runs 4 1 1 4 4 3
+a_values 0 1 2 0 1 2
+b_runs 2 1 1
+b_values -1 -2 0
+out_runs 2 1 1 1 1 4 4 3
+out_values 1 2 0 1 2 0 1 2
+
+case mul
+a_runs 4 4 2 4 1 3
+a_values 3 2 1 3 3 1
+b_runs 3 1 2 3 2 4 3
+b_values -1 3 2 -2 0 1 0
+out_runs 3 1 2 2 1 2 4 3
+out_values -3 9 4 -4 -2 0 3 0
+
+case coverage
+starts 0 15 6 9 6 0 9
+ends 1 19 12 12 12 4 12
+weights 3 2 3 4 1 4 -1
+out_runs 1 3 2 3 3 3 4
+out_values 7 4 0 4 7 0 2
+
+case add
+a_runs 1 1 1 4 1 4
+a_values 0 3 -1 0 0 3
+b_runs 3 2 3 3 1 3
+b_values 0 3 3 0 3 0
+out_runs 1 1 1 8 1 3
+out_values 0 3 -1 3 6 0
+
+case sub
+a_runs 4 4 2
+a_values 2 -2 -1
+b_runs 4 2 3 2 3
+b_values -2 -2 -1 0 0
+out_runs 4 2 2 1 1 4
+out_values 4 0 -1 0 -1 0
+
+case mul
+a_runs 4 1
+a_values 0 -1
+b_runs 2 2 3 1 1 3 4 4
+b_values 0 1 3 0 2 2 -1 -2
+out_runs 4 1 15
+out_values 0 -3 0
+
+case coverage
+starts 4 12
+ends 7 13
+weights 4 2
+out_runs 4 3 5 1
+out_values 0 4 0 2
+
+case add
+a_runs 2 4 4 2 3
+a_values 0 0 0 -1 0
+b_runs 1 3 4 4
+b_values 0 1 3 -2
+out_runs 1 3 4 2 2 3
+out_values 0 1 3 -2 -3 0
+
+case sub
+a_runs 2 2
+a_values 1 -1
+b_runs 3 1 2 1 3 4
+b_values 0 3 2 0 3 3
+out_runs 2 1 1 2 1 7
+out_values 1 -1 -4 -2 0 -3
+
+case mul
+a_runs 2 1 3 2 1 4
+a_values 1 -2 1 3 3 3
+b_runs 1 1 4 4 2 3 2 4
+b_values 1 -2 3 0 3 1 2 0
+out_runs 1 1 1 3 4 2 1 8
+out_values 1 -2 -6 3 0 9 3 0
+
+case coverage
+starts 15 14 10 9 2 3 3 2
+ends 17 20 14 13 3 8 7 8
+weights -2 2 -1 -1 4 4 3 1
+out_runs 2 1 4 1 1 1 3 1 1 2 3
+out_values 0 5 8 5 0 -1 -2 -1 2 0 2
+
+case add
+a_runs 2 3 2 2 4 4
+a_values -1 -2 0 -1 1 -2
+b_runs 3 1 1
+b_values 0 0 0
+out_runs 2 3 2 2 4 4
+out_values -1 -2 0 -1 1 -2
+
+case sub
+a_runs 2 4 4
+a_values 3 2 -2
+b_runs 4 1 3 3 4
+b_values 0 0 -2 1 3
+out_runs 2 3 1 2 2 1 4
+out_values 3 2 4 0 -3 -1 -3
+
+case mul
+a_runs 3 4 1 2
+a_values -2 -2 -2 0
+b_runs 2 3 1 1 1 3 4
+b_values 0 3 -1 1 0 0 0
+out_runs 2 3 1 1 8
+out_values 0 -6 2 -2 0
+
+case coverage
+starts 13 9 15 13 7 5 14
+ends 16 11 16 18 9 7 17
+weights 4 0 0 -2 0 -2 -2
+out_runs 5 2 6 1 2 1 1
+out_values 0 -2 0 2 0 -4 -2
+
+case add
+a_runs 1 3 1 3
+a_values 2 3 1 1
+b_runs 2 3
+b_values 3 3
+out_runs 1 3 1 3
+out_values 5 6 4 1
+
+case sub
+a_runs 2 3 2 1
+a_values -2 -2 -1 -2
+b_runs 4
+b_values -2
+out_runs 4 1 2 1
+out_values 0 -2 -1 -2
+
+case mul
+a_runs 2 3 4 2 2
+a_values 3 2 3 2 2
+b_runs 4 4 2
+b_values -2 2 2
+out_runs 2 2 1 4 1 3
+out_values -6 -4 4 6 4 0
+
+case coverage
+starts 15 4 13 2 5 5 10
+ends 20 6 18 6 8 11 15
+weights 1 3 1 0 -1 1 1
+out_runs 4 2 2 2 1 2 5 2
+out_values 0 3 0 1 2 1 2 1
+
+case add
+a_runs 2 4 1 1 4 1 3
+a_values 0 0 1 3 3 2 0
+b_runs 1 1
+b_values 3 0
+out_runs 1 5 1 5 1 3
+out_values 3 0 1 3 2 0
+
+case sub
+a_runs 3 2 1
+a_values -2 2 -1
+b_runs 3
+b_values 1
+out_runs 3 2 1
+out_values -3 2 -1
+
+case mul
+a_runs 1 1 1 2 2
+a_values -2 1 -1 3 2
+b_runs 1 2 2 4 1 2
+b_values 2 1 -1 1 2 0
+out_runs 1 1 1 2 2 5
+out_values -4 1 -1 -3 2 0
+
+case coverage
+starts 4 3 9 15
+ends 9 9 15 16
+weights 1 -1 1 4
+out_runs 3 1 5 6 1
+out_values 0 -1 0 1 4
+
+case add
+a_runs 2 4 1 1 2 3 1 2
+a_values -2 2 -2 -1 3 3 -1 1
+b_runs 2 1 4 2 2 2
+b_values 1 2 1 0 0 -1
+out_runs 2 1 3 2 3 2 1 2
+out_values -1 4 3 -1 3 2 -1 1
+
+case sub
+a_runs 3 4 3 2 2
+a_values 3 -1 1 3 3
+b_runs 4 3 2
+b_values -1 -2 0
+out_runs 3 1 6 4
+out_values 4 0 1 3
+
+case mul
+a_runs 1 3 2 4 2 1
+a_values 3 -1 2 -1 0 1
+b_runs 2 2 2 4 2 1 1
+b_values 1 -1 -2 -1 3 2 1
+out_runs 1 1 2 2 4 2 1 1
+out_values 3 -1 1 -4 1 0 2 0
+
+case coverage
+starts 15 0 12 3
+ends 18 4 13 6
+weights 1 4 -2 1
+out_runs 3 1 2 6 1 2 3
+out_values 4 5 1 0 -2 0 1
+
+case add
+a_runs 2 3 4
+a_values 0 3 -2
+b_runs 2 1
+b_values -2 1
+out_runs 2 1 2 4
+out_values -2 4 3 -2
+
+case sub
+a_runs 2 1 3 2 3
+a_values 1 2 1 2 -1
+b_runs 4 1 4 4
+b_values -2 1 -1 -2
+out_runs 2 1 1 1 1 2 1 2 2
+out_values 3 4 3 0 2 3 0 1 2
+
+case mul
+a_runs 2 3 2 1
+a_values 1 2 1 1
+b_runs 1 1 1
+b_values -2 1 2
+out_runs 1 1 1 5
+out_values -2 1 4 0
+
+case coverage
+starts 2 6
+ends 6 9
+weights 0 -2
+out_runs 6 3
+out_values 0 -2
+
+case add
+a_runs 3 1 3 3 1 3 1 1
+a_values 1 0 -2 1 2 0 -1 -1
+b_runs 2 3 4
+b_values 1 -1 -1
+out_runs 2 1 1 3 2 1 1 3 2
+out_values 2 0 -1 -3 0 1 2 0 -1
+
+case sub
+a_runs 2 1 2 2 1
+a_values 0 1 1 0 3
+b_runs 2
+b_values -1
+out_runs 5 2 1
+out_values 1 0 3
+
+case mul
+a_runs 2 1 1 3 2 1
+a_values 1 0 0 2 -2 3
+b_runs 3 3 4 3 4 3 3
+b_values -1 2 0 3 3 1 3
+out_runs 2 2 2 17
+out_values -1 0 4 0
+
+case coverage
+starts 1 1 8 11
+ends 3 6 14 16
+weights 1 0 1 -1
+out_runs 1 2 5 3 3 2
+out_values 0 1 0 1 0 -1
+
+case add
+a_runs 2
+a_values 2
+b_runs 2 4 3 3 1
+b_values 3 0 -2 2 0
+out_runs 2 4 3 3 1
+out_values 5 0 -2 2 0
+
+case sub
+a_runs 3 2 2 3 1 2
+a_values 0 3 2 3 -1 2
+b_runs 3 2 4 3 4
+b_values 0 0 3 1 1
+out_runs 3 2 2 2 1 1 2 3
+out_values 0 3 -1 0 2 -2 1 -1
+
+case mul
+a_runs 2 1 3 1 3
+a_values 1 -1 2 1 2
+b_runs 3 2
+b_values -1 -2
+out_runs 2 1 2 5
+out_values -1 1 -4 0
+
+case coverage
+starts 10 0 10 0 4
+ends 13 4 11 5 6
+weights 1 3 -1 0 -2
+out_runs 4 2 5 2
+out_values 3 -2 0 1
+
+case add
+a_runs 3
+a_values 2
+b_runs 3 1 1 4 2
+b_values 1 3 3 1 0
+out_runs 5 4 2
+out_values 3 1 0
+
+case sub
+a_runs 4 1 2
+a_values -1 1 3
+b_runs 1 3
+b_values -2 0
+out_runs 1 3 1 2
+out_values 1 -1 1 3
+
+case mul
+a_runs 4 1 1
+a_values -1 -2 -1
+b_runs 2 3 1 2
+b_values 3 3 0 3
+out_runs 4 1 3
+out_values -3 -6 0
+
+case coverage
+starts 6 8 2 6
+ends 11 14 8 10
+weights -1 -2 2 0
+out_runs 2 4 2 3 3
+out_values 0 2 1 -3 -2
+
+case add
+a_runs 3
+a_values 3
+b_runs 2 1 4
+b_values 3 3 2
+out_runs 3 4
+out_values 6 2
+
+case sub
+a_runs 2 4 2 3 2 4
+a_values -2 -1 1 0 1 3
+b_runs 3 2 1 4 3 1 1
+b_values 2 3 3 -2 0 2 1
+out_runs 2 1 3 2 2 1 3 1 2
+out_values -4 -3 -4 3 2 0 1 2 3
+
+case mul
+a_runs 4 1 2 1 3 4 3
+a_values 0 2 2 0 -1 0 -1
+b_runs 3 1
+b_values 0 0
+out_runs 18
+out_values 0
+
+case coverage
+starts 3 10 4 12 9 8 11
+ends 5 15 5 13 11 12 12
+weights 0 4 -1 0 4 1 -1
+out_runs 4 1 3 1 1 1 4
+out_values 0 -1 0 1 5 9 4
+
+case add
+a_runs 2 4 2 4 2 4 4
+a_values 2 3 0 3 2 3 2
+b_runs 2
+b_values -1
+out_runs 2 4 2 4 2 4 4
+out_values 1 3 0 3 2 3 2
+
+case sub
+a_runs 3 4
+a_values 1 1
+b_runs 1 3 2 2 3 2 2
+b_values 1 -2 2 3 0 2 2
+out_runs 1 3 2 1 1 3 4
+out_values 0 3 -1 -2 -3 0 -2
+
+case mul
+a_runs 4 3 2 4
+a_values 2 -2 1 1
+b_runs 3 4 3 4 4
+b_values -2 -1 1 1 1
+out_runs 3 1 3 6 5
+out_values -4 -2 2 1 0
+
+case coverage
+starts 6 5 3
+ends 12 11 9
+weights 0 -1 4
+out_runs 3 2 4 2 1
+out_values 0 4 3 -1 0
+
+case add
+a_runs 4 2 2
+a_values 2 1 1
+b_runs 1 3 3
+b_values 2 -2 -2
+out_runs 1 3 3 1
+out_values 4 0 -1 1
+
+case sub
+a_runs 3 4 1 3 4 1 4 4
+a_values 2 2 0 3 3 1 1 2
+b_runs 1 1 1 2 2
+b_values -1 0 3 3 0
+out_runs 1 1 3 2 1 7 5 4
+out_values 3 2 -1 2 0 3 1 2
+
+case mul
+a_runs 4 2 2
+a_values 2 -2 -2
+b_runs 1 2 3 4 4 1
+b_values -1 3 3 0 2 -2
+out_runs 1 3 2 9
+out_values -2 6 -6 0
+
+case coverage
+starts 4 12 13 15 15
+ends 7 18 18 17 17
+weights 0 0 2 -1 2
+out_runs 13 2 2 1
+out_values 0 2 3 2
+
+case add
+a_runs 4 3 3 4 2 4 1
+a_values 3 3 0 1 -1 -2 3
+b_runs 2 3 1 1 3 1 1 2
+b_values 2 0 0 0 -2 2 2 0
+out_runs 2 5 3 2 2 2 4 1
+out_values 5 3 -2 3 1 -1 -2 3
+
+case sub
+a_runs 2
+a_values -2
+b_runs 3 1
+b_values 2 3
+out_runs 2 1 1
+out_values -4 -2 -3
+
+case mul
+a_runs 2 3 2 1 4
+a_values 2 0 1 3 1
+b_runs 4 1 1 4 3 1 3
+b_values -2 1 0 2 1 1 -2
+out_runs 2 4 1 1 2 2 5
+out_values -4 0 2 6 2 1 0
+
+case coverage
+starts 5
+ends 9
+weights 3
+out_runs 5 4
+out_values 0 3
+
+case add
+a_runs 3 1 1 2 3 2 4
+a_values 0 2 1 3 3 0 0
+b_runs 3 2
+b_values 1 -2
+out_runs 3 1 1 5 6
+out_values 1 0 -1 3 0
+
+case sub
+a_runs 4 3 3 2 1 3 2 1
+a_values -1 1 0 -1 -2 1 2 0
+b_runs 2 4 3 2 3 3 3 4
+b_values 2 2 3 3 2 1 3 -2
+out_runs 4 2 1 3 1 1 1 1 2 1 1 2 4
+out_values -3 -1 -2 -3 -4 -3 -4 -1 0 1 -1 -3 2
+
+case mul
+a_runs 2 1 2 4 3 2 2
+a_values 1 3 3 1 -1 -2 -1
+b_runs 3 3 2
+b_values -2 2 3
+out_runs 2 1 2 1 2 8
+out_values -2 -6 6 2 3 0
+
+case coverage
+starts 5 12 14 1 8 14 11
+ends 11 15 18 6 12 19 12
+weights 1 1 3 0 -1 -2 1
+out_runs 5 3 4 2 1 3 1
+out_values 0 1 0 1 2 1 -2
+
+case add
+a_runs 4 4 4 3 3
+a_values 2 -1 0 0 2
+b_runs 2 2 3 1 4 2 3 1
+b_values -1 0 2 3 1 2 -2 2
+out_runs 2 2 3 1 4 2 1 2 1
+out_values 1 2 1 2 1 2 -2 0 4
+
+case sub
+a_runs 4 2 3
+a_values -2 3 2
+b_runs 1 3 3 1 2 1
+b_values 2 1 -2 1 3 2
+out_runs 1 3 2 1 1 1 1 1
+out_values -4 -3 5 4 1 -1 -3 -2
+
+case mul
+a_runs 2 2 1 3 2
+a_values 3 -1 3 3 2
+b_runs 2 4 1 3 3 1 1
+b_values 1 0 0 0 -2 1 -2
+out_runs 2 13
+out_values 3 0
+
+case coverage
+starts 6
+ends 11
+weights -2
+out_runs 6 5
+out_values 0 -2
+
+case add
+a_runs 1 2 4
+a_values 1 3 0
+b_runs 1 2
+b_values 0 -2
+out_runs 3 4
+out_values 1 0
+
+case sub
+a_runs 2 2 4
+a_values 2 2 2
+b_runs 4 2
+b_values 2 3
+out_runs 4 2 2
+out_values 0 -1 2
+
+case mul
+a_runs 3 4 4 1 1 4
+a_values -2 0 0 2 3 -2
+b_runs 3
+b_values -1
+out_runs 3 14
+out_values 2 0
+
+case coverage
+starts 7 11
+ends 12 12
+weights 4 0
+out_runs 7 5
+out_values 0 4
+
+case add
+a_runs 2 3 1 1
+a_values -2 -2 0 1
+b_runs 4 4 3 3 1 2 4
+b_values -2 2 0 -1 1 0 -2
+out_runs 4 1 1 1 1 3 3 1 2 4
+out_values -4 0 2 3 2 0 -1 1 0 -2
+
+case sub
+a_runs 4 2 3 4 4 2 3 1
+a_values 3 2 -1 2 -2 -1 -2 2
+b_runs 4 4 2
+b_values 3 0 2
+out_runs 4 2 2 1 1 3 4 2 3 1
+out_values 0 2 -1 -3 0 2 -2 -1 -2 2
+
+case mul
+a_runs 1 4
+a_values 3 -2
+b_runs 2
+b_values 3
+out_runs 1 1 3
+out_values 9 -6 0
+
+case coverage
+starts 15
+ends 17
+weights -1
+out_runs 15 2
+out_values 0 -1
+
+case add
+a_runs 2 1 2 2 1 2 1
+a_values -1 2 -2 -1 1 3 3
+b_runs 1 4 4 3 1 4 2 4
+b_values -1 -2 -1 1 -2 0 1 -2
+out_runs 1 1 1 2 2 1 1 2 1 1 4 2 4
+out_values -2 -3 0 -4 -2 0 2 4 1 -2 0 1 -2
+
+case sub
+a_runs 2 4 4 3 2 4 3
+a_values 3 2 -2 1 3 3 -2
+b_runs 1 4 3 4 4 4
+b_values 0 1 2 2 -1 -2
+out_runs 1 1 3 1 4 2 1 3 3 1 2
+out_values 3 2 1 0 -4 -1 2 4 5 0 -2
+
+case mul
+a_runs 2 2 3 3 4 4
+a_values 0 0 -1 -2 -1 -1
+b_runs 2 4 4 1 4 1 1 1
+b_values 3 -1 2 -2 2 -1 -1 1
+out_runs 4 2 1 3 1 4 2 1
+out_values 0 1 -2 -4 2 -2 1 -1
+
+case coverage
+starts 4 6 8 14 9
+ends 7 8 14 17 11
+weights 2 3 1 -1 -1
+out_runs 4 2 1 1 1 2 3 3
+out_values 0 2 5 3 1 0 1 -1
+
+case add
+a_runs 2
+a_values 0
+b_runs 2 3 2 1 1 4
+b_values 0 2 -1 -2 0 1
+out_runs 2 3 2 1 1 4
+out_values 0 2 -1 -2 0 1
+
+case sub
+a_runs 4 3 4 3 3 3 3
+a_values 2 0 -2 3 -2 0 3
+b_runs 4 3
+b_values 2 1
+out_runs 4 3 4 3 3 3 3
+out_values 0 -1 -2 3 -2 0 3
+
+case mul
+a_runs 3 2 2 1 4 2 1 2
+a_values -1 0 0 1 2 3 0 -1
+b_runs 1 2 2 3 3
+b_values 3 2 -1 1 -2
+out_runs 1 2 4 1 3 6
+out_values -3 -2 0 1 -4 0
+
+case coverage
+starts 8 6 12 13 1 13 1 12
+ends 9 10 14 19 7 16 2 14
+weights 1 2 3 1 3 1 2 -2
+out_runs 1 1 4 1 1 1 1 2 1 1 2 3
+out_values 0 5 3 5 2 3 2 0 1 3 2 1
+
+case add
+a_runs 2 2 4
+a_values -2 -2 -2
+b_runs 1
+b_values 2
+out_runs 1 7
+out_values 0 -2
+
+case sub
+a_runs 1 3 1 2 4 1
+a_values 2 -1 3 0 0 -2
+b_runs 4 2 2 3
+b_values 3 -2 -2 3
+out_runs 1 3 1 3 3 1
+out_values -1 -4 5 2 -3 -2
+
+case mul
+a_runs 3 4 1 1 1 2 1 2
+a_values 1 3 2 2 2 -1 -2 -1
+b_runs 1 2 1 2 4 2 4 1
+b_values 3 3 3 0 3 2 1 3
+out_runs 3 1 2 1 3 3 2 2
+out_values 3 9 0 9 6 -2 -1 0
+
+case coverage
+starts 7 7 2 8 12 15 12 5
+ends 10 13 5 13 15 16 14 7
+weights -1 1 -2 -2 4 1 0 -2
+out_runs 2 5 1 2 2 1 2 1
+out_values 0 -2 0 -2 -1 3 4 1
+
+case add
+a_runs 1 3 4 4 1 3 3 2
+a_values -1 2 2 0 0 2 -2 -2
+b_runs 4 1 3 3 3 4 4
+b_values 1 1 1 3 1 0 -2
+out_runs 1 10 2 1 2 2 3 1
+out_values 0 3 1 3 2 -2 -4 -2
+
+case sub
+a_runs 4 1 3
+a_values -1 1 3
+b_runs 1 3 1 1 1
+b_values -1 0 -1 -2 -1
+out_runs 1 3 1 1 1 1
+out_values 0 -1 2 5 4 3
+
+case mul
+a_runs 2
+a_values 3
+b_runs 3 3 4
+b_values -2 3 1
+out_runs 2 8
+out_values -6 0
+
+case coverage
+starts 13 0 11
+ends 15 5 15
+weights 0 -2 -2
+out_runs 5 6 4
+out_values -2 0 -2
+
+case add
+a_runs 2 2 4 4 4
+a_values -1 -1 0 1 2
+b_runs 4 3 4 3 3 4
+b_values 2 -2 3 3 -2 -2
+out_runs 4 3 1 4 2 2 5
+out_values 1 -2 3 4 5 0 -2
+
+case sub
+a_runs 4 4 2 1 4
+a_values 2 2 3 -2 3
+b_runs 4 2 3 3 1 1
+b_values -1 1 1 1 3 0
+out_runs 4 4 2 1 1 1 2
+out_values 3 1 2 -3 2 0 3
+
+case mul
+a_runs 1 1 3 1 1
+a_values -1 2 3 2 0
+b_runs 2 4 4 1
+b_values 0 -2 -2 -1
+out_runs 2 3 1 5
+out_values 0 -6 -4 0
+
+case coverage
+starts 3 12
+ends 7 16
+weights -1 0
+out_runs 3 4 9
+out_values 0 -1 0
+
+case add
+a_runs 1 2 3 3 2 2 4 3
+a_values 0 -2 1 2 3 0 -2 3
+b_runs 3 2 4 3 1
+b_values -2 3 1 3 3
+out_runs 1 2 2 1 3 2 2 4 3
+out_values -2 -4 4 2 3 6 3 -2 3
+
+case sub
+a_runs 2
+a_values -2
+b_runs 1 3 4 1 3
+b_values -2 3 3 2 1
+out_runs 1 1 6 1 3
+out_values 0 -5 -3 -2 -1
+
+case mul
+a_runs 3 2 2 4
+a_values -2 2 1 3
+b_runs 2 1
+b_values 1 -1
+out_runs 2 1 8
+out_values -2 2 0
+
+case coverage
+starts 10 5 0
+ends 16 11 3
+weights 1 1 4
+out_runs 3 2 5 1 5
+out_values 4 0 1 2 1
+
+case add
+a_runs 2
+a_values 2
+b_runs 4 2
+b_values 3 -1
+out_runs 2 2 2
+out_values 5 3 -1
+
+case sub
+a_runs 4 1 4 1 3 2 4 2
+a_values -2 -2 -2 1 3 3 3 -1
+b_runs 1 1 3 2 1
+b_values 1 -2 -1 -2 -1
+out_runs 1 1 3 2 1 1 1 9 2
+out_values -3 0 -1 0 -1 -2 1 3 -1
+
+case mul
+a_runs 4 3
+a_values -1 2
+b_runs 3 1 4
+b_values 0 3 0
+out_runs 3 1 4
+out_values 0 -3 0
+
+case coverage
+starts 3 7 6 12 13 4
+ends 8 8 12 14 15 7
+weights 3 3 1 0 1 -2
+out_runs 3 1 2 1 1 4 1 2
+out_values 0 3 1 2 7 1 0 1
+
+case add
+a_runs 4
+a_values 1
+b_runs 1 4 1 1 1
+b_values 2 -2 0 -2 -2
+out_runs 1 3 1 1 2
+out_values 3 -1 -2 0 -2
+
+case sub
+a_runs 2 4 1 1 1 4 2
+a_values -1 -1 -2 -2 -2 3 3
+b_runs 2 4 3 3
+b_values 3 0 3 3
+out_runs 2 4 3 3 3
+out_values -4 -1 -5 0 3
+
+case mul
+a_runs 4
+a_values 1
+b_runs 4 4 3 2 1 2 2
+b_values 1 1 -1 3 1 0 3
+out_runs 4 14
+out_values 1 0
+
+case coverage
+starts 13
+ends 16
+weights -1
+out_runs 13 3
+out_values 0 -1
+
+case add
+a_runs 4
+a_values 0
+b_runs 1 2 3
+b_values 1 3 0
+out_runs 1 2 3
+out_values 1 3 0
+
+case sub
+a_runs 2 2 2 4 1 4
+a_values 2 2 3 2 -1 3
+b_runs 1 2 3 3 3
+b_values 2 0 2 1 3
+out_runs 1 2 1 5 1 1 1 3
+out_values 0 2 0 1 -1 -4 0 3
+
+case mul
+a_runs 2 3 1 2 3 3 2 1
+a_values 0 2 3 3 -2 0 0 2
+b_runs 1
+b_values 0
+out_runs 17
+out_values 0
+
+case coverage
+starts 14 8 9
+ends 15 13 10
+weights 2 -1 2
+out_runs 8 1 1 3 1 1
+out_values 0 -1 1 -1 0 2
+
+case add
+a_runs 1 2
+a_values 2 -2
+b_runs 3 1 1
+b_values -1 2 -1
+out_runs 1 2 1 1
+out_values 1 -3 2 -1
+
+case sub
+a_runs 2 3 4 3 2 1
+a_values 0 -1 0 -1 1 1
+b_runs 3 1 2 3 2 3
+b_values 0 -1 -1 0 -1 2
+out_runs 2 1 2 1 5 1 2 1
+out_values 0 -1 0 1 0 -3 -1 1
+
+case mul
+a_runs 1 4
+a_values 0 2
+b_runs 2 3
+b_values -1 -2
+out_runs 1 1 3
+out_values 0 -2 -4
+
+case coverage
+starts 0 0 2 9 8
+ends 6 3 6 13 10
+weights 3 3 2 3 2
+out_runs 2 1 3 2 1 1 3
+out_values 6 8 5 0 2 5 3
+
+case add
+a_runs 4 4
+a_values 0 0
+b_runs 1 4 4 1 4 1 3 4
+b_values 0 -1 1 2 -1 2 1 -1
+out_runs 1 4 4 1 4 1 3 4
+out_values 0 -1 1 2 -1 2 1 -1
+
+case sub
+a_runs 2 1 2
+a_values -1 0 0
+b_runs 4 4 1 3 3
+b_values 0 1 3 2 1
+out_runs 2 2 4 1 3 3
+out_values -1 0 -1 -3 -2 -1
+
+case mul
+a_runs 3
+a_values 1
+b_runs 2
+b_values 3
+out_runs 2 1
+out_values 3 0
+
+case coverage
+starts 7 9
+ends 13 14
+weights 3 -1
+out_runs 7 2 4 1
+out_values 0 3 2 -1
+
+case add
+a_runs 4
+a_values -2
+b_runs 1 3 1 4
+b_values 3 3 1 -2
+out_runs 5 4
+out_values 1 -2
+
+case sub
+a_runs 1 1 3 2 3 4 2 2
+a_values 0 0 -1 -1 -1 3 1 -1
+b_runs 2 2 3 3 1 2 3 1
+b_values 3 1 2 2 -1 1 3 -1
+out_runs 2 2 6 1 2 1 2 1 1
+out_values -3 -2 -3 4 2 0 -2 0 -1
+
+case mul
+a_runs 1 3 1 4 3 1 4 3
+a_values -1 -2 -1 -2 -2 1 -2 0
+b_runs 1 2 3 3 1 2
+b_values 0 1 3 -1 3 -1
+out_runs 1 2 1 1 1 3 1 2 8
+out_values 0 -2 -6 -3 -6 2 -6 2 0
+
+case coverage
+starts 10
+ends 13
+weights 4
+out_runs 10 3
+out_values 0 4
+
+case add
+a_runs 2 3 4 1
+a_values 2 0 2 -2
+b_runs 2
+b_values -1
+out_runs 2 3 4 1
+out_values 1 0 2 -2
+
+case sub
+a_runs 1 2 4 4 4 4 3
+a_values 3 2 3 3 3 1 1
+b_runs 3 1
+b_values 1 3
+out_runs 1 2 1 11 7
+out_values 2 1 0 3 1
+
+case mul
+a_runs 1 1 3 1
+a_values 1 3 1 3
+b_runs 2 3 4 1 3 2 3
+b_values 0 2 3 3 -2 -1 -2
+out_runs 2 3 1 12
+out_values 0 2 9 0
+
+case coverage
+starts 8 10 12
+ends 13 13 16
+weights 3 -1 -1
+out_runs 8 2 2 1 3
+out_values 0 3 2 1 -1
+
+case add
+a_runs 4 3 2 1 3 2
+a_values 0 -1 3 2 2 3
+b_runs 1 4 4 4 4 4 1
+b_values -2 -1 0 -2 -1 2 3
+out_runs 1 3 1 2 2 4 2 2 4 1
+out_values -2 -1 -2 -1 3 0 2 -1 2 3
+
+case sub
+a_runs 2 4 2
+a_values -1 1 3
+b_runs 2
+b_values -2
+out_runs 6 2
+out_values 1 3
+
+case mul
+a_runs 2
+a_values 0
+b_runs 3 4 2 1 1
+b_values -2 0 -1 2 2
+out_runs 11
+out_values 0
+
+case coverage
+starts 10
+ends 16
+weights 2
+out_runs 10 6
+out_values 0 2
+
+case add
+a_runs 3 2
+a_values 2 2
+b_runs 4 4
+b_values 1 2
+out_runs 4 1 3
+out_values 3 4 2
+
+case sub
+a_runs 4 2 1 1 1 1 4 4
+a_values 1 -1 -2 0 -2 1 3 2
+b_runs 4 1 1 3
+b_values 2 1 -1 3
+out_runs 4 1 1 1 1 1 1 4 4
+out_values -1 -2 0 -5 -3 -5 1 3 2
+
+case mul
+a_runs 2 1 2 4 2
+a_values 3 0 3 -2 3
+b_runs 4 4 4
+b_values -2 1 0
+out_runs 2 1 1 1 3 4
+out_values -6 0 -6 3 -2 0
+
+case coverage
+starts 8
+ends 10
+weights -1
+out_runs 8 2
+out_values 0 -1
+
+case add
+a_runs 2 3 2 1 3 4 4
+a_values -2 -1 -2 0 3 -1 1
+b_runs 1 4
+b_values 2 0
+out_runs 1 1 3 2 1 3 4 4
+out_values 0 -2 -1 -2 0 3 -1 1
+
+case sub
+a_runs 1 2 2 4 2 4 2 4
+a_values 0 2 -2 1 -1 -1 1 -2
+b_runs 4 1 2
+b_values 1 1 0
+out_runs 1 2 2 4 6 2 4
+out_values -1 1 -3 1 -1 1 -2
+
+case mul
+a_runs 1 1 4 4 4
+a_values -1 -1 0 -2 -2
+b_runs 2 3 1 2 2
+b_values 2 1 -2 0 -2
+out_runs 2 6 2 4
+out_values -2 0 4 0
+
+case coverage
+starts 13 2
+ends 17 7
+weights 2 2
+out_runs 2 5 6 4
+out_values 0 2 0 2
+
+case add
+a_runs 1
+a_values -2
+b_runs 1 4 1 4
+b_values 0 2 3 1
+out_runs 1 4 1 4
+out_values -2 2 3 1
+
+case sub
+a_runs 4
+a_values 2
+b_runs 3 4 1 3 1
+b_values 0 0 -1 -1 3
+out_runs 4 3 4 1
+out_values 2 0 1 -3
+
+case mul
+a_runs 2 1 2 2 4
+a_values 1 -2 -2 2 -1
+b_runs 1 2 4
+b_values 2 2 3
+out_runs 2 1 2 2 4
+out_values 2 -4 -6 6 0
+
+case coverage
+starts 14 15 6 7
+ends 15 18 8 12
+weights 4 -2 1 0
+out_runs 6 2 6 1 3
+out_values 0 1 0 4 -2
+
+case add
+a_runs 3 4 4 3 3
+a_values 1 3 3 3 -2
+b_runs 4 1
+b_values -1 0
+out_runs 3 1 10 3
+out_values 0 2 3 -2
+
+case sub
+a_runs 1 4 3 4 2 3
+a_values 2 0 2 -2 2 0
+b_runs 4 2 4
+b_values 3 3 -2
+out_runs 1 4 1 2 2 2 2 3
+out_values -1 -3 -1 4 0 -2 2 0
+
+case mul
+a_runs 3 3 1 4
+a_values 3 -1 3 2
+b_runs 1 3 1 2 2
+b_values 1 0 0 -2 -2
+out_runs 1 4 1 1 2 2
+out_values 3 0 2 -6 -4 0
+
+case coverage
+starts 11 11 13
+ends 12 14 19
+weights -2 4 2
+out_runs 11 1 1 1 5
+out_values 0 2 4 6 2
+
+case add
+a_runs 3 2 4 1 4 2
+a_values 3 1 1 1 2 0
+b_runs 2 4 3 1 4 4 2 3
+b_values 0 -1 -2 -1 -1 3 2 1
+out_runs 2 1 3 3 1 4 4 2 3
+out_values 3 2 0 -1 0 1 3 2 1
+
+case sub
+a_runs 4
+a_values 3
+b_runs 3 3 4 1 1 1
+b_values 0 3 0 1 3 2
+out_runs 3 1 2 4 1 1 1
+out_values 3 0 -3 0 -1 -3 -2
+
+case mul
+a_runs 4 2 1 1
+a_values 3 0 2 -2
+b_runs 3 3 4 2 3 4 1
+b_values 3 2 1 0 0 0 -2
+out_runs 3 1 2 1 1 12
+out_values 9 6 0 2 -2 0
+
+case coverage
+starts 14 7 6
+ends 15 11 12
+weights -1 -2 3
+out_runs 6 1 4 1 2 1
+out_values 0 3 1 3 0 -1
+
+case add
+a_runs 3 1 3
+a_values -1 -1 -2
+b_runs 4 1 3 1 1 3
+b_values -2 -2 1 1 1 2
+out_runs 4 1 2 3 3
+out_values -3 -4 -1 1 2
+
+case sub
+a_runs 3 1 2 3 2 1
+a_values 3 3 2 1 3 -2
+b_runs 1
+b_values -2
+out_runs 1 3 2 3 2 1
+out_values 5 3 2 1 3 -2
+
+case mul
+a_runs 3 4 4
+a_values 2 -2 1
+b_runs 4 2 3
+b_values 1 -1 -2
+out_runs 3 1 2 1 2 2
+out_values 2 -2 2 4 -2 0
+
+case coverage
+starts 0 14 12 2 1 14 2 3
+ends 5 16 18 6 3 20 7 4
+weights -2 -2 1 0 0 -2 0 1
+out_runs 3 1 1 7 2 2 2 2
+out_values -2 -1 -2 0 1 -3 -1 -2
+
+case add
+a_runs 1 1 2 1 2 4 1 4
+a_values 1 2 -1 2 3 -2 3 -1
+b_runs 1 1 2 2 1 1 1
+b_values -2 3 2 0 -1 0 -2
+out_runs 1 1 2 1 1 1 1 1 2 1 4
+out_values -1 5 1 2 3 2 -2 -4 -2 3 -1
+
+case sub
+a_runs 2 3 2 1 4 1
+a_values 2 -1 3 3 2 0
+b_runs 2 2 4 3 2 1 2 3
+b_values 0 0 -1 0 2 1 0 3
+out_runs 2 2 1 3 3 1 1 1 2 3
+out_values 2 -1 0 4 2 0 -2 -1 0 -3
+
+case mul
+a_runs 1 4 3 2 3 2
+a_values -2 1 0 3 1 -2
+b_runs 3 2
+b_values 2 3
+out_runs 1 2 2 10
+out_values -4 2 3 0
+
+case coverage
+starts 12 6 12 3
+ends 14 9 13 6
+weights -1 2 4 -1
+out_runs 3 3 3 3 1 1
+out_values 0 -1 2 0 3 -1
+
+case add
+a_runs 4 4 4 2 1 1 4 3
+a_values 0 1 1 1 0 1 1 1
+b_runs 1 1 3 3
+b_values 2 -2 0 0
+out_runs 1 1 2 10 1 8
+out_values 2 -2 0 1 0 1
+
+case sub
+a_runs 4 1 2 1 1 4
+a_values -1 -2 0 -1 0 -2
+b_runs 4 3 1 1 2 3 1
+b_values -2 3 2 2 0 -1 -1
+out_runs 4 1 3 3 2 2
+out_values 1 -5 -3 -2 -1 1
+
+case mul
+a_runs 2 3 1 1
+a_values -1 1 -2 -2
+b_runs 2 3 4 4 3 4 2 1
+b_values -1 1 -1 3 -2 0 2 -2
+out_runs 5 2 16
+out_values 1 2 0
+
+case coverage
+starts 14 12 6 12 7
+ends 15 16 7 13 10
+weights 0 0 3 -1 4
+out_runs 6 1 3 2 1 3
+out_values 0 3 4 0 -1 0
+
+case add
+a_runs 1 2 1
+a_values 0 -2 -1
+b_runs 4 4 3
+b_values 3 -2 1
+out_runs 1 2 1 4 3
+out_values 3 1 2 -2 1
+
+case sub
+a_runs 4 4
+a_values 3 2
+b_runs 1
+b_values -1
+out_runs 1 3 4
+out_values 4 3 2
+
+case mul
+a_runs 4 3 2 4 3 2 1 1
+a_values 1 3 -2 0 3 -1 3 -1
+b_runs 2 2 1 4 2 2 2
+b_values 1 0 2 2 -2 -2 3
+out_runs 2 2 3 2 4 2 5
+out_values 1 0 6 -4 0 9 0
+
+case coverage
+starts 0 13 8 8 10 2 6
+ends 3 19 14 9 13 3 8
+weights 2 3 3 4 1 4 -2
+out_runs 2 1 3 2 1 1 3 1 5
+out_values 2 6 0 -2 7 3 4 6 3
+
+case add
+a_runs 1 3
+a_values -2 1
+b_runs 4
+b_values 1
+out_runs 1 3
+out_values -1 2
+
+case sub
+a_runs 3 2
+a_values 3 1
+b_runs 1 1 2
+b_values 2 -1 2
+out_runs 1 1 1 1 1
+out_values 1 4 1 -1 1
+
+case mul
+a_runs 4 2 2 4 4
+a_values -2 0 0 3 3
+b_runs 1 4 3 1 1 2 3
+b_values -1 1 2 3 -1 -1 1
+out_runs 1 3 4 1 3 3 1
+out_values 2 -2 0 9 -3 3 0
+
+case coverage
+starts 6 6 8 13
+ends 9 11 13 15
+weights 0 2 1 2
+out_runs 6 2 3 2 2
+out_values 0 2 3 1 2
+
+case add
+a_runs 4 2 1
+a_values 3 0 -2
+b_runs 4 2 4 1 1 4 2 2
+b_values 2 2 3 3 -1 3 1 -2
+out_runs 4 2 1 4 1 4 2 2
+out_values 5 2 1 3 -1 3 1 -2
+
+case sub
+a_runs 4 2 4 3
+a_values 2 1 -2 -2
+b_runs 2 1 2 4 2 3 1 1
+b_values 3 0 -2 0 -1 3 2 -2
+out_runs 2 1 1 1 1 3 2 2 1 1 1
+out_values -1 2 4 3 1 -2 -1 -5 -3 -2 2
+
+case mul
+a_runs 4 4 3 1 1 4
+a_values 0 3 -1 -2 -2 2
+b_runs 2 3 4 4 3 3 4
+b_values 3 1 3 -2 1 2 3
+out_runs 4 1 3 1 2 2 3 1 6
+out_values 0 3 9 -3 2 4 2 4 0
+
+case coverage
+starts 6 6 4 4 11
+ends 12 10 10 7 15
+weights 0 0 4 -2 1
+out_runs 4 3 3 1 4
+out_values 0 2 4 0 1
+
+case add
+a_runs 3 2 3 1 2 2
+a_values -2 0 1 -1 3 -1
+b_runs 4 3
+b_values 0 2
+out_runs 3 1 1 2 1 1 2 2
+out_values -2 0 2 3 1 -1 3 -1
+
+case sub
+a_runs 2 4 1 2 1 1
+a_values 1 -2 -1 2 -1 3
+b_runs 3 3 4 3 3 2 1 3
+b_values 0 3 -1 -2 -1 0 0 3
+out_runs 2 1 3 1 2 1 1 2 3 3 3
+out_values 1 -2 -5 0 3 0 5 2 1 0 -3
+
+case mul
+a_runs 2 2 1 1 2 4 4 4
+a_values -2 1 3 2 0 1 -2 -1
+b_runs 3 4 2 3
+b_values 0 2 1 2
+out_runs 3 1 1 1 2 1 3 8
+out_values 0 2 6 4 0 1 2 0
+
+case coverage
+starts 8 10 0 13 1 9 14
+ends 14 14 6 15 3 10 20
+weights -1 4 4 1 -1 0 2
+out_runs 1 2 3 2 2 3 1 1 5
+out_values 4 3 4 0 -1 3 4 3 2
+
+case add
+a_runs 2 3 3 2 2 3 2 1
+a_values 3 2 0 0 2 1 2 0
+b_runs 4 3 1 1 2 3 1
+b_values 3 -2 -1 0 3 1 2
+out_runs 2 2 1 2 1 1 1 1 1 2 1 2 1
+out_values 6 5 0 -2 -1 0 3 5 3 2 3 2 0
+
+case sub
+a_runs 1 4 1 3 1 4 3 2
+a_values 0 1 1 1 -2 0 0 -2
+b_runs 3 3 2 2 1 2 3 3
+b_values -2 -1 1 1 1 0 2 3
+out_runs 1 2 3 3 1 1 2 3 1 2
+out_values 2 3 2 0 -3 -1 0 -2 -3 -5
+
+case mul
+a_runs 4 2 1
+a_values 3 2 3
+b_runs 2 3 3 3 1
+b_values 1 2 -2 2 3
+out_runs 2 2 1 1 1 5
+out_values 3 6 4 -4 -6 0
+
+case coverage
+starts 7 8 5 4 7 5 3
+ends 9 11 8 5 12 6 7
+weights 0 2 2 4 0 4 -2
+out_runs 3 1 1 1 1 4 1
+out_values 0 -2 2 4 0 2 0
+
+case add
+a_runs 4 1
+a_values 2 -1
+b_runs 4
+b_values 2
+out_runs 4 1
+out_values 4 -1
+
+case sub
+a_runs 2 4 4 3
+a_values 2 1 1 1
+b_runs 2 3
+b_values -2 -2
+out_runs 2 3 8
+out_values 4 3 1
+
+case mul
+a_runs 4 3 4 3 2 3 2 4
+a_values -2 1 -2 3 3 -1 -1 3
+b_runs 4
+b_values 1
+out_runs 4 21
+out_values -2 0
+
+case coverage
+starts 11 14 10 8 7 1
+ends 16 19 13 9 9 5
+weights 0 -1 2 2 1 1
+out_runs 1 4 2 1 1 1 3 1 5
+out_values 0 1 0 1 3 0 2 0 -1
+
+case add
+a_runs 2 4
+a_values -1 -2
+b_runs 3 4 1 3 4 1 3
+b_values 3 2 3 3 0 2 3
+out_runs 2 1 3 1 4 4 1 3
+out_values 2 1 0 2 3 0 2 3
+
+case sub
+a_runs 2
+a_values 0
+b_runs 3 4 4
+b_values 2 1 0
+out_runs 3 4 4
+out_values -2 -1 0
+
+case mul
+a_runs 4
+a_values -2
+b_runs 2 1 1
+b_values -1 1 -2
+out_runs 2 1 1
+out_values 2 -2 4
+
+case coverage
+starts 12 6 2 6
+ends 15 11 7 11
+weights 2 4 -1 2
+out_runs 2 4 1 4 1 3
+out_values 0 -1 5 6 0 2
+
+case add
+a_runs 2 1 1 4 2 3 1
+a_values -2 1 3 2 1 0 2
+b_runs 1 1 2 1 1 2 3
+b_values 0 -1 -2 3 -1 0 -1
+out_runs 1 1 1 1 1 1 2 2 1 2 1
+out_values -2 -3 -1 1 5 1 2 0 -1 0 2
+
+case sub
+a_runs 2 3
+a_values -2 -2
+b_runs 1
+b_values 0
+out_runs 5
+out_values -2
+
+case mul
+a_runs 4 4 3 2 3
+a_values -2 2 2 -1 -1
+b_runs 2 3 2
+b_values -1 0 3
+out_runs 2 3 2 9
+out_values 2 0 6 0
+
+case coverage
+starts 6
+ends 8
+weights 3
+out_runs 6 2
+out_values 0 3
+
+case add
+a_runs 4 3 3
+a_values 2 -1 -2
+b_runs 2 2 4
+b_values -2 2 1
+out_runs 2 2 3 1 2
+out_values 0 4 0 -1 -2
+
+case sub
+a_runs 4 1
+a_values 3 2
+b_runs 3
+b_values 1
+out_runs 3 1 1
+out_values 2 3 2
+
+case mul
+a_runs 1 1 4 2
+a_values -1 2 1 1
+b_runs 1 3 4 3 2
+b_values 0 0 2 1 1
+out_runs 4 4 5
+out_values 0 2 0
+
+case coverage
+starts 14 11 12 12
+ends 16 13 16 14
+weights -1 -1 0 4
+out_runs 11 1 1 1 2
+out_values 0 -1 3 4 -1
+
+case add
+a_runs 1
+a_values 1
+b_runs 1 3 1 3 2 2 2 1
+b_values 3 0 3 2 -2 -2 -2 -1
+out_runs 1 3 1 3 6 1
+out_values 4 0 3 2 -2 -1
+
+case sub
+a_runs 4 1 4 2 4
+a_values -2 -1 2 3 3
+b_runs 2 3 2 1 3
+b_values 1 -2 -2 -2 2
+out_runs 2 2 1 3 1 2 4
+out_values -3 0 1 4 0 1 3
+
+case mul
+a_runs 1 3 4 4 4 3
+a_values 0 1 -1 2 -2 1
+b_runs 4 3 3
+b_values 2 0 3
+out_runs 1 3 3 1 2 9
+out_values 0 2 0 -3 6 0
+
+case coverage
+starts 12 2 1
+ends 18 5 5
+weights 0 -1 -2
+out_runs 1 1 3 13
+out_values 0 -2 -3 0
+
+case add
+a_runs 2 2 2 3 3 1 4 4
+a_values -1 -2 3 -1 2 -1 1 3
+b_runs 4 1 4
+b_values -1 -1 2
+out_runs 2 2 1 1 3 3 1 4 4
+out_values -2 -3 2 5 1 2 -1 1 3
+
+case sub
+a_runs 4 1
+a_values 2 2
+b_runs 2
+b_values 2
+out_runs 2 3
+out_values 0 2
+
+case mul
+a_runs 3 3 4 1 1 1 2 3
+a_values -2 -1 2 2 3 1 2 -2
+b_runs 3 3 3 3 3 4
+b_values 2 -1 3 1 -2 0
+out_runs 3 3 3 2 1 1 2 4
+out_values -4 1 6 2 3 -2 -4 0
+
+case coverage
+starts 13 3 6 4 15 14
+ends 16 8 9 9 17 15
+weights -1 3 4 4 4 0
+out_runs 3 1 2 2 1 4 2 1 1
+out_values 0 3 7 11 8 0 -1 3 4
+
+case add
+a_runs 1 4 2 4 1 2
+a_values -2 2 -1 -2 0 1
+b_runs 1 3 1 1
+b_values 2 -1 -1 -2
+out_runs 1 4 1 1 4 1 2
+out_values 0 1 -3 -1 -2 0 1
+
+case sub
+a_runs 2 2 3
+a_values -1 -1 2
+b_runs 2
+b_values 0
+out_runs 4 3
+out_values -1 2
+
+case mul
+a_runs 4 2 3 3 2 4
+a_values 3 1 -2 -1 0 -1
+b_runs 4 3 2 1 4 4
+b_values 3 3 -2 0 -1 2
+out_runs 4 2 1 2 1 2 2 4
+out_values 9 3 -6 4 0 1 0 -2
+
+case coverage
+starts 7 11
+ends 9 13
+weights 0 -2
+out_runs 11 2
+out_values 0 -2
+
+case add
+a_runs 2 1 1 1 1 2
+a_values 1 -1 2 0 3 -2
+b_runs 3 3
+b_values 2 1
+out_runs 2 1 1 1 1 2
+out_values 3 1 3 1 4 -2
+
+case sub
+a_runs 2 4 1 1 1 1 4
+a_values 2 3 0 3 -2 3 0
+b_runs 1 2
+b_values 3 -1
+out_runs 1 1 1 3 1 1 1 1 4
+out_values -1 3 4 3 0 3 -2 3 0
+
+case mul
+a_runs 1 4 1 2
+a_values -1 1 -1 2
+b_runs 2 2 2
+b_values 3 -1 -1
+out_runs 1 1 3 1 2
+out_values -3 3 -1 1 0
+
+case coverage
+starts 7 5
+ends 11 6
+weights 3 3
+out_runs 5 1 1 4
+out_values 0 3 0 3
+
+case add
+a_runs 4 3 2 2 2
+a_values 0 0 3 2 0
+b_runs 2 2 2 1 1
+b_values 1 -1 1 3 3
+out_runs 2 2 2 1 1 1 2 2
+out_values 1 -1 1 3 6 3 2 0
+
+case sub
+a_runs 1 3 3
+a_values 1 -1 -2
+b_runs 2 2 4 1 4
+b_values 2 1 3 0 -2
+out_runs 1 1 2 3 1 1 4
+out_values -1 -3 -2 -5 -3 0 2
+
+case mul
+a_runs 3 1 3 2 2 1 2
+a_values -1 1 3 1 -2 -2 2
+b_runs 3 3 4 4 4 2 2
+b_values 1 -2 -2 3 2 0 3
+out_runs 3 1 3 2 1 2 2 8
+out_values -1 -2 -6 -2 4 -6 6 0
+
+case coverage
+starts 3 13 2
+ends 7 15 6
+weights -1 4 3
+out_runs 2 1 3 1 6 2
+out_values 0 3 2 -1 0 4
+
+case add
+a_runs 2
+a_values 2
+b_runs 1 4 2
+b_values -1 0 0
+out_runs 1 1 5
+out_values 1 2 0
+
+case sub
+a_runs 4 2 3 2 4 1
+a_values 3 -1 -1 -1 2 0
+b_runs 1 4 2 3 3
+b_values 3 2 1 -1 2
+out_runs 1 3 1 2 3 1 2 2 1
+out_values 0 1 -3 -2 0 -3 0 2 0
+
+case mul
+a_runs 1 1 4 1
+a_values 0 3 3 0
+b_runs 1
+b_values 1
+out_runs 7
+out_values 0
+
+case coverage
+starts 12 7 13 11 4 13 9
+ends 15 10 14 14 6 19 10
+weights 3 4 0 2 2 -1 3
+out_runs 4 2 1 2 1 1 1 1 1 1 4
+out_values 0 2 0 4 7 0 2 5 4 2 -1
+
+case add
+a_runs 1 1 2 2 4 2 2
+a_values -2 1 3 3 -1 -1 1
+b_runs 1 4 1
+b_values 2 3 -2
+out_runs 1 1 3 1 6 2
+out_values 0 4 6 1 -1 1
+
+case sub
+a_runs 4 2
+a_values 2 2
+b_runs 1 2 3 4 3 2 3 4
+b_values 2 -2 -2 3 2 2 -2 1
+out_runs 1 5 4 5 3 4
+out_values 0 4 -3 -2 2 -1
+
+case mul
+a_runs 2 1 1 4 4 4
+a_values 2 0 2 0 3 -1
+b_runs 1 2 2
+b_values 0 -2 0
+out_runs 1 1 14
+out_values 0 -4 0
+
+case coverage
+starts 13 5 1 5 13 2 10
+ends 18 9 6 11 19 5 15
+weights 3 4 -1 -1 -2 4 1
+out_runs 1 1 3 1 3 1 1 2 2 3 1
+out_values 0 -1 3 2 3 -1 0 1 2 1 -2
+
+case add
+a_runs 2 1 3
+a_values -1 1 2
+b_runs 2 1 2 3 2
+b_values -1 2 -2 0 -2
+out_runs 2 1 2 1 2 2
+out_values -2 3 0 2 0 -2
+
+case sub
+a_runs 4 3 2 1 3 3 1 3
+a_values 3 1 -2 2 1 -2 -1 -1
+b_runs 2 3 4 2
+b_values 1 1 0 0
+out_runs 4 1 2 2 1 3 3 4
+out_values 2 0 1 -2 2 1 -2 -1
+
+case mul
+a_runs 3 3 3 2
+a_values -2 -2 1 1
+b_runs 2 3 1 2
+b_values 0 -1 0 3
+out_runs 2 3 1 2 3
+out_values 0 2 0 3 0
+
+case coverage
+starts 12 7 7 15
+ends 13 11 13 16
+weights 0 3 2 -2
+out_runs 7 4 2 2 1
+out_values 0 5 2 0 -2
+
+case add
+a_runs 1 3 1 1 3 4
+a_values 1 -1 -2 0 1 2
+b_runs 1 1 4 1 2 2 4
+b_values 3 -1 -2 3 2 0 -2
+out_runs 1 1 2 1 1 1 2 2 2 2
+out_values 4 -2 -3 -4 -2 4 3 2 0 -2
+
+case sub
+a_runs 3 3 2
+a_values -2 -2 1
+b_runs 1 2 4 4
+b_values -2 -2 3 1
+out_runs 3 3 1 1 3
+out_values 0 -5 -2 0 -1
+
+case mul
+a_runs 2 1 1 3 1
+a_values 1 1 0 -1 2
+b_runs 3 1 4 1 4 1 1
+b_values -2 -1 0 3 -1 -2 0
+out_runs 3 12
+out_values -2 0
+
+case coverage
+starts 7 13
+ends 12 15
+weights 0 2
+out_runs 13 2
+out_values 0 2
+
+case add
+a_runs 4 4 3 1 1 1
+a_values 2 0 2 0 1 2
+b_runs 4 4 4
+b_values 0 2 0
+out_runs 11 1 1 1
+out_values 2 0 1 2
+
+case sub
+a_runs 3
+a_values 3
+b_runs 2 3 3 4 3 4
+b_values 2 3 1 -1 3 1
+out_runs 2 1 2 3 4 3 4
+out_values 1 0 -3 -1 1 -3 -1
+
+case mul
+a_runs 3 2 2 4 2 4
+a_values -2 3 -2 1 -1 -1
+b_runs 4 4 4 2
+b_values 3 1 -2 2
+out_runs 3 1 1 2 1 3 1 2 3
+out_values -6 9 3 -2 1 -2 2 -2 0
+
+case coverage
+starts 11
+ends 14
+weights 2
+out_runs 11 3
+out_values 0 2
+
+case add
+a_runs 2 4 3 2 1 4
+a_values -2 3 -2 3 0 -2
+b_runs 4 1 2 1 4 4
+b_values -2 1 1 -1 1 -2
+out_runs 2 2 2 1 1 1 2 1 4
+out_values -4 1 4 -1 -3 -1 4 1 -4
+
+case sub
+a_runs 3 4 2 3 2 4 4
+a_values -1 -2 -1 0 -2 1 3
+b_runs 4 4 4 4 2 4 3
+b_values 0 -1 3 2 2 3 -1
+out_runs 3 1 3 1 1 3 2 4 4 3
+out_values -1 -2 -1 0 -4 -3 -4 -1 0 1
+
+case mul
+a_runs 1 4 2
+a_values 1 -1 -1
+b_runs 4 2 2 1 2
+b_values -1 -2 -2 0 0
+out_runs 1 3 3 4
+out_values -1 1 2 0
+
+case coverage
+starts 5 2 14 6 13 12 12 4
+ends 10 7 19 10 14 14 14 8
+weights 1 1 -2 0 -1 1 3 2
+out_runs 2 2 1 2 1 2 2 1 1 5
+out_values 0 1 3 4 3 1 0 4 3 -2
+
+case add
+a_runs 2 1 3 4 4 3 2 3
+a_values 2 1 1 -2 0 2 -2 2
+b_runs 2 1 4 1 3
+b_values -2 2 3 2 -1
+out_runs 2 1 3 1 1 2 1 3 3 2 3
+out_values 0 3 4 1 0 -3 -1 0 2 -2 2
+
+case sub
+a_runs 2 4 3 3
+a_values -2 -1 2 2
+b_runs 1 2 3 2 4
+b_values 0 -2 0 3 0
+out_runs 1 1 1 5 4
+out_values -2 0 1 -1 2
+
+case mul
+a_runs 1 3 1 3 4 4
+a_values -2 1 1 -2 -2 -1
+b_runs 2 1 1 2 4 4 1
+b_values 0 3 2 2 3 2 2
+out_runs 2 1 2 1 4 2 3 1
+out_values 0 3 2 -4 -6 -4 -2 0
+
+case coverage
+starts 4 15 1 6 12 8 5
+ends 8 21 5 7 18 12 9
+weights -2 3 -2 2 2 0 3
+out_runs 1 3 1 1 1 1 1 3 3 3 3
+out_values 0 -2 -4 1 3 1 3 0 2 5 3
+
+case add
+a_runs 3 3 4
+a_values 0 -1 1
+b_runs 2 1 4 3 1 4 4
+b_values -1 -2 -1 1 -2 0 2
+out_runs 2 4 1 3 1 4 4
+out_values -1 -2 0 2 -2 0 2
+
+case sub
+a_runs 1 3 1 1
+a_values 2 3 2 0
+b_runs 1 4 3 3 4 1
+b_values 3 -2 -1 0 2 0
+out_runs 1 3 1 3 3 4 1
+out_values -1 5 4 1 0 -2 0
+
+case mul
+a_runs 1 4 1 1 3 2 4
+a_values -1 1 -1 0 -1 -2 2
+b_runs 1 4 4 1 2
+b_values -1 0 -2 -1 -1
+out_runs 1 4 1 1 2 1 2 4
+out_values 1 0 2 0 2 1 2 0
+
+case coverage
+starts 10 14 9 14 9 14 0 0
+ends 11 18 12 20 14 17 4 5
+weights -2 3 0 -1 3 -1 1 0
+out_runs 4 5 1 1 3 3 1 2
+out_values 1 0 3 1 3 1 2 -1
+
+case add
+a_runs 3 3 1 4 4 2 3
+a_values -1 3 0 0 3 1 3
+b_runs 3 3 4 4 3 4
+b_values -2 3 3 -2 -2 0
+out_runs 3 3 4 1 4 2 3 1
+out_values -3 6 3 -2 1 -1 3 0
+
+case sub
+a_runs 2 2 2 1
+a_values 1 2 0 1
+b_runs 3 3 4 4 3 3
+b_values -2 1 -2 -2 2 0
+out_runs 2 1 1 2 1 7 3 3
+out_values 3 4 1 -1 3 2 -2 0
+
+case mul
+a_runs 2 4 4 2
+a_values 1 3 3 0
+b_runs 2 2 2
+b_values 2 -1 1
+out_runs 2 2 2 6
+out_values 2 -3 3 0
+
+case coverage
+starts 3
+ends 6
+weights 1
+out_runs 3 3
+out_values 0 1
+
+case add
+a_runs 3 2 2 2 1 3 3
+a_values 0 3 0 -2 -2 0 -2
+b_runs 1
+b_values -1
+out_runs 1 2 2 2 3 3 3
+out_values -1 0 3 0 -2 0 -2
+
+case sub
+a_runs 2 4 1
+a_values 0 2 2
+b_runs 4 1 2
+b_values -1 1 -2
+out_runs 2 2 1 2
+out_values 1 3 1 4
+
+case mul
+a_runs 3 3 4
+a_values 0 3 3
+b_runs 3 3 1 2 2 4 2 2
+b_values 1 -2 -2 2 1 0 1 -1
+out_runs 3 4 2 1 9
+out_values 0 -6 6 3 0
+
+case coverage
+starts 13
+ends 17
+weights 1
+out_runs 13 4
+out_values 0 1
+
+case add
+a_runs 4
+a_values -1
+b_runs 4 1 4 2 2 1 1
+b_values 3 -2 0 -2 3 -2 -2
+out_runs 4 1 4 2 2 2
+out_values 2 -2 0 -2 3 -2
+
+case sub
+a_runs 3 2 4
+a_values -1 -1 3
+b_runs 3 3 1 3
+b_values 3 2 2 1
+out_runs 3 2 2 2 1
+out_values -4 -3 1 2 -1
+
+case mul
+a_runs 1 1
+a_values 1 -1
+b_runs 2 3 4 4 2
+b_values 3 1 2 3 1
+out_runs 1 1 13
+out_values 3 -3 0
+
+case coverage
+starts 0 4 11 8 3 7 0
+ends 3 6 16 13 6 9 2
+weights 0 0 -2 -2 4 3 3
+out_runs 2 1 3 1 1 1 2 2 3
+out_values 3 0 4 0 3 1 -2 -4 -2
+
+case add
+a_runs 1 1 1 1 2 2 1 3
+a_values 3 -1 -2 -2 2 0 -2 2
+b_runs 3 2 1
+b_values 3 3 -2
+out_runs 1 1 2 1 3 1 3
+out_values 6 2 1 5 0 -2 2
+
+case sub
+a_runs 4 4 1 1 4
+a_values 2 0 3 1 3
+b_runs 1 2 2
+b_values 1 -1 2
+out_runs 1 2 1 1 3 1 1 4
+out_values 1 3 0 -2 0 3 1 3
+
+case mul
+a_runs 1 4
+a_values -1 -2
+b_runs 2 3 3
+b_values -1 1 2
+out_runs 1 1 3 3
+out_values 1 2 -2 0
+
+case coverage
+starts 9 4 2 12 0 15
+ends 11 5 3 18 4 16
+weights 2 2 1 2 0 3
+out_runs 2 1 1 1 4 2 1 3 1 2
+out_values 0 1 0 2 0 2 0 2 5 2
+
+case add
+a_runs 3 3 2 1 1 2 3 3
+a_values 3 -1 2 1 0 0 -1 -1
+b_runs 3 2 4
+b_values 0 1 0
+out_runs 3 2 1 2 1 3 6
+out_values 3 0 -1 2 1 0 -1
+
+case sub
+a_runs 3 1 1 1 4 4
+a_values 3 3 2 3 3 2
+b_runs 2 2 3
+b_values -1 3 -2
+out_runs 2 2 1 2 3 4
+out_values 4 0 4 5 3 2
+
+case mul
+a_runs 4
+a_values 1
+b_runs 4 3 4 4 4
+b_values 0 -2 2 -2 0
+out_runs 19
+out_values 0
+
+case coverage
+starts 2 13 14 11 9
+ends 7 17 19 13 10
+weights 1 3 -2 4 0
+out_runs 2 5 4 2 1 3 2
+out_values 0 1 0 4 3 1 -2
+
+case add
+a_runs 2 2 3 3 3 3 2 2
+a_values 2 1 -1 -1 -2 3 -2 -2
+b_runs 1 2
+b_values 1 3
+out_runs 1 1 1 1 6 3 3 4
+out_values 3 5 4 1 -1 -2 3 -2
+
+case sub
+a_runs 1 2 4 2 1
+a_values 2 3 3 0 0
+b_runs 2 1 1 4 1 3 2 2
+b_values 1 -1 -1 2 -2 3 1 2
+out_runs 1 1 2 3 1 1 3 2 2
+out_values 1 2 4 1 -2 2 -3 -1 -2
+
+case mul
+a_runs 2 1 4 4
+a_values -2 0 2 3
+b_runs 4 1
+b_values -1 -1
+out_runs 2 1 2 6
+out_values 2 0 -2 0
+
+case coverage
+starts 0 12
+ends 4 18
+weights 1 4
+out_runs 4 8 6
+out_values 1 0 4
+
+case add
+a_runs 2 2 1 4 4 3
+a_values 1 -2 3 2 2 0
+b_runs 1 2 1 1 3 3
+b_values -2 2 2 -1 -2 3
+out_runs 1 1 2 1 3 3 2 3
+out_values -1 3 0 2 0 5 2 0
+
+case sub
+a_runs 4 4 2 1 2 3 3 2
+a_values 0 1 -2 -1 -1 2 2 2
+b_runs 1 4 4 1 2 1 2
+b_values 2 -2 3 2 3 1 2
+out_runs 1 3 1 3 1 3 1 2 6
+out_values -2 2 3 -2 -5 -4 -2 0 2
+
+case mul
+a_runs 4 3 1 2 4 3
+a_values 0 2 0 2 1 2
+b_runs 4 4 3 4
+b_values 3 2 0 -1
+out_runs 4 3 4 3 1 2
+out_values 0 4 0 -1 -2 0
+
+case coverage
+starts 7 14
+ends 9 15
+weights 4 -1
+out_runs 7 2 5 1
+out_values 0 4 0 -1
+
+case add
+a_runs 4 2 4 1
+a_values -2 1 1 1
+b_runs 4 2 2
+b_values -1 3 -2
+out_runs 4 2 2 3
+out_values -3 4 -1 1
+
+case sub
+a_runs 1 3
+a_values 2 -1
+b_runs 3
+b_values -2
+out_runs 1 2 1
+out_values 4 1 -1
+
+case mul
+a_runs 1 3 2 3 4
+a_values 2 0 -2 0 -1
+b_runs 2 4 1 4 4 1 3 3
+b_values -2 1 0 2 2 3 -2 -1
+out_runs 1 3 2 3 4 9
+out_values -4 0 -2 0 -2 0
+
+case coverage
+starts 6 14
+ends 8 20
+weights 3 -1
+out_runs 6 2 6 6
+out_values 0 3 0 -1
+
+case add
+a_runs 4 1 2 3 4
+a_values -2 1 1 2 0
+b_runs 3
+b_values -1
+out_runs 3 1 3 3 4
+out_values -3 -2 1 2 0
+
+case sub
+a_runs 2 4 2 4 3 3
+a_values 2 2 2 3 0 3
+b_runs 3 3 2 1 1 4
+b_values -2 1 2 -1 3 2
+out_runs 3 3 2 1 1 2 2 1 3
+out_values 4 1 0 4 0 1 -2 0 3
+
+case mul
+a_runs 4 3 4 2 3 4 1
+a_values 2 1 0 -2 -2 1 2
+b_runs 3 3 1 4 1 4 3
+b_values -2 2 1 0 -2 2 2
+out_runs 3 1 2 1 4 1 4 3 2
+out_values -4 4 2 1 0 4 -4 2 0
+
+case coverage
+starts 8
+ends 13
+weights -2
+out_runs 8 5
+out_values 0 -2
+
+case add
+a_runs 1 2 2 3 4 1 1 1
+a_values 0 1 1 1 2 3 3 -1
+b_runs 1 2 2 4 3
+b_values 1 3 -1 1 0
+out_runs 1 2 2 3 1 3 2 1
+out_values 1 4 0 2 3 2 3 -1
+
+case sub
+a_runs 2 1
+a_values 3 2
+b_runs 4
+b_values -1
+out_runs 2 1 1
+out_values 4 3 1
+
+case mul
+a_runs 3 2
+a_values -1 1
+b_runs 3 1 1 2 4
+b_values 1 3 1 2 3
+out_runs 3 1 1 6
+out_values -1 3 1 0
+
+case coverage
+starts 1 12 3 14 2 10 13 4
+ends 3 14 9 17 6 16 19 10
+weights -1 -2 1 0 3 1 4 -1
+out_runs 1 1 1 1 2 3 1 2 1 1 2 3
+out_values 0 -1 2 4 3 0 -1 1 -1 3 5 4
+
+case add
+a_runs 2
+a_values -2
+b_runs 3
+b_values 1
+out_runs 2 1
+out_values -1 1
+
+case sub
+a_runs 3 1 3 2
+a_values -1 3 2 0
+b_runs 2
+b_values 0
+out_runs 3 1 3 2
+out_values -1 3 2 0
+
+case mul
+a_runs 3
+a_values 2
+b_runs 1 1 4 4 4
+b_values 0 2 3 3 0
+out_runs 1 1 1 11
+out_values 0 4 6 0
+
+case coverage
+starts 5 9
+ends 10 15
+weights 3 4
+out_runs 5 4 1 5
+out_values 0 3 7 4
+
+case add
+a_runs 2
+a_values 2
+b_runs 2 4 2 4 2 1 4
+b_values 0 2 3 2 2 3 0
+out_runs 6 2 6 1 4
+out_values 2 3 2 3 0
+
+case sub
+a_runs 1 1 4
+a_values 1 0 3
+b_runs 4 3 1 3 4
+b_values -1 -1 0 3 -2
+out_runs 1 1 4 1 1 3 4
+out_values 2 1 4 1 0 -3 2
+
+case mul
+a_runs 3 2 2 3 2 4
+a_values -2 1 1 -1 1 1
+b_runs 3 1 2 4 1 4 2
+b_values -1 1 0 1 3 2 -2
+out_runs 3 1 2 1 3 1 4 1 1
+out_values 2 1 0 1 -1 3 2 -2 0
+
+case coverage
+starts 15 11 2
+ends 18 13 3
+weights 2 4 3
+out_runs 2 1 8 2 2 3
+out_values 0 3 0 4 0 2
+
+case add
+a_runs 1 4 3 3 1
+a_values 0 -2 2 2 -2
+b_runs 1 4 4 2 3 1 4
+b_values 2 3 3 1 2 2 2
+out_runs 1 4 4 2 1 7
+out_values 2 1 5 3 0 2
+
+case sub
+a_runs 2 1 2 1 3 3 4
+a_values 1 0 1 1 -2 1 1
+b_runs 4 2 1 3 4
+b_values 2 -1 3 1 -2
+out_runs 2 1 1 2 1 2 1 4 2
+out_values -1 -2 -1 2 -5 -3 0 3 1
+
+case mul
+a_runs 4 4 1 4 4 2
+a_values -2 3 -1 2 2 2
+b_runs 2 4 3 4
+b_values -1 -2 -1 2
+out_runs 2 2 2 2 1 4 6
+out_values 2 4 -6 -3 1 4 0
+
+case coverage
+starts 11 6 14 11
+ends 14 12 20 13
+weights -2 0 2 0
+out_runs 11 3 6
+out_values 0 -2 2
+
+case add
+a_runs 4 1 4 4 4
+a_values 0 2 2 2 -2
+b_runs 3 1 3 1 3 1 1
+b_values -1 1 -1 1 -1 0 1
+out_runs 3 4 1 3 1 1 4
+out_values -1 1 3 1 2 3 -2
+
+case sub
+a_runs 3 2 4 2 3
+a_values -1 -2 2 0 1
+b_runs 1 4 4
+b_values 2 -2 -1
+out_runs 1 2 2 4 2 3
+out_values -3 1 0 3 0 1
+
+case mul
+a_runs 3 4 4 3 3 2
+a_values 3 3 1 0 0 2
+b_runs 2 1 1 3 2 1
+b_values -2 1 2 -1 -1 2
+out_runs 2 1 1 3 2 1 9
+out_values -6 3 6 -3 -1 2 0
+
+case coverage
+starts 3 9 6 8 4 11 6 4
+ends 5 14 7 14 10 13 10 5
+weights 0 4 4 2 1 1 0 0
+out_runs 4 2 1 1 1 1 1 2 1
+out_values 0 1 5 1 3 7 6 7 6
+
+case add
+a_runs 4 1 3 1 3 1 1 1
+a_values -2 2 3 -2 1 0 1 2
+b_runs 4 3 4 3 1 4
+b_values 1 -2 -1 3 1 2
+out_runs 4 1 2 1 1 2 1 1 1 1 4
+out_values -1 0 1 2 -3 0 4 3 4 3 2
+
+case sub
+a_runs 3 3 2 4
+a_values 0 0 3 2
+b_runs 4 2 1 4 4 1 2 3
+b_values 2 1 -1 -2 1 2 3 -1
+out_runs 4 2 1 1 3 1 3 1 2 3
+out_values -2 -1 4 5 4 1 -1 -2 -3 1
+
+case mul
+a_runs 2 3 1 3 4 4 3 3
+a_values -2 -1 0 1 -1 3 -2 0
+b_runs 2
+b_values 1
+out_runs 2 21
+out_values -2 0
+
+case coverage
+starts 0 2 1 8 12 14
+ends 4 7 5 14 14 15
+weights -2 2 2 1 0 -1
+out_runs 1 1 2 1 2 1 6 1
+out_values -2 0 2 4 2 0 1 -1
+
+case add
+a_runs 3 3 4 2 1
+a_values 1 0 -1 0 -1
+b_runs 3 4 1 3 4 3 3 3
+b_values 1 2 3 3 0 2 2 3
+out_runs 6 1 3 1 1 1 2 6 3
+out_values 2 1 2 3 0 -1 0 2 3
+
+case sub
+a_runs 1 2
+a_values 2 0
+b_runs 3 1 1 2 2 3 2 2
+b_values 2 0 1 -1 2 -2 3 3
+out_runs 1 2 1 1 2 2 3 4
+out_values 0 -2 0 -1 1 -2 2 -3
+
+case mul
+a_runs 4 1 3 2 2
+a_values 3 2 3 1 3
+b_runs 2 4 1 2
+b_values -1 0 -2 -2
+out_runs 2 4 2 1 3
+out_values -3 0 -6 -2 0
+
+case coverage
+starts 12 0 0 1 5
+ends 14 2 1 7 8
+weights 2 1 1 -2 3
+out_runs 1 1 3 2 1 4 2
+out_values 2 -1 -2 1 3 0 2
+
+case add
+a_runs 3 2
+a_values -1 2
+b_runs 1 1 4 3
+b_values -2 0 3 -1
+out_runs 1 1 1 2 1 3
+out_values -3 -1 2 5 3 -1
+
+case sub
+a_runs 2 2 2 4 3 4 1
+a_values 1 2 1 2 0 1 -1
+b_runs 1 4 3 1 1
+b_values -2 -2 -2 -1 3
+out_runs 2 2 2 2 1 1 3 4 1
+out_values 3 4 3 4 3 -1 0 1 -1
+
+case mul
+a_runs 3
+a_values -1
+b_runs 2
+b_values 2
+out_runs 2 1
+out_values -2 0
+
+case coverage
+starts 14 1 11
+ends 17 5 13
+weights 3 2 0
+out_runs 1 4 9 3
+out_values 0 2 0 3
+
+case add
+a_runs 3 4 1 2 1 4 1
+a_values -1 0 3 -2 1 3 0
+b_runs 3 3 1 1 1 2 4
+b_values -2 1 2 -1 -1 3 0
+out_runs 3 3 2 1 1 1 4 1
+out_values -3 1 2 -3 1 4 3 0
+
+case sub
+a_runs 1 3 1 1 3 2
+a_values 3 2 -1 0 0 -2
+b_runs 2 4 1 4
+b_values 0 3 3 2
+out_runs 1 1 2 1 2 2 2
+out_values 3 2 -1 -4 -3 -2 -4
+
+case mul
+a_runs 3 2 1 4 3 4
+a_values 1 -1 1 2 -2 -1
+b_runs 3 3 4 3 1 3
+b_values -1 0 3 -1 1 3
+out_runs 3 3 4 3 1 3
+out_values -1 0 6 2 -1 -3
+
+case coverage
+starts 8 2 4
+ends 11 3 7
+weights 4 2 -2
+out_runs 2 1 1 3 1 3
+out_values 0 2 0 -2 0 4
+
+case add
+a_runs 4
+a_values -2
+b_runs 3
+b_values 3
+out_runs 3 1
+out_values 1 -2
+
+case sub
+a_runs 4
+a_values 3
+b_runs 1 4 2 1 1
+b_values -1 0 0 3 -1
+out_runs 1 3 3 1 1
+out_values 4 3 0 -3 1
+
+case mul
+a_runs 4 1 4
+a_values -2 2 1
+b_runs 1 2 3 2 2 2
+b_values 2 1 -1 -1 0 2
+out_runs 1 2 1 1 3 4
+out_values -4 -2 2 -2 -1 0
+
+case coverage
+starts 1 5 11 13 3 3 13 11
+ends 5 10 16 16 4 6 19 12
+weights 4 1 4 0 0 3 2 -1
+out_runs 1 2 2 1 4 1 1 1 3 3
+out_values 0 4 7 4 1 0 3 4 6 2
+
+case add
+a_runs 1 4 1 1 2
+a_values -2 3 3 3 -1
+b_runs 2 4 3
+b_values 0 3 -2
+out_runs 1 1 4 1 2
+out_values -2 3 6 1 -3
+
+case sub
+a_runs 1 2 4 4 1 1 2 3
+a_values 2 1 0 -1 2 2 -2 0
+b_runs 3 2 3 2 3 2
+b_values -1 3 1 -2 1 -1
+out_runs 1 2 2 2 1 2 1 2 2 3
+out_values 3 2 -3 -1 -2 1 -2 1 -1 0
+
+case mul
+a_runs 4 1 4 1 2
+a_values 3 1 -2 -2 -1
+b_runs 3 2 3 4 2 4 2
+b_values 0 1 3 2 -1 -2 -2
+out_runs 3 1 1 3 2 2 8
+out_values 0 3 1 -6 -4 -2 0
+
+case coverage
+starts 11 6 12 13 1 2 11 6
+ends 16 8 15 17 3 6 12 8
+weights 0 3 0 1 1 -1 2 4
+out_runs 1 1 1 3 2 3 1 1 4
+out_values 0 1 0 -1 7 0 2 0 1
+
+case add
+a_runs 1 4 4
+a_values 0 2 0
+b_runs 2 3 3 3 2 1 3 2
+b_values -2 0 -1 -2 -2 1 2 0
+out_runs 1 1 3 3 5 1 3 2
+out_values -2 0 2 -1 -2 1 2 0
+
+case sub
+a_runs 2 2 3 1 2 4 1
+a_values 1 -2 2 -1 -1 3 1
+b_runs 2 2 3 2 2 3 2 4
+b_values 3 2 0 0 0 1 -1 1
+out_runs 2 2 3 3 1 4 1 4
+out_values -2 -4 2 -1 3 2 1 -1
+
+case mul
+a_runs 2 4 3 2 1 1 4
+a_values 0 -1 -2 -2 2 1 1
+b_runs 2 2 2 3
+b_values 3 3 3 2
+out_runs 2 4 3 8
+out_values 0 -3 -4 0
+
+case coverage
+starts 12
+ends 13
+weights 3
+out_runs 12 1
+out_values 0 3
+
+case add
+a_runs 4 2 1 3 3 2 2 4
+a_values -2 -2 -2 -1 2 2 0 2
+b_runs 4 4 2 1 3 3 4 2
+b_values 2 -1 2 2 0 3 0 2
+out_runs 4 3 1 2 1 3 1 2 6
+out_values 0 -3 -2 1 4 2 5 3 2
+
+case sub
+a_runs 4 3 4 4 2 4 4
+a_values 2 -2 1 2 -1 2 3
+b_runs 2
+b_values 3
+out_runs 2 2 3 4 4 2 4 4
+out_values -1 2 -2 1 2 -1 2 3
+
+case mul
+a_runs 2 2 4 3
+a_values -1 -1 2 1
+b_runs 3 2 4 1 2 3 3
+b_values 2 3 2 1 3 -2 -1
+out_runs 3 1 1 3 1 1 1 7
+out_values -2 -3 6 4 2 1 3 0
+
+case coverage
+starts 15
+ends 18
+weights 0
+out_runs 18
+out_values 0
+
+case add
+a_runs 2 4 3 4 2 2
+a_values 1 2 3 -2 1 3
+b_runs 3 3 2 2
+b_values -2 1 -1 -2
+out_runs 2 1 3 2 1 1 3 2 2
+out_values -1 0 3 2 1 -4 -2 1 3
+
+case sub
+a_runs 3 2 3 4 2 1 4
+a_values 2 2 1 -2 1 -1 3
+b_runs 4 4 1
+b_values 2 3 3
+out_runs 4 1 3 1 3 2 1 4
+out_values 0 -1 -2 -5 -2 1 -1 3
+
+case mul
+a_runs 3
+a_values 0
+b_runs 3 1 2 3 3 3
+b_values -1 -1 3 2 -1 -1
+out_runs 15
+out_values 0
+
+case coverage
+starts 15 13 14 4 1
+ends 21 16 15 7 2
+weights -1 2 4 4 4
+out_runs 1 1 2 3 6 1 1 1 5
+out_values 0 4 0 4 0 2 6 1 -1
+
+case add
+a_runs 2
+a_values 0
+b_runs 2
+b_values 2
+out_runs 2
+out_values 2
+
+case sub
+a_runs 1
+a_values 3
+b_runs 2
+b_values -2
+out_runs 1 1
+out_values 5 2
+
+case mul
+a_runs 2 2 3 3 2 3 1 3
+a_values -2 0 2 -2 -2 0 0 0
+b_runs 2 2 3 4 1 1 4 3
+b_values 0 -1 0 0 -2 0 0 0
+out_runs 11 1 8
+out_values 0 4 0
+
+case coverage
+starts 1 5 5 12 1 9 1
+ends 5 8 7 16 4 15 3
+weights -1 1 4 4 -1 0 1
+out_runs 1 2 1 1 2 1 4 4
+out_values 0 -1 -2 -1 5 1 0 4
+
+case add
+a_runs 1
+a_values -1
+b_runs 4 2 3 2 3 3 3
+b_values 1 0 -1 -2 2 3 3
+out_runs 1 3 2 3 2 3 6
+out_values 0 1 0 -1 -2 2 3
+
+case sub
+a_runs 1 4 3 1 1 2 2
+a_values 0 3 2 0 2 2 2
+b_runs 4
+b_values 1
+out_runs 1 3 1 3 1 5
+out_values -1 2 3 2 0 2
+
+case mul
+a_runs 2 4
+a_values -2 -1
+b_runs 2 4 3 1
+b_values 3 0 2 3
+out_runs 2 8
+out_values -6 0
+
+case coverage
+starts 15 3 3
+ends 21 8 8
+weights 2 1 3
+out_runs 3 5 7 6
+out_values 0 4 0 2
+
+case add
+a_runs 3 3 4
+a_values -2 -1 0
+b_runs 2 4 4 1 1 2 4 2
+b_values 2 2 1 -1 3 1 -2 0
+out_runs 3 7 1 1 2 4 2
+out_values 0 1 -1 3 1 -2 0
+
+case sub
+a_runs 2 2 4 2
+a_values 1 3 -1 -2
+b_runs 1 3 1 1
+b_values 0 2 -1 3
+out_runs 1 1 2 1 1 2 2
+out_values 1 -1 1 0 -4 -1 -2
+
+case mul
+a_runs 2 1 3 3 2 2 2 1
+a_values 1 0 2 1 0 0 -1 -2
+b_runs 1
+b_values 1
+out_runs 1 15
+out_values 1 0
+
+case coverage
+starts 14 1 13 9 12 5
+ends 16 5 14 10 18 7
+weights 3 2 0 1 2 4
+out_runs 1 4 2 2 1 2 2 2 2
+out_values 0 2 4 0 1 0 2 5 2
+
+case add
+a_runs 4 3 1 2 4 4
+a_values 3 0 0 3 1 -1
+b_runs 4 4 3 2 3 2 1
+b_values -1 -2 0 1 2 -1 3
+out_runs 4 4 2 1 2 1 2 2 1
+out_values 2 -2 3 1 2 3 1 -2 3
+
+case sub
+a_runs 4 2 1 1
+a_values -2 3 3 -1
+b_runs 1 4
+b_values 0 2
+out_runs 1 3 1 2 1
+out_values -2 -4 1 3 -1
+
+case mul
+a_runs 2 2 2
+a_values 0 1 2
+b_runs 3 4 3 2 3 2 3 1
+b_values 3 1 -1 -1 2 1 -2 3
+out_runs 2 1 1 2 15
+out_values 0 3 1 2 0
+
+case coverage
+starts 2
+ends 3
+weights 0
+out_runs 3
+out_values 0
+
+case add
+a_runs 3 1 4 1 2 4
+a_values 0 -1 3 0 2 3
+b_runs 4 1
+b_values -2 1
+out_runs 3 1 1 3 1 2 4
+out_values -2 -3 4 3 0 2 3
+
+case sub
+a_runs 2 4 1 3 3 1 2 3
+a_values 3 2 0 0 2 1 -1 2
+b_runs 2 4 1 1 3 2 4 3
+b_values -1 -2 2 0 1 -1 0 2
+out_runs 6 1 1 2 1 2 1 2 1 2 1
+out_values 4 -2 0 -1 1 3 1 -1 2 0 -2
+
+case mul
+a_runs 4 2 3 2
+a_values 3 -2 -1 1
+b_runs 2 4 3 1 1 2 2 2
+b_values 2 0 3 -1 -1 3 1 0
+out_runs 2 4 3 2 6
+out_values 6 0 -3 -1 0
+
+case coverage
+starts 13 7 9 7 12 2 5 2
+ends 17 10 10 8 18 3 7 6
+weights 0 1 4 -1 2 1 -2 -2
+out_runs 2 1 2 1 1 1 1 1 2 6
+out_values 0 -1 -2 -4 -2 0 1 5 0 2
+
+case add
+a_runs 1 3 2
+a_values 2 3 0
+b_runs 2 1 4 2 3 4
+b_values 3 -1 1 3 0 -2
+out_runs 1 1 1 1 3 2 3 4
+out_values 5 6 2 4 1 3 0 -2
+
+case sub
+a_runs 2 2 2 4 1
+a_values 1 0 2 -2 1
+b_runs 1 3 2 1 1 3
+b_values 0 2 1 1 -2 -2
+out_runs 1 1 2 2 1 3 1
+out_values 1 -1 -2 1 -3 0 3
+
+case mul
+a_runs 1 3 4 4 2
+a_values 3 -1 -2 1 -2
+b_runs 4 2 1 1 2 4
+b_values -1 -2 1 1 -1 3
+out_runs 1 3 2 2 2 2 2
+out_values -3 1 4 -2 -1 3 -6
+
+case coverage
+starts 11 5 2
+ends 17 6 4
+weights 2 -1 2
+out_runs 2 2 1 1 5 6
+out_values 0 2 0 -1 0 2
+
+case add
+a_runs 2 2 3 2 1
+a_values -2 1 -2 2 2
+b_runs 2 2 1 1 3 1
+b_values 0 2 0 -2 -1 0
+out_runs 2 2 1 1 1 2 1
+out_values -2 3 -2 -4 -3 1 2
+
+case sub
+a_runs 3 3 3 4
+a_values -2 2 2 0
+b_runs 3 2 1 4 1 2
+b_values 0 2 1 3 -2 0
+out_runs 3 2 1 3 1 1 2
+out_values -2 0 1 -1 -3 2 0
+
+case mul
+a_runs 1 2
+a_values 1 -2
+b_runs 4
+b_values -1
+out_runs 1 2 1
+out_values -1 2 0
+
+case coverage
+starts 13 15 12 3 14 4
+ends 18 20 17 4 15 9
+weights 0 3 -2 1 3 -2
+out_runs 3 1 5 3 2 3 3
+out_values 0 1 -2 0 -2 1 3
+
+case add
+a_runs 1 2 1 2 1 2
+a_values -2 2 1 2 3 3
+b_runs 4 2 3 2 2 4 4
+b_values 2 -1 -2 -2 3 2 3
+out_runs 1 2 1 5 2 2 4 4
+out_values 0 4 3 1 -2 3 2 3
+
+case sub
+a_runs 2
+a_values 1
+b_runs 2
+b_values -2
+out_runs 2
+out_values 3
+
+case mul
+a_runs 3 3 2
+a_values -2 1 0
+b_runs 2 3 3 3 3 2 1 1
+b_values 1 -2 0 3 -2 3 -1 -1
+out_runs 2 1 2 13
+out_values -2 4 -2 0
+
+case coverage
+starts 3 3 11
+ends 6 5 16
+weights 0 3 0
+out_runs 3 2 11
+out_values 0 3 0
+
+case add
+a_runs 3
+a_values 1
+b_runs 3 2 2 2 4 2 2 1
+b_values 2 2 2 -1 1 2 3 0
+out_runs 3 4 2 4 2 2 1
+out_values 3 2 -1 1 2 3 0
+
+case sub
+a_runs 2 1
+a_values -1 0
+b_runs 2 2 3 1 2 4 4 1
+b_values 3 3 2 -2 3 3 3 3
+out_runs 2 2 3 1 11
+out_values -4 -3 -2 2 -3
+
+case mul
+a_runs 2 1
+a_values -2 0
+b_runs 1 4 1 2
+b_values 0 3 -1 0
+out_runs 1 1 6
+out_values 0 -6 0
+
+case coverage
+starts 7 14 0 0 8
+ends 11 17 4 4 11
+weights 0 -2 -2 -2 4
+out_runs 4 4 3 3 3
+out_values -4 0 4 0 -2
+
+case add
+a_runs 4 4 2 2 1 1
+a_values -1 0 1 3 -2 -2
+b_runs 3 3 2 1 2 2 1 2
+b_values -2 2 -2 3 3 2 2 0
+out_runs 3 1 2 2 2 1 1 4
+out_values -3 1 2 -2 4 6 5 0
+
+case sub
+a_runs 4 1 2 2 2 4 4 4
+a_values 0 -1 2 3 2 -2 3 1
+b_runs 2 3 1 2 1 2 3
+b_values 1 -1 3 -1 -2 -2 1
+out_runs 2 2 1 1 1 1 1 2 3 1 4 4
+out_values -1 1 0 -1 3 4 5 4 -3 -2 3 1
+
+case mul
+a_runs 3
+a_values -2
+b_runs 1 4 1 2 1 3 3 4
+b_values 3 0 0 3 -1 -2 1 0
+out_runs 1 18
+out_values -6 0
+
+case coverage
+starts 10 10
+ends 14 12
+weights -2 4
+out_runs 10 2 2
+out_values 0 2 -2
+
+case add
+a_runs 3 2 1
+a_values 0 -2 1
+b_runs 4
+b_values 3
+out_runs 3 1 1 1
+out_values 3 1 -2 1
+
+case sub
+a_runs 1 4 2
+a_values 3 0 0
+b_runs 4
+b_values 1
+out_runs 1 3 3
+out_values 2 -1 0
+
+case mul
+a_runs 1
+a_values 1
+b_runs 2
+b_values 0
+out_runs 2
+out_values 0
+
+case coverage
+starts 14 9 3 6 13
+ends 15 13 9 12 19
+weights 0 -1 1 0 -2
+out_runs 3 6 4 6
+out_values 0 1 -1 -2
+
+case add
+a_runs 4 2 1 3 2 1
+a_values 1 -2 -2 0 -1 3
+b_runs 4 3
+b_values 1 -2
+out_runs 4 3 3 2 1
+out_values 2 -4 0 -1 3
+
+case sub
+a_runs 2 3 1 1 1
+a_values 1 -1 2 0 1
+b_runs 1 2 2 4
+b_values 3 1 0 2
+out_runs 1 1 1 2 1 1 1 1
+out_values -2 0 -2 -1 0 -2 -1 -2
+
+case mul
+a_runs 3 2 4
+a_values -2 3 3
+b_runs 1 1 3 1 4 4
+b_values 2 2 0 3 -2 -2
+out_runs 2 3 1 3 5
+out_values -4 0 9 -6 0
+
+case coverage
+starts 13 0
+ends 18 3
+weights 4 -2
+out_runs 3 10 5
+out_values -2 0 4
+
+case add
+a_runs 2
+a_values -2
+b_runs 1 3 4 4 3 1
+b_values 1 3 0 1 2 1
+out_runs 1 1 2 4 4 3 1
+out_values -1 1 3 0 1 2 1
+
+case sub
+a_runs 4 4 2 3 4 3 3 2
+a_values 3 2 0 -1 -2 -2 2 -2
+b_runs 2 3 3 4 4 4
+b_values 1 -2 3 2 3 -2
+out_runs 2 2 1 3 2 2 1 3 4 3 2
+out_values 2 5 4 -1 -2 -3 -4 -5 0 2 -2
+
+case mul
+a_runs 1 3 3 3 4 1 1
+a_values 3 0 -1 0 1 0 -1
+b_runs 1 1 3 2
+b_values 3 3 3 2
+out_runs 1 3 1 2 9
+out_values 9 0 -3 -2 0
+
+case coverage
+starts 13 6 4 12 13 0 7 13
+ends 14 11 6 14 19 3 13 17
+weights -2 2 2 2 -1 2 0 3
+out_runs 3 1 7 1 5 2
+out_values 2 0 2 0 2 -1
+
+case add
+a_runs 4 3 3 4 3 2 4 3
+a_values 0 -2 1 3 -1 -1 0 2
+b_runs 4 2 2 2 4
+b_values 0 3 -1 2 -2
+out_runs 4 2 1 1 2 4 5 4 3
+out_values 0 1 -3 0 3 1 -1 0 2
+
+case sub
+a_runs 1
+a_values 3
+b_runs 4
+b_values 2
+out_runs 1 3
+out_values 1 -2
+
+case mul
+a_runs 2 4 1 1 4 2 4
+a_values 0 2 2 0 1 3 0
+b_runs 1 1 3 4 2 4 4
+b_values 3 -2 -2 3 3 -1 -2
+out_runs 2 3 2 1 3 1 2 5
+out_values 0 -4 6 0 3 -1 -3 0
+
+case coverage
+starts 3
+ends 5
+weights -2
+out_runs 3 2
+out_values 0 -2
+
+case add
+a_runs 2
+a_values -2
+b_runs 1 2
+b_values -2 -1
+out_runs 1 1 1
+out_values -4 -3 -1
+
+case sub
+a_runs 4 2 3 2 2
+a_values -2 3 0 3 2
+b_runs 4 3 1 4
+b_values 1 0 -2 2
+out_runs 4 2 1 1 1 2 1 1
+out_values -3 3 0 2 -2 1 0 2
+
+case mul
+a_runs 1 2 4 2
+a_values -2 3 1 2
+b_runs 1
+b_values -2
+out_runs 1 8
+out_values 4 0
+
+case coverage
+starts 2 12 0 4
+ends 5 18 3 6
+weights -2 -2 0 4
+out_runs 2 2 1 1 6 6
+out_values 0 -2 2 4 0 -2
+
+case add
+a_runs 2 3 4 3
+a_values 3 2 -1 -1
+b_runs 2 3
+b_values 2 2
+out_runs 2 3 7
+out_values 5 4 -1
+
+case sub
+a_runs 3 3 4 2 3 3 4 1
+a_values 3 -1 3 1 3 3 1 0
+b_runs 3 1 1 3 2 1 3 4
+b_values 0 -1 3 -1 3 -2 2 2
+out_runs 3 1 1 1 2 2 1 1 10 1
+out_values 3 0 -4 0 4 0 3 -1 1 0
+
+case mul
+a_runs 2 4 2 3 2 1 4 4
+a_values -2 2 3 1 -1 2 1 -2
+b_runs 1
+b_values -2
+out_runs 1 21
+out_values 4 0
+
+case coverage
+starts 4 10 8 14
+ends 10 16 10 20
+weights 4 4 0 0
+out_runs 4 12 4
+out_values 0 4 0
+
+case add
+a_runs 2 3 3 1 1 4
+a_values 2 2 1 1 2 -1
+b_runs 4 1
+b_values 3 0
+out_runs 4 1 4 1 4
+out_values 5 2 1 2 -1
+
+case sub
+a_runs 2 4 3 4 3 1 1 3
+a_values -1 2 3 -1 -2 -2 -1 -1
+b_runs 4 1 3 1 3 2 4 1
+b_values -2 -2 3 1 3 -1 1 0
+out_runs 2 3 1 2 1 3 1 1 3 1 3
+out_values 1 4 -1 0 2 -4 0 -1 -3 -2 -1
+
+case mul
+a_runs 4 2
+a_values 2 2
+b_runs 2 2 1 1 1
+b_values 0 0 3 1 -1
+out_runs 4 1 1 1
+out_values 0 6 2 0
+
+case coverage
+starts 6 11 12 6 13 4 2 7
+ends 12 15 15 8 16 6 4 10
+weights 0 -2 -1 0 3 4 4 3
+out_runs 2 4 1 3 1 1 1 2 1
+out_values 0 4 0 3 0 -2 -3 0 3
+
+case add
+a_runs 1 2 3 4 2 2 4
+a_values 0 2 3 -1 -2 0 3
+b_runs 3
+b_values 1
+out_runs 1 5 4 2 2 4
+out_values 1 3 -1 -2 0 3
+
+case sub
+a_runs 2 2 1 1 2 1
+a_values 1 2 0 1 1 -2
+b_runs 1 2
+b_values -2 -1
+out_runs 1 1 1 1 1 3 1
+out_values 3 2 3 2 0 1 -2
+
+case mul
+a_runs 2 2 4 2 1 2 2
+a_values -2 1 -1 -2 2 0 1
+b_runs 3 4
+b_values 3 -2
+out_runs 2 1 1 3 8
+out_values -6 3 -2 2 0
+
+case coverage
+starts 13 11 10 10 13 11 11
+ends 17 17 13 11 19 16 16
+weights 2 -2 2 3 2 1 3
+out_runs 10 1 2 3 3
+out_values 0 5 4 6 2
+
+case add
+a_runs 2 1
+a_values 0 -2
+b_runs 3 2 4 2 3
+b_values -2 2 1 0 3
+out_runs 2 1 2 4 2 3
+out_values -2 -4 2 1 0 3
+
+case sub
+a_runs 1 3
+a_values -2 -1
+b_runs 2 3 3 2 1
+b_values 2 3 2 1 1
+out_runs 1 1 2 1 3 3
+out_values -4 -3 -4 -3 -2 -1
+
+case mul
+a_runs 2 4 1 4 4 1
+a_values -2 -1 1 0 2 0
+b_runs 4 1 1 1 2 3 3
+b_values -1 3 -1 1 1 3 -2
+out_runs 2 2 1 2 4 1 3 1
+out_values 2 1 -3 1 0 6 -4 0
+
+case coverage
+starts 1 0 9 4 2
+ends 5 6 14 8 5
+weights 1 -1 -1 0 -2
+out_runs 1 1 3 1 3 5
+out_values -1 0 -2 -1 0 -1
+
+case add
+a_runs 4 2 2 2 2
+a_values 0 3 0 3 0
+b_runs 3 2 1 3 4 2 2
+b_values 1 1 2 -1 3 0 -2
+out_runs 4 1 1 2 1 1 3 2 2
+out_values 1 4 5 -1 2 6 3 0 -2
+
+case sub
+a_runs 3
+a_values 3
+b_runs 2 1 2 4 3 4
+b_values -1 0 -2 0 -2 2
+out_runs 2 1 2 4 3 4
+out_values 4 3 2 0 2 -2
+
+case mul
+a_runs 1 2 1 4 2
+a_values 1 1 -1 -1 3
+b_runs 2 4 1 2
+b_values 3 3 -1 1
+out_runs 3 3 1 1 1 1
+out_values 3 -3 1 -1 3 0
+
+case coverage
+starts 11 15 2 10 3 6 14
+ends 12 16 8 14 4 8 18
+weights -1 -2 -1 1 4 4 2
+out_runs 2 1 1 2 2 2 1 1 2 1 1 2
+out_values 0 -1 3 -1 3 0 1 0 1 2 0 2
+
+case add
+a_runs 2
+a_values 1
+b_runs 3 3 1 2 3 2
+b_values 0 -1 0 0 1 2
+out_runs 2 1 3 3 3 2
+out_values 1 0 -1 0 1 2
+
+case sub
+a_runs 1
+a_values 0
+b_runs 1 2 3 2 3 3 1
+b_values 2 -2 -1 0 2 -1 0
+out_runs 1 2 3 2 3 3 1
+out_values -2 2 1 0 -2 1 0
+
+case mul
+a_runs 1 3 3
+a_values 0 -1 -2
+b_runs 1 3 1 1 4 1
+b_values 0 2 2 -2 0 1
+out_runs 1 3 1 1 5
+out_values 0 -2 -4 4 0
+
+case coverage
+starts 5 3 4 9 8 0
+ends 11 6 10 12 12 5
+weights 3 0 2 -1 -1 4
+out_runs 4 1 3 1 1 1 1
+out_values 4 6 5 4 3 1 -2
+
+case add
+a_runs 2 3 1 1 1 1 4 2
+a_values 3 1 -2 1 1 -1 -2 3
+b_runs 2 3 3 2 3 1 1
+b_values 0 1 -2 -1 0 -2 1
+out_runs 2 3 1 2 1 1 3 1 1
+out_values 3 2 -4 -1 -2 -3 -2 1 4
+
+case sub
+a_runs 2 3 4 2 1 2 3 2
+a_values 3 1 -2 -1 1 2 -2 -2
+b_runs 2 3 2 2
+b_values -2 1 2 2
+out_runs 2 3 4 2 1 2 5
+out_values 5 0 -4 -1 1 2 -2
+
+case mul
+a_runs 3 3 4 1 4 4 4 4
+a_values 1 2 -1 1 3 1 -2 1
+b_runs 1 3 2 1 3
+b_values 0 0 2 0 -1
+out_runs 4 2 1 3 17
+out_values 0 4 0 1 0
+
+case coverage
+starts 4 8 13 2
+ends 5 12 15 8
+weights 1 0 3 3
+out_runs 2 2 1 3 5 2
+out_values 0 3 4 3 0 3
+
+case add
+a_runs 3
+a_values -2
+b_runs 1 1 3 3 1 3 2 3
+b_values -2 0 0 0 3 1 1 -1
+out_runs 1 2 5 1 5 3
+out_values -4 -2 0 3 1 -1
+
+case sub
+a_runs 2 2 3 1 2 3
+a_values 1 0 3 -2 0 -1
+b_runs 1 4 1 3 2 2 1 3
+b_values -2 0 2 -2 3 -2 -2 3
+out_runs 1 1 2 1 1 1 1 1 1 1 2 1 3
+out_values 3 1 0 3 1 5 0 2 -3 -4 1 2 -3
+
+case mul
+a_runs 2 1 2 1
+a_values 2 -2 2 2
+b_runs 1 1 4 4 4 1 4 2
+b_values 1 3 -2 3 2 1 0 0
+out_runs 1 1 1 3 15
+out_values 2 6 4 -4 0
+
+case coverage
+starts 1 11 15 15 7 6 2 9
+ends 4 12 18 16 10 10 7 11
+weights -1 3 4 -1 4 2 -2 1
+out_runs 1 1 2 2 1 2 1 1 1 3 1 2
+out_values 0 -1 -3 -2 0 6 7 1 3 0 3 4
+
+case add
+a_runs 3 3 2
+a_values -1 3 2
+b_runs 2 2
+b_values 3 2
+out_runs 2 1 1 2 2
+out_values 2 1 5 3 2
+
+case sub
+a_runs 2 2 2
+a_values 2 -1 1
+b_runs 3 2 1 4 2 3 1
+b_values 1 -2 2 2 -2 2 3
+out_runs 2 1 1 1 1 4 2 3 1
+out_values 1 -2 1 3 -1 -2 2 -2 -3
+
+case mul
+a_runs 2 2 1 1 1 3
+a_values 1 0 -2 -2 -2 -2
+b_runs 3
+b_values 0
+out_runs 10
+out_values 0
+
+case coverage
+starts 8 3 2 7 9 8
+ends 13 9 7 8 13 14
+weights 2 -1 -2 0 3 -2
+out_runs 2 1 4 2 4 1
+out_values 0 -2 -3 -1 3 -2
+
+case add
+a_runs 2 2
+a_values -2 1
+b_runs 3 1
+b_values 0 3
+out_runs 2 1 1
+out_values -2 1 4
+
+case sub
+a_runs 1 4 1 3 4 3
+a_values 1 -2 2 2 0 0
+b_runs 3 4 2 2 4 4
+b_values 1 1 1 2 3 0
+out_runs 1 4 4 2 4 4
+out_values 0 -3 1 -2 -3 0
+
+case mul
+a_runs 2
+a_values -1
+b_runs 1 4 3
+b_values 2 1 -1
+out_runs 1 1 6
+out_values -2 -1 0
+
+case coverage
+starts 9 10 9 4
+ends 13 15 12 7
+weights -1 -2 0 -2
+out_runs 4 3 2 1 3 2
+out_values 0 -2 0 -1 -3 -2
+
+case add
+a_runs 2
+a_values 0
+b_runs 1 1 2
+b_values -2 3 -2
+out_runs 1 1 2
+out_values -2 3 -2
+
+case sub
+a_runs 4
+a_values 0
+b_runs 1
+b_values 0
+out_runs 4
+out_values 0
+
+case mul
+a_runs 4 1 2 4 3
+a_values -2 2 0 -2 1
+b_runs 2 4 3
+b_values 1 3 3
+out_runs 2 2 1 2 2 5
+out_values -2 -6 6 0 -6 0
+
+case coverage
+starts 3 12 5 10 12 6 11 11
+ends 4 16 7 15 15 7 12 12
+weights 4 4 0 -2 4 0 2 1
+out_runs 3 1 6 1 1 3 1
+out_values 0 4 0 -2 1 6 4
+
+case add
+a_runs 1 1 1 4 1 4 2
+a_values 2 -1 -2 -2 2 3 1
+b_runs 4 3 3 3
+b_values 3 2 -2 1
+out_runs 1 1 2 4 2 2 1 1
+out_values 5 2 1 0 1 4 2 1
+
+case sub
+a_runs 3 1 2
+a_values 2 2 -1
+b_runs 1 4 4 1 1 3
+b_values 0 -2 -1 -1 0 -1
+out_runs 1 3 1 1 4 1 3
+out_values 2 4 1 0 1 0 1
+
+case mul
+a_runs 4
+a_values 2
+b_runs 3 2
+b_values -1 0
+out_runs 3 2
+out_values -2 0
+
+case coverage
+starts 13 11 0 5 14 6
+ends 14 17 3 11 20 8
+weights -1 4 -1 4 -2 -1
+out_runs 3 2 1 2 5 1 3 3
+out_values -1 0 4 3 4 3 2 -2
+
+case add
+a_runs 1 1 4 4
+a_values 2 3 -2 2
+b_runs 4 4
+b_values 2 3
+out_runs 1 1 2 2 2 2
+out_values 4 5 0 1 5 2
+
+case sub
+a_runs 2 2 4
+a_values 2 -1 -2
+b_runs 4 4 3 4 1 2 1 3
+b_values -2 -2 0 3 0 0 -1 -2
+out_runs 2 2 7 4 3 1 3
+out_values 4 1 0 -3 0 1 2
+
+case mul
+a_runs 1 4 2 4 2 3
+a_values 0 2 3 2 2 2
+b_runs 2 2 1
+b_values -1 -1 2
+out_runs 1 3 1 11
+out_values 0 -2 4 0
+
+case coverage
+starts 14 4 11 12
+ends 18 5 16 13
+weights 4 2 -2 2
+out_runs 4 1 6 1 1 1 2 2
+out_values 0 2 0 -2 0 -2 2 4
+
+case add
+a_runs 3 1 2 4 3
+a_values 3 1 -2 -2 -1
+b_runs 2 1
+b_values -2 -2
+out_runs 4 6 3
+out_values 1 -2 -1
+
+case sub
+a_runs 1 2
+a_values -2 1
+b_runs 4 3
+b_values 3 -2
+out_runs 1 2 1 3
+out_values -5 -2 -3 2
+
+case mul
+a_runs 2 2 3 4 1
+a_values -2 0 -1 2 1
+b_runs 3 2 1 2 1 3 3 4
+b_values 1 2 1 -1 0 1 2 2
+out_runs 2 2 1 1 1 1 1 2 1 7
+out_values -2 0 -2 -1 1 -2 0 2 1 0
+
+case coverage
+starts 3 7 14 13 13 9
+ends 6 12 17 19 15 10
+weights 0 -1 3 0 0 1
+out_runs 7 2 1 2 2 3 2
+out_values 0 -1 0 -1 0 3 0
+
+case add
+a_runs 2 2 2 4 3
+a_values -2 -2 3 2 -2
+b_runs 3 4 2 1
+b_values 1 -1 2 3
+out_runs 3 1 2 1 2 1 3
+out_values -1 -3 2 1 4 5 -2
+
+case sub
+a_runs 2 3 4
+a_values 3 1 1
+b_runs 1 1 3 3
+b_values -2 3 1 1
+out_runs 1 7 1
+out_values 5 0 1
+
+case mul
+a_runs 2 4 2 2 3
+a_values 2 -1 -2 3 0
+b_runs 4 4 4 3 1 1
+b_values -2 1 3 0 -1 3
+out_runs 2 2 2 2 2 7
+out_values -4 2 -1 -2 9 0
+
+case coverage
+starts 15 9 6 13 2 6 14 1
+ends 17 10 12 16 5 9 19 7
+weights 1 0 -1 1 -1 -2 -1 3
+out_runs 1 1 3 1 1 2 3 1 1 1 1 1 2
+out_values 0 3 2 3 0 -3 -1 0 1 0 1 0 -1
+
+case add
+a_runs 4 2 2 2
+a_values 2 1 -2 -1
+b_runs 4 1 2
+b_values 3 0 3
+out_runs 4 1 1 1 1 2
+out_values 5 1 4 1 -2 -1
+
+case sub
+a_runs 1 2 1 2 1
+a_values 2 -2 -1 0 1
+b_runs 4 3 2 3 4 4 4
+b_values 2 -1 0 2 2 2 2
+out_runs 1 2 1 2 1 2 15
+out_values 0 -4 -3 1 2 0 -2
+
+case mul
+a_runs 2 2 3
+a_values -2 1 0
+b_runs 4 1 4 3 2 4 1 1
+b_values 0 2 0 -1 3 0 2 3
+out_runs 20
+out_values 0
+
+case coverage
+starts 11 10 13 12 2 5 4 7
+ends 12 16 18 17 8 8 6 8
+weights 1 1 -2 3 0 -1 -2 1
+out_runs 4 1 1 1 3 1 1 1 3 1 1
+out_values 0 -2 -3 -1 0 1 2 4 2 1 -2
+
+case add
+a_runs 2 4
+a_values 0 2
+b_runs 4 3 4 3
+b_values 2 -2 -2 -2
+out_runs 2 2 2 8
+out_values 2 4 0 -2
+
+case sub
+a_runs 1 2 3 1 3 1
+a_values 1 1 -2 -2 1 2
+b_runs 2 2 3 1 1
+b_values 0 1 2 -2 0
+out_runs 2 1 1 3 1 2 1
+out_values 1 0 -3 -4 3 1 2
+
+case mul
+a_runs 3 4 1 4
+a_values 2 0 3 -1
+b_runs 1 4
+b_values 2 3
+out_runs 1 2 9
+out_values 4 6 0
+
+case coverage
+starts 9 0 11
+ends 12 5 17
+weights 2 4 1
+out_runs 5 4 2 1 5
+out_values 4 0 2 3 1
+
+case add
+a_runs 1 3 2
+a_values 2 1 0
+b_runs 1
+b_values 2
+out_runs 1 3 2
+out_values 4 1 0
+
+case sub
+a_runs 4 4 1 4
+a_values 3 0 -2 0
+b_runs 3 2 4 4
+b_values -1 -2 1 3
+out_runs 3 1 1 3 5
+out_values 4 5 2 -1 -3
+
+case mul
+a_runs 4 2 3 3 2
+a_values -2 -1 -1 2 -1
+b_runs 2 3 1 4 2 3
+b_values 2 -2 3 2 2 3
+out_runs 2 2 1 1 3 3 2 1
+out_values -4 4 2 -3 -2 4 -3 0
+
+case coverage
+starts 13 6 14
+ends 19 11 18
+weights -1 0 0
+out_runs 13 6
+out_values 0 -1
+
+case add
+a_runs 4 2 4 3 1
+a_values -1 -1 -2 1 1
+b_runs 1 4 1 4
+b_values 0 -1 3 3
+out_runs 1 4 1 8
+out_values -1 -2 2 1
+
+case sub
+a_runs 4 3
+a_values 1 3
+b_runs 3 1 1 4 4 1
+b_values -2 -2 -1 3 2 -2
+out_runs 4 1 2 2 4 1
+out_values 3 4 0 -3 -2 2
+
+case mul
+a_runs 3 3 2 3 4 4 4
+a_values 1 0 2 0 0 2 -1
+b_runs 1 4 3 4 1 1 2
+b_values 3 -2 0 0 -1 2 -1
+out_runs 1 2 12 1 7
+out_values 3 -2 0 -2 0
+
+case coverage
+starts 2 12 0 6 10 5 1
+ends 8 13 6 10 16 10 2
+weights 0 -2 2 4 4 2 -1
+out_runs 1 1 3 1 4 2 1 3
+out_values 2 1 2 4 6 4 2 4
+
+case add
+a_runs 3 4
+a_values -2 2
+b_runs 2 1
+b_values -1 0
+out_runs 2 1 4
+out_values -3 -2 2
+
+case sub
+a_runs 3 2
+a_values 0 -1
+b_runs 4
+b_values 3
+out_runs 3 1 1
+out_values -3 -4 -1
+
+case mul
+a_runs 1 1 4 1 1 4 1
+a_values 0 -1 1 3 2 3 0
+b_runs 1
+b_values -1
+out_runs 13
+out_values 0
+
+case coverage
+starts 6 14 4 10 9 9 1
+ends 7 15 6 15 14 10 5
+weights -2 0 -2 0 0 0 1
+out_runs 1 3 1 2 8
+out_values 0 1 -1 -2 0
+
+case add
+a_runs 3
+a_values 3
+b_runs 3 3 1 2 2 3
+b_values 0 -1 1 0 -2 3
+out_runs 3 3 1 2 2 3
+out_values 3 -1 1 0 -2 3
+
+case sub
+a_runs 4 2 3 2 4 4 2 2
+a_values 0 2 3 3 2 1 2 0
+b_runs 2 2
+b_values 3 0
+out_runs 2 2 2 5 4 4 2 2
+out_values -3 0 2 3 2 1 2 0
+
+case mul
+a_runs 1 2 1 1
+a_values -2 3 0 1
+b_runs 2
+b_values 3
+out_runs 1 1 3
+out_values -6 9 0
+
+case coverage
+starts 15 3 10
+ends 20 4 13
+weights 4 -1 2
+out_runs 3 1 6 3 2 5
+out_values 0 -1 0 2 0 4
+
+case add
+a_runs 1
+a_values 3
+b_runs 1 2 4
+b_values -1 -1 3
+out_runs 1 2 4
+out_values 2 -1 3
+
+case sub
+a_runs 2 1
+a_values -2 2
+b_runs 3 2 2 1 2
+b_values 0 -2 3 2 -2
+out_runs 2 3 2 1 2
+out_values -2 2 -3 -2 2
+
+case mul
+a_runs 1 2 2 1 2 2 2
+a_values 0 2 0 3 2 2 -1
+b_runs 3
+b_values 3
+out_runs 1 2 9
+out_values 0 6 0
+
+case coverage
+starts 8 9 15 14 14 12 2
+ends 9 11 20 15 16 13 7
+weights 3 2 -2 -2 1 0 -2
+out_runs 2 5 1 1 2 3 2 4
+out_values 0 -2 0 3 2 0 -1 -2
+
+case add
+a_runs 4 4 4 2 1 4
+a_values 1 -1 0 1 3 2
+b_runs 3 1 4 2 1 3 2 4
+b_values 1 0 0 -2 0 0 -1 1
+out_runs 3 1 4 2 2 2 1 1 3 1
+out_values 2 1 -1 -2 0 1 2 1 3 1
+
+case sub
+a_runs 3 4 4 2 4 2
+a_values 1 0 -2 1 0 -1
+b_runs 3 2
+b_values 2 0
+out_runs 3 4 4 2 4 2
+out_values -1 0 -2 1 0 -1
+
+case mul
+a_runs 3 2 4
+a_values 1 3 0
+b_runs 3 3
+b_values -2 -2
+out_runs 3 2 4
+out_values -2 -6 0
+
+case coverage
+starts 15
+ends 18
+weights -2
+out_runs 15 3
+out_values 0 -2
+
+case add
+a_runs 1 1 1 1 1 3 3
+a_values -2 0 3 2 -2 3 3
+b_runs 2 4 2 3 1 3
+b_values 3 3 -2 0 1 2
+out_runs 1 1 1 1 1 1 2 3 1 3
+out_values 1 3 6 5 1 6 1 3 1 2
+
+case sub
+a_runs 4 2
+a_values 0 3
+b_runs 4 4 3 1
+b_values 0 2 1 0
+out_runs 4 2 2 3 1
+out_values 0 1 -2 -1 0
+
+case mul
+a_runs 2 1 4 3 4 3 4 3
+a_values -1 1 -2 0 0 -1 -1 3
+b_runs 2 4 3 2 1 4
+b_values 1 3 1 1 -2 3
+out_runs 2 1 3 1 7 2 8
+out_values -1 3 -6 -2 0 -3 0
+
+case coverage
+starts 6 0 1 9 5
+ends 9 6 3 15 11
+weights 2 -1 2 1 2
+out_runs 1 2 2 1 3 2 4
+out_values -1 1 -1 1 4 3 1
+
+case add
+a_runs 2 1 2 4 1 1
+a_values -1 3 -2 2 3 3
+b_runs 1 3 4 1 3 2 2
+b_values 3 2 3 -2 1 2 1
+out_runs 1 1 1 1 1 3 1 2 1 2 2
+out_values 2 1 5 0 1 5 0 4 1 2 1
+
+case sub
+a_runs 1 2 4 2
+a_values 0 -2 2 3
+b_runs 3 3 2 3 4 2
+b_values -2 2 -2 3 0 3
+out_runs 1 5 1 1 1 2 4 2
+out_values 2 0 4 5 0 -3 0 -3
+
+case mul
+a_runs 4 4 2 1
+a_values 2 3 0 -1
+b_runs 4 4
+b_values 1 -2
+out_runs 4 4 3
+out_values 2 -6 0
+
+case coverage
+starts 9 4
+ends 10 10
+weights 3 -1
+out_runs 4 5 1
+out_values 0 -1 2
+
+case add
+a_runs 2 1 3 2 4
+a_values -1 3 -1 3 3
+b_runs 4 1
+b_values 3 0
+out_runs 2 1 1 2 6
+out_values 2 6 2 -1 3
+
+case sub
+a_runs 3
+a_values 0
+b_runs 4 3 4 4
+b_values 3 1 -2 3
+out_runs 4 3 4 4
+out_values -3 -1 2 -3
+
+case mul
+a_runs 3
+a_values 3
+b_runs 4
+b_values -1
+out_runs 3 1
+out_values -3 0
+
+case coverage
+starts 7 11 9 15 7 2 1 1
+ends 10 13 10 17 11 6 2 2
+weights 3 -2 0 -1 -1 0 3 3
+out_runs 1 1 5 3 1 2 2 2
+out_values 0 6 0 2 -1 -2 0 -1
+
+case add
+a_runs 1 3
+a_values 3 3
+b_runs 1 1 2 2 4 2
+b_values -2 0 -2 1 -2 1
+out_runs 1 1 4 4 2
+out_values 1 3 1 -2 1
+
+case sub
+a_runs 4
+a_values 3
+b_runs 2 3 1
+b_values 0 -2 2
+out_runs 2 2 1 1
+out_values 3 5 2 -2
+
+case mul
+a_runs 2 3
+a_values 1 0
+b_runs 2
+b_values -1
+out_runs 2 3
+out_values -1 0
+
+case coverage
+starts 11 8 3 11 0
+ends 17 12 8 14 6
+weights -2 4 0 3 -2
+out_runs 6 2 3 1 2 3
+out_values -2 0 4 5 1 -2
+
+case add
+a_runs 4 1 1 4 2 1
+a_values 3 3 0 1 1 2
+b_runs 2 1 2 3 1
+b_values 0 -1 2 0 -1
+out_runs 2 1 2 1 2 1 3 1
+out_values 3 2 5 0 1 0 1 2
+
+case sub
+a_runs 3 2
+a_values 2 -1
+b_runs 2 3 4 3 4 4 2 4
+b_values 2 1 -1 -2 -2 2 2 -1
+out_runs 2 1 2 4 7 6 4
+out_values 0 1 -2 1 2 -2 1
+
+case mul
+a_runs 4
+a_values 0
+b_runs 3 4 2 1
+b_values 0 0 -1 -2
+out_runs 10
+out_values 0
+
+case coverage
+starts 0 0 6 6 1 12 15
+ends 6 3 7 7 5 17 16
+weights -1 -2 2 2 4 3 1
+out_runs 1 2 2 1 1 5 3 1 1
+out_values -3 1 3 -1 4 0 3 4 3
+
+case add
+a_runs 1 4 3 3 4
+a_values 0 1 1 -1 1
+b_runs 3 4 4 2
+b_values -2 -2 3 -2
+out_runs 1 6 1 3 2 2
+out_values -2 -1 4 2 -1 1
+
+case sub
+a_runs 2
+a_values 2
+b_runs 1 2 2 4 1
+b_values 3 0 -1 -2 -2
+out_runs 1 1 1 2 5
+out_values -1 2 0 1 2
+
+case mul
+a_runs 1 2 4 3 3 3 4
+a_values 2 3 2 0 -1 2 2
+b_runs 2 1 3 4 3 1
+b_values 3 -1 1 -1 0 3
+out_runs 1 1 1 3 1 6 1 6
+out_values 6 9 -3 2 -2 0 6 0
+
+case coverage
+starts 0 5 10
+ends 1 8 15
+weights 3 1 1
+out_runs 1 4 3 2 5
+out_values 3 0 1 0 1
+
+case add
+a_runs 4 2 4 3 4
+a_values -1 -1 2 -1 -2
+b_runs 3
+b_values -1
+out_runs 3 3 4 3 4
+out_values -2 -1 2 -1 -2
+
+case sub
+a_runs 2 3 1 4 2
+a_values -1 3 3 3 1
+b_runs 4 1 4 2 2 3
+b_values 2 1 1 2 2 1
+out_runs 2 2 5 1 2 1 3
+out_values -3 1 2 1 -1 -2 -1
+
+case mul
+a_runs 3 4 4
+a_values 3 0 -2
+b_runs 3 3 3 1 1 2 3 1
+b_values 3 3 0 0 -1 1 3 -1
+out_runs 3 7 1 6
+out_values 9 0 2 0
+
+case coverage
+starts 14
+ends 17
+weights -1
+out_runs 14 3
+out_values 0 -1
+
+case add
+a_runs 2 2 3 2 4 2 1
+a_values 3 0 -1 2 3 -1 1
+b_runs 1 1 1 2 1 2 4
+b_values 2 2 2 1 -2 -2 -1
+out_runs 2 1 1 1 2 1 1 3 1 2 1
+out_values 5 2 1 0 -3 0 1 2 3 -1 1
+
+case sub
+a_runs 2 3 3 2
+a_values -2 3 2 -1
+b_runs 1 2
+b_values 0 3
+out_runs 1 1 1 2 3 2
+out_values -2 -5 0 3 2 -1
+
+case mul
+a_runs 3 4 2 3
+a_values 0 0 0 -1
+b_runs 4
+b_values -2
+out_runs 12
+out_values 0
+
+case coverage
+starts 11
+ends 17
+weights 2
+out_runs 11 6
+out_values 0 2
+
+case add
+a_runs 4 1
+a_values 2 2
+b_runs 2 3 2 4 2 1
+b_values -1 -1 -1 1 -1 0
+out_runs 5 2 4 2 1
+out_values 1 -1 1 -1 0
+
+case sub
+a_runs 1
+a_values -1
+b_runs 3
+b_values 2
+out_runs 1 2
+out_values -3 -2
+
+case mul
+a_runs 3 1 4 4 1 1 1
+a_values -2 2 -2 1 -1 0 1
+b_runs 1 2 1 4
+b_values 1 3 1 1
+out_runs 1 2 1 4 7
+out_values -2 -6 2 -2 0
+
+case coverage
+starts 13 9
+ends 16 10
+weights -1 3
+out_runs 9 1 3 3
+out_values 0 3 0 -1
+
+case add
+a_runs 3 3 4 3
+a_values 1 -2 1 0
+b_runs 3 1
+b_values 2 -1
+out_runs 3 1 2 4 3
+out_values 3 -3 -2 1 0
+
+case sub
+a_runs 1 4 4 2 3 3
+a_values 3 0 -2 -2 3 0
+b_runs 4
+b_values 1
+out_runs 1 3 1 6 3 3
+out_values 2 -1 0 -2 3 0
+
+case mul
+a_runs 1
+a_values 3
+b_runs 3 1
+b_values 3 -2
+out_runs 1 3
+out_values 9 0
+
+case coverage
+starts 11 8 7 0 15 10 0
+ends 14 14 12 1 16 14 1
+weights 3 4 2 -1 2 2 4
+out_runs 1 6 1 2 1 1 2 1 1
+out_values 3 0 2 6 8 11 9 0 2
+
+case add
+a_runs 4 4 2
+a_values 2 3 -2
+b_runs 3 3 4 4 3 4 3 4
+b_values 2 3 -2 0 3 2 0 1
+out_runs 3 1 2 2 2 4 3 4 3 4
+out_values 4 5 6 1 -4 0 3 2 0 1
+
+case sub
+a_runs 2 4
+a_values 2 -2
+b_runs 4 3 4 3
+b_values -2 3 -1 1
+out_runs 2 2 2 1 4 3
+out_values 4 0 -5 -3 1 -1
+
+case mul
+a_runs 3 2
+a_values 0 -1
+b_runs 1 1
+b_values 0 -2
+out_runs 5
+out_values 0
+
+case coverage
+starts 3 10 12 7
+ends 8 14 13 8
+weights -2 0 -2 1
+out_runs 3 4 1 4 1 1
+out_values 0 -2 -1 0 -2 0
+
+case add
+a_runs 4
+a_values -1
+b_runs 1 2 1 1
+b_values -2 0 0 2
+out_runs 1 3 1
+out_values -3 -1 2
+
+case sub
+a_runs 1 4 2 1 2
+a_values 1 0 0 0 -1
+b_runs 4 1 3 4
+b_values -2 1 0 -1
+out_runs 1 3 1 5 2
+out_values 3 2 -1 0 1
+
+case mul
+a_runs 2 1 2 1 1 2
+a_values 0 2 2 -1 2 -1
+b_runs 2 3 2 3 2 1 3 3
+b_values -1 2 0 -1 3 0 1 -1
+out_runs 2 3 2 2 10
+out_values 0 4 0 1 0
+
+case coverage
+starts 13 11
+ends 14 13
+weights 2 1
+out_runs 11 2 1
+out_values 0 1 2
+
+case add
+a_runs 1 2 1
+a_values -1 1 -1
+b_runs 3
+b_values 0
+out_runs 1 2 1
+out_values -1 1 -1
+
+case sub
+a_runs 2
+a_values 3
+b_runs 1 4 3 2 3
+b_values 3 -2 2 3 1
+out_runs 1 1 3 3 2 3
+out_values 0 5 2 -2 -3 -1
+
+case mul
+a_runs 3
+a_values 0
+b_runs 2 1 2 3
+b_values 0 -1 -1 1
+out_runs 8
+out_values 0
+
+case coverage
+starts 2 12 5 10 14 7 10 12
+ends 8 17 7 11 18 10 16 18
+weights 4 0 1 4 3 -2 3 3
+out_runs 2 3 2 1 2 1 1 2 2 2
+out_values 0 4 5 2 -2 7 3 6 9 6
+
+case add
+a_runs 3 4 3 3 3
+a_values 0 -1 0 -2 1
+b_runs 3 2 2 3 4 4 3 2
+b_values -2 -2 -1 1 1 3 1 -2
+out_runs 3 2 2 3 3 1 2 2 3 2
+out_values -2 -3 -2 1 -1 2 4 3 1 -2
+
+case sub
+a_runs 2 3
+a_values 0 -2
+b_runs 1 1 4
+b_values 1 2 -1
+out_runs 1 1 3 1
+out_values -1 -2 -1 1
+
+case mul
+a_runs 1 3
+a_values 2 -2
+b_runs 1 2
+b_values -2 2
+out_runs 3 1
+out_values -4 0
+
+case coverage
+starts 14 13
+ends 16 15
+weights 4 1
+out_runs 13 1 1 1
+out_values 0 1 5 4
+
+case add
+a_runs 1 2 3 1 1 1
+a_values 1 3 2 0 1 2
+b_runs 1 3 4 3 2
+b_values 1 1 -2 3 -2
+out_runs 1 2 1 2 1 1 1 2 2
+out_values 2 4 3 0 -2 -1 5 3 -2
+
+case sub
+a_runs 1 1 1
+a_values 2 2 2
+b_runs 2 3 1 1
+b_values 3 -1 -2 0
+out_runs 2 1 2 1 1
+out_values -1 3 1 2 0
+
+case mul
+a_runs 2 3 4 4 3 3 1
+a_values -2 3 3 -2 -2 -2 3
+b_runs 1 2 2 2
+b_values 2 3 1 1
+out_runs 1 1 1 4 13
+out_values -4 -6 9 3 0
+
+case coverage
+starts 4 6 9 2 2 3 5
+ends 5 11 13 7 5 6 6
+weights 2 2 1 -1 2 2 3
+out_runs 2 1 1 1 1 1 2 2 2
+out_values 0 1 3 5 4 1 2 3 1
+
+case add
+a_runs 3 2 2 1 1 4 4 2
+a_values 1 0 -1 2 3 -1 -2 3
+b_runs 4 3
+b_values 0 1
+out_runs 3 1 1 2 1 1 4 4 2
+out_values 1 0 1 0 2 3 -1 -2 3
+
+case sub
+a_runs 2 3 4 1
+a_values 3 2 1 -2
+b_runs 2 4
+b_values 1 -1
+out_runs 2 3 1 3 1
+out_values 2 3 2 1 -2
+
+case mul
+a_runs 2 2 1 2 4 3 1 1
+a_values 3 1 1 3 3 2 -2 -2
+b_runs 2 2 2 4 4 2 2
+b_values 2 2 1 0 3 0 3
+out_runs 2 2 1 1 4 1 3 4
+out_values 6 2 1 3 0 9 6 0
+
+case coverage
+starts 14 7 5
+ends 20 12 7
+weights -2 4 2
+out_runs 5 2 5 2 6
+out_values 0 2 4 0 -2
+
+case add
+a_runs 1 4 4
+a_values 0 -1 3
+b_runs 3 4 1
+b_values 2 3 0
+out_runs 1 2 2 2 2
+out_values 2 1 2 6 3
+
+case sub
+a_runs 4 1 1 1 1 3 3
+a_values -2 1 3 2 2 -1 2
+b_runs 1 1 2 1
+b_values 1 3 2 1
+out_runs 1 1 2 1 1 2 3 3
+out_values -3 -5 -4 0 3 2 -1 2
+
+case mul
+a_runs 2 1 2 1
+a_values 0 -1 1 0
+b_runs 1 1
+b_values -2 3
+out_runs 6
+out_values 0
+
+case coverage
+starts 12
+ends 17
+weights 4
+out_runs 12 5
+out_values 0 4
+
+case add
+a_runs 3
+a_values 3
+b_runs 2 2 3 2 1
+b_values -1 -1 -1 0 0
+out_runs 3 4 3
+out_values 2 -1 0
+
+case sub
+a_runs 1 4 1 1 3
+a_values 3 2 -1 1 2
+b_runs 2 3 3
+b_values 3 -1 0
+out_runs 1 1 3 1 1 3
+out_values 0 -1 3 -1 1 2
+
+case mul
+a_runs 2 3 3 1 4
+a_values -2 -1 3 1 -1
+b_runs 3 4 2
+b_values -2 1 1
+out_runs 2 1 2 3 1 4
+out_values 4 2 -1 3 1 0
+
+case coverage
+starts 5 8 5 10 11
+ends 9 9 11 12 17
+weights 0 2 0 4 -1
+out_runs 8 1 1 1 1 5
+out_values 0 2 0 4 3 -1
+
+case add
+a_runs 1 1 3 3 4 4 2 1
+a_values -2 3 2 3 -1 -2 2 3
+b_runs 4 4
+b_values -2 3
+out_runs 1 1 2 1 3 4 4 2 1
+out_values -4 1 0 5 6 -1 -2 2 3
+
+case sub
+a_runs 3 2
+a_values 0 2
+b_runs 1 3
+b_values 3 -2
+out_runs 1 2 1 1
+out_values -3 2 4 2
+
+case mul
+a_runs 2 4 2
+a_values -1 3 2
+b_runs 1 3 4 2 4 2
+b_values 3 3 2 1 -1 2
+out_runs 2 2 2 2 8
+out_values -3 9 6 4 0
+
+case coverage
+starts 0 0 0 7
+ends 1 2 4 10
+weights 3 1 -1 2
+out_runs 1 1 2 3 3
+out_values 3 0 -1 0 2
+
+case add
+a_runs 3 3 4 4
+a_values -2 -2 2 3
+b_runs 4 1 2 1
+b_values -1 0 -1 3
+out_runs 4 1 1 1 1 2 4
+out_values -3 -2 -3 1 5 2 3
+
+case sub
+a_runs 4 4
+a_values 2 1
+b_runs 1 4 2
+b_values 3 -1 -2
+out_runs 1 3 1 2 1
+out_values -1 3 2 3 1
+
+case mul
+a_runs 4 1 4 1 4 1
+a_values 1 2 -2 1 3 -2
+b_runs 3
+b_values -2
+out_runs 3 12
+out_values -2 0
+
+case coverage
+starts 13 12 13 1 3 5 13
+ends 14 18 14 6 7 6 17
+weights 2 0 2 -2 1 0 -1
+out_runs 1 2 3 1 6 1 3 1
+out_values 0 -2 -1 1 0 3 -1 0
+
+case add
+a_runs 2 3 1
+a_values 2 -2 -2
+b_runs 3
+b_values -2
+out_runs 2 1 3
+out_values 0 -4 -2
+
+case sub
+a_runs 4
+a_values 1
+b_runs 4 4 3 3 2 3 3 2
+b_values 0 2 -1 1 0 -2 -2 -1
+out_runs 4 4 3 3 2 6 2
+out_values 1 -2 1 -1 0 2 1
+
+case mul
+a_runs 1 1 3 1
+a_values 1 0 0 1
+b_runs 2 1 2 2 1
+b_values 2 1 -1 1 2
+out_runs 1 4 1 2
+out_values 2 0 1 0
+
+case coverage
+starts 12 12 0 1 8 13
+ends 13 14 2 7 9 16
+weights 0 2 2 0 4 -1
+out_runs 2 6 1 3 1 1 2
+out_values 2 0 4 0 2 1 -1
+
+case add
+a_runs 2 4 3 3
+a_values -2 2 2 -1
+b_runs 4
+b_values -1
+out_runs 2 2 5 3
+out_values -3 1 2 -1
+
+case sub
+a_runs 2 4 4
+a_values 2 2 3
+b_runs 2 2 3 4 1 2 2
+b_values -2 -2 -1 1 1 2 0
+out_runs 4 2 1 3 2 2 2
+out_values 4 3 4 2 -1 -2 0
+
+case mul
+a_runs 4 4 2 1 1 3 4
+a_values -1 1 1 -1 1 0 1
+b_runs 1 4 4 4
+b_values 0 2 3 -2
+out_runs 1 3 1 4 1 1 1 7
+out_values 0 -2 2 3 -2 2 -2 0
+
+case coverage
+starts 0 0 12 4 2 2 13
+ends 1 6 17 6 7 4 19
+weights -1 0 3 1 4 1 1
+out_runs 1 1 4 1 5 1 4 2
+out_values -1 0 5 4 0 3 4 1
+
+case add
+a_runs 3 3 3 1 2 1 2 4
+a_values 1 1 -1 -2 -2 -1 0 2
+b_runs 1 2 2 3 1 3
+b_values 0 0 0 3 -1 -2
+out_runs 5 1 2 1 3 1 2 4
+out_values 1 4 2 -2 -4 -1 0 2
+
+case sub
+a_runs 1 2 2 3 1 4 3 4
+a_values 2 2 -2 0 -1 -2 3 -2
+b_runs 3 4 4 3 4 2
+b_values 1 2 -1 -2 -1 -2
+out_runs 3 2 2 1 1 2 2 1 2 2 2
+out_values 1 -4 -2 1 0 -1 0 5 4 -1 0
+
+case mul
+a_runs 3 2
+a_values -1 3
+b_runs 3 2 3 1
+b_values 3 3 2 -1
+out_runs 3 2 4
+out_values -3 9 0
+
+case coverage
+starts 13
+ends 19
+weights 1
+out_runs 13 6
+out_values 0 1
+
+case add
+a_runs 1
+a_values 1
+b_runs 1 4 2
+b_values 3 3 3
+out_runs 1 6
+out_values 4 3
+
+case sub
+a_runs 4 4 3 4 2 4
+a_values 0 3 3 -1 -2 0
+b_runs 2
+b_values 3
+out_runs 2 2 7 4 2 4
+out_values -3 0 3 -1 -2 0
+
+case mul
+a_runs 1
+a_values 3
+b_runs 1 1 1 4 2 3
+b_values -1 -1 1 2 3 2
+out_runs 1 11
+out_values -3 0
+
+case coverage
+starts 9 8
+ends 15 13
+weights 0 2
+out_runs 8 5 2
+out_values 0 2 0
+
+case add
+a_runs 1 1 4 4
+a_values 3 2 3 1
+b_runs 1 1 1
+b_values 1 -1 1
+out_runs 1 1 1 3 4
+out_values 4 1 4 3 1
+
+case sub
+a_runs 3 1 4 2 1 2 4 3
+a_values 2 0 3 0 3 -2 1 2
+b_runs 4 3 3 3 3 1 3 3
+b_values 1 0 2 0 3 -1 1 -1
+out_runs 3 1 3 1 2 1 5 1 6
+out_values 1 -1 3 1 -2 3 -2 2 1
+
+case mul
+a_runs 3 1
+a_values -1 1
+b_runs 2
+b_values 1
+out_runs 2 2
+out_values -1 0
+
+case coverage
+starts 8 10 12 2 2
+ends 11 14 16 5 6
+weights 0 2 -1 4 2
+out_runs 2 3 1 4 2 2 2
+out_values 0 6 2 0 2 1 -1
+
+case add
+a_runs 2 3 1
+a_values -1 3 -2
+b_runs 1 4
+b_values 0 3
+out_runs 1 1 3 1
+out_values -1 2 6 -2
+
+case sub
+a_runs 4 4 2 2 2 3 3 1
+a_values 1 -1 0 0 3 1 -2 -1
+b_runs 4 1 4 2 4 1 1
+b_values 2 0 0 1 2 0 2
+out_runs 8 1 2 1 2 1 1 1 3 1
+out_values -1 0 -1 -2 1 -1 1 -1 -2 -1
+
+case mul
+a_runs 2 3 4 2 3
+a_values 3 -1 -1 3 3
+b_runs 4 4 4 1 3
+b_values 2 -1 3 -2 3
+out_runs 2 2 4 1 3 1 1 2
+out_values 6 -2 1 -3 9 -6 9 0
+
+case coverage
+starts 3 0 8 15
+ends 4 5 9 20
+weights -1 1 3 2
+out_runs 3 1 1 3 1 6 5
+out_values 1 0 1 0 3 0 2
+
+case add
+a_runs 4 3 1
+a_values 0 3 0
+b_runs 1 3 4 4 3 4
+b_values 3 2 -2 0 2 0
+out_runs 1 3 3 1 4 3 4
+out_values 3 2 1 -2 0 2 0
+
+case sub
+a_runs 3
+a_values -2
+b_runs 1 2 2 2
+b_values 0 0 1 -2
+out_runs 3 2 2
+out_values -2 -1 2
+
+case mul
+a_runs 1 3 4 2 1 2 3
+a_values 0 -2 -2 2 2 -2 2
+b_runs 2 2
+b_values -2 2
+out_runs 1 1 2 12
+out_values 0 4 -4 0
+
+case coverage
+starts 4 12 13 7
+ends 6 17 16 10
+weights 3 0 2 1
+out_runs 4 2 1 3 3 3 1
+out_values 0 3 0 1 0 2 0
+
+case add
+a_runs 1 3
+a_values 0 -1
+b_runs 4 2 2
+b_values 0 1 -2
+out_runs 1 3 2 2
+out_values 0 -1 1 -2
+
+case sub
+a_runs 3 4 3 2 3 4
+a_values -2 -2 2 -2 2 1
+b_runs 4 1
+b_values 3 2
+out_runs 4 1 2 3 2 3 4
+out_values -5 -4 -2 2 -2 2 1
+
+case mul
+a_runs 3 1 2 3 4 2 3 4
+a_values -2 -1 -1 3 0 -1 3 0
+b_runs 4 3 1 1 2 1 1 1
+b_values 3 3 1 -2 -2 -2 2 0
+out_runs 3 3 1 1 1 13
+out_values -6 -3 9 3 -6 0
+
+case coverage
+starts 11 11 10 10
+ends 13 13 13 16
+weights 0 3 2 2
+out_runs 10 1 2 3
+out_values 0 4 7 2
+
+case add
+a_runs 1 4 2 3 3 3
+a_values 0 1 -2 -2 3 0
+b_runs 4 4 1
+b_values -2 0 0
+out_runs 1 3 1 5 3 3
+out_values -2 -1 1 -2 3 0
+
+case sub
+a_runs 3 1 2 2 2
+a_values -1 -2 0 -2 0
+b_runs 3 2 2 3 2 2 2 2
+b_values -2 -1 -1 1 3 -1 -2 3
+out_runs 3 1 2 1 1 2 2 2 2 2
+out_values 1 -1 1 -1 -3 -1 -3 1 2 -3
+
+case mul
+a_runs 2 2 4 2 2 4 2 4
+a_values 3 0 3 -1 3 -1 -1 2
+b_runs 1 3 3 4
+b_values 0 3 0 3
+out_runs 1 1 5 1 2 1 11
+out_values 0 9 0 9 -3 9 0
+
+case coverage
+starts 1 3
+ends 3 4
+weights -2 0
+out_runs 1 2 1
+out_values 0 -2 0
+
+case add
+a_runs 3 3 2 1 4 3 2 2
+a_values 1 -1 3 -2 -1 2 -1 2
+b_runs 2
+b_values 2
+out_runs 2 1 3 2 1 4 3 2 2
+out_values 3 1 -1 3 -2 -1 2 -1 2
+
+case sub
+a_runs 2 3 2 4 2
+a_values 2 3 3 2 -1
+b_runs 1 3 3 2 4 2
+b_values 0 0 -2 -2 0 2
+out_runs 2 2 3 2 2 2 2
+out_values 2 3 5 4 2 -1 -2
+
+case mul
+a_runs 3 1
+a_values -2 1
+b_runs 4
+b_values -2
+out_runs 3 1
+out_values 4 -2
+
+case coverage
+starts 8 4 10 6 1
+ends 12 8 11 8 4
+weights 2 4 0 -1 4
+out_runs 1 5 2 4
+out_values 0 4 3 2
+
+case add
+a_runs 2 2
+a_values 1 3
+b_runs 1 4 1 1
+b_values -2 -1 0 -1
+out_runs 1 1 2 1 1 1
+out_values -1 0 2 -1 0 -1
+
+case sub
+a_runs 2 4 2 2 2 3
+a_values 1 2 -2 1 -2 -1
+b_runs 4 1 1 3 1 1 4
+b_values -1 -2 2 2 1 0 1
+out_runs 2 2 1 1 2 1 1 1 1 3
+out_values 2 3 4 0 -4 -1 0 -2 -3 -2
+
+case mul
+a_runs 2 4 4 1 1 2
+a_values 3 2 0 -1 2 -1
+b_runs 1 3 1 4 4 4 4 2
+b_values 3 1 2 3 -1 -1 -2 0
+out_runs 1 1 2 1 1 4 1 1 2 9
+out_values 9 3 2 4 6 0 1 -2 1 0
+
+case coverage
+starts 5 8
+ends 6 9
+weights -1 3
+out_runs 5 1 2 1
+out_values 0 -1 0 3
+
+case add
+a_runs 4
+a_values -1
+b_runs 4 4 3 2 4
+b_values -2 3 0 -2 1
+out_runs 4 4 3 2 4
+out_values -3 3 0 -2 1
+
+case sub
+a_runs 1 3 1 2 2 4 3 4
+a_values -2 -2 -1 3 3 -1 2 1
+b_runs 2 4 1 4
+b_values 1 0 -1 -2
+out_runs 2 2 1 1 1 2 2 2 3 4
+out_values -3 -2 -1 3 4 5 1 -1 2 1
+
+case mul
+a_runs 3 1 2 2 2 1 4 4
+a_values 0 0 -2 3 3 2 2 1
+b_runs 1 1 2 4
+b_values -1 -1 2 -2
+out_runs 4 2 2 11
+out_values 0 4 -6 0
+
+case coverage
+starts 2 10
+ends 3 14
+weights 3 2
+out_runs 2 1 7 4
+out_values 0 3 0 2
+
+case add
+a_runs 3 2 1 4 4 3 1
+a_values -2 -1 -1 2 0 -2 0
+b_runs 2 1 2 2 4 2 3 1
+b_values 3 -2 -2 -2 -1 2 -1 1
+out_runs 2 1 3 1 3 1 2 1 2 1 1
+out_values 1 -4 -3 0 1 -1 2 -1 -3 -1 0
+
+case sub
+a_runs 1 1 1 3
+a_values 1 3 -1 -2
+b_runs 3 3 4 4
+b_values -2 -2 -1 1
+out_runs 1 1 1 3 4 4
+out_values 3 5 1 0 1 -1
+
+case mul
+a_runs 2
+a_values 1
+b_runs 1 3 2 1 3 2 3 3
+b_values -2 -1 -2 0 2 2 3 -2
+out_runs 1 1 16
+out_values -2 -1 0
+
+case coverage
+starts 11 7 0 5 13 6 11 5
+ends 14 13 4 10 17 7 13 8
+weights -2 -1 -2 1 3 -2 4 0
+out_runs 4 1 1 1 3 1 3 3
+out_values -2 0 1 -1 0 -1 1 3
+
+case add
+a_runs 3 2 1 4
+a_values 2 0 1 2
+b_runs 3 1 1 2 3
+b_values 3 0 0 0 2
+out_runs 3 2 1 1 3
+out_values 5 0 1 2 4
+
+case sub
+a_runs 2 1
+a_values 0 -1
+b_runs 3
+b_values -2
+out_runs 2 1
+out_values 2 1
+
+case mul
+a_runs 3 4 2 1 2 1 3
+a_values 3 -1 2 -1 1 -1 -2
+b_runs 3 4 2 4 4 1 1 4
+b_values -2 -1 -1 2 1 1 -1 1
+out_runs 3 4 3 2 4 7
+out_values -6 1 -2 2 -2 0
+
+case coverage
+starts 12 7 9 10
+ends 14 8 13 16
+weights 4 -1 -1 3
+out_runs 7 1 1 1 2 1 1 2
+out_values 0 -1 0 -1 2 6 7 3
+
+case add
+a_runs 1 3 1 3 1
+a_values 1 1 3 0 2
+b_runs 4 2 1 2 4 2 3
+b_values -2 3 -2 3 0 0 -1
+out_runs 4 1 1 1 1 1 6 3
+out_values -1 6 3 -2 3 5 0 -1
+
+case sub
+a_runs 2 2 3 3 4
+a_values 3 0 3 1 3
+b_runs 3 2 3 1 1 1 3
+b_values 3 -1 3 1 2 1 -2
+out_runs 2 1 1 1 2 1 1 1 1 3
+out_values 0 -3 1 4 0 -2 0 -1 2 5
+
+case mul
+a_runs 2 3
+a_values 3 -2
+b_runs 3 1 4
+b_values 0 -2 3
+out_runs 3 1 1 3
+out_values 0 4 -6 0
+
+case coverage
+starts 6
+ends 10
+weights 4
+out_runs 6 4
+out_values 0 4
+
+case add
+a_runs 2 1 4
+a_values 3 1 -1
+b_runs 2 4
+b_values 2 0
+out_runs 2 1 4
+out_values 5 1 -1
+
+case sub
+a_runs 4 1 4 1 2 1
+a_values -2 2 2 -2 0 1
+b_runs 1 4 1
+b_values 3 1 2
+out_runs 1 3 1 1 3 1 2 1
+out_values -5 -3 1 0 2 -2 0 1
+
+case mul
+a_runs 4 3 1 4 3 3
+a_values 1 2 3 0 2 1
+b_runs 2 4 3 3 1 3
+b_values -1 -1 1 2 2 -2
+out_runs 4 2 1 1 4 1 2 1 2
+out_values -1 -2 2 3 0 4 -4 -2 0
+
+case coverage
+starts 6 2 10 1 14
+ends 9 8 12 7 16
+weights 2 2 4 0 4
+out_runs 2 4 2 1 1 2 2 2
+out_values 0 2 4 2 0 4 0 4
+
+case add
+a_runs 4 2 4 1 4
+a_values 2 0 3 3 0
+b_runs 2 3 3
+b_values -1 -2 2
+out_runs 2 2 1 1 2 3 4
+out_values 1 0 -2 2 5 3 0
+
+case sub
+a_runs 1 4 3 2 1
+a_values -1 -2 -2 2 -2
+b_runs 4 3 2 1 3 4
+b_values 3 3 -2 1 -1 3
+out_runs 1 6 1 1 1 1 2 4
+out_values -4 -5 0 4 1 -1 1 -3
+
+case mul
+a_runs 4 4 3 4 2 2 3 4
+a_values -2 3 -1 -2 -1 3 -2 -1
+b_runs 2 1 2
+b_values 2 1 -1
+out_runs 2 1 1 1 21
+out_values -4 -2 2 -3 0
+
+case coverage
+starts 2 7 3 5
+ends 3 11 9 6
+weights 3 -2 0 -1
+out_runs 2 1 2 1 1 4
+out_values 0 3 0 -1 0 -2
+
+case add
+a_runs 3 4 1 4 1
+a_values 0 3 -2 0 0
+b_runs 4 3 2 3 1 4 1 2
+b_values -2 -2 1 2 3 0 1 3
+out_runs 3 4 1 1 3 1 4 1 2
+out_values -2 1 -1 1 2 3 0 1 3
+
+case sub
+a_runs 4 2 2 4 4 3 3 2
+a_values -1 1 -1 -2 -1 2 3 0
+b_runs 4 4 2 1
+b_values 0 -1 1 2
+out_runs 4 2 2 2 1 1 4 3 3 2
+out_values -1 2 0 -3 -4 -2 -1 2 3 0
+
+case mul
+a_runs 3 3 3 2
+a_values 0 -2 -2 2
+b_runs 1 2 3
+b_values 0 0 -2
+out_runs 3 3 5
+out_values 0 4 0
+
+case coverage
+starts 0 4 15 10 7 13 5 15
+ends 4 7 19 13 13 15 10 16
+weights 0 0 -1 3 -2 -1 4 -2
+out_runs 5 2 3 3 2 1 3
+out_values 0 4 2 1 -1 -3 -1
+
+case add
+a_runs 1 1 3 4
+a_values -2 3 1 3
+b_runs 1 4
+b_values -2 0
+out_runs 1 1 3 4
+out_values -4 3 1 3
+
+case sub
+a_runs 4 2 1 3 2 4 4 1
+a_values -2 2 1 2 1 0 2 3
+b_runs 3 1 4 2
+b_values 0 -2 -2 3
+out_runs 3 1 2 1 1 2 2 4 4 1
+out_values -2 0 4 3 4 -1 1 0 2 3
+
+case mul
+a_runs 1 3 3 1 3 2 3 3
+a_values 3 3 3 -1 -2 -2 -1 0
+b_runs 1 4 3 3
+b_values 1 0 3 3
+out_runs 1 4 2 1 3 8
+out_values 3 0 9 -3 -6 0
+
+case coverage
+starts 0
+ends 3
+weights 3
+out_runs 3
+out_values 3
+
+case add
+a_runs 4 3 2
+a_values 3 3 0
+b_runs 4 1 1 3 1
+b_values 3 0 0 -1 -2
+out_runs 4 2 1 2 1
+out_values 6 3 2 -1 -2
+
+case sub
+a_runs 4 3
+a_values 1 2
+b_runs 2 4 2 1 2
+b_values 2 -1 2 2 -2
+out_runs 2 2 2 1 2 2
+out_values -1 2 3 0 -2 2
+
+case mul
+a_runs 2 3 4 3 2 2
+a_values -1 0 2 3 2 -1
+b_runs 2 3
+b_values 1 2
+out_runs 2 14
+out_values -1 0
+
+case coverage
+starts 6 5
+ends 9 10
+weights 4 0
+out_runs 6 3 1
+out_values 0 4 0
+
+case add
+a_runs 4 2 3 3 3
+a_values 3 -2 2 1 -2
+b_runs 4 4
+b_values 2 -2
+out_runs 4 2 2 1 3 3
+out_values 5 -4 0 2 1 -2
+
+case sub
+a_runs 4
+a_values 2
+b_runs 2 2 4 2 1
+b_values 2 0 3 3 -1
+out_runs 2 2 6 1
+out_values 0 2 -3 1
+
+case mul
+a_runs 2 1 2 1 1 1
+a_values 1 3 3 -2 1 -2
+b_runs 4 4 4 3 4 4
+b_values 2 -1 3 2 3 -1
+out_runs 2 2 1 1 1 1 15
+out_values 2 6 -3 2 -1 2 0
+
+case coverage
+starts 5 3 3 0
+ends 9 9 9 6
+weights 4 4 3 2
+out_runs 3 2 1 3
+out_values 2 9 13 11
+
+case add
+a_runs 4
+a_values 0
+b_runs 2 3 4 2 2 4 3 3
+b_values -2 2 1 3 -1 0 1 3
+out_runs 2 3 4 2 2 4 3 3
+out_values -2 2 1 3 -1 0 1 3
+
+case sub
+a_runs 4 3 2
+a_values -1 2 0
+b_runs 4 4 1 1
+b_values -2 -2 -1 1
+out_runs 4 3 1 1 1
+out_values 1 4 2 1 -1
+
+case mul
+a_runs 1 2 3 1 1 4
+a_values -1 -2 -1 -2 -1 2
+b_runs 2 1
+b_values 3 0
+out_runs 1 1 10
+out_values -3 -6 0
+
+case coverage
+starts 3 4 8 7 8 8
+ends 9 9 11 9 9 10
+weights 3 3 0 -2 -1 2
+out_runs 3 1 3 1 1 1 1
+out_values 0 3 6 4 5 2 0
+
+case add
+a_runs 3 3 4 4 2 1
+a_values -2 3 -1 2 -1 2
+b_runs 2 1 2 3 2 4
+b_values 2 2 3 3 1 1
+out_runs 3 3 2 2 4 2 1
+out_values 0 6 2 0 3 -1 2
+
+case sub
+a_runs 4 3 1 1
+a_values 2 -2 3 3
+b_runs 2 4 1 1 2 4 4
+b_values 3 -1 3 2 1 -2 -1
+out_runs 2 2 2 1 1 1 1 4 4
+out_values -1 3 -1 -5 1 2 -1 2 1
+
+case mul
+a_runs 2 3 2
+a_values -2 2 0
+b_runs 3 2
+b_values 0 2
+out_runs 3 2 2
+out_values 0 4 0
+
+case coverage
+starts 7 14 9 13 0
+ends 11 15 12 17 5
+weights -1 1 3 1 1
+out_runs 5 2 2 2 1 1 1 1 2
+out_values 1 0 -1 2 3 0 1 2 1
+
+case add
+a_runs 1
+a_values 0
+b_runs 3 1
+b_values 1 -2
+out_runs 3 1
+out_values 1 -2
+
+case sub
+a_runs 4
+a_values 2
+b_runs 2 2 4
+b_values 0 2 0
+out_runs 2 6
+out_values 2 0
+
+case mul
+a_runs 3 4 4 2 3 3 3
+a_values 0 2 2 1 0 -1 3
+b_runs 1 1 4 1
+b_values 3 2 2 0
+out_runs 3 3 16
+out_values 0 4 0
+
+case coverage
+starts 14 14 3 4 8 11 6 7
+ends 16 19 7 5 11 12 10 11
+weights 1 -2 1 0 -2 0 2 -2
+out_runs 3 3 1 1 2 1 3 2 3
+out_values 0 1 3 0 -2 -4 0 -1 -2
+
+case add
+a_runs 3 3 1 1 4 2 3
+a_values 3 1 2 0 -1 3 1
+b_runs 1 2 3 2 3 4 1
+b_values -1 1 -2 -1 3 1 3
+out_runs 1 2 3 1 1 3 1 2 1 1 1
+out_values 2 4 -1 1 -1 2 0 4 2 4 1
+
+case sub
+a_runs 2 1 4 3
+a_values 2 1 -1 1
+b_runs 4
+b_values 0
+out_runs 2 1 4 3
+out_values 2 1 -1 1
+
+case mul
+a_runs 2 3 2 2 4 1 2 4
+a_values 3 2 0 2 -1 3 -2 0
+b_runs 4 2 2 3 1
+b_values 1 2 0 -1 3
+out_runs 2 2 1 3 1 2 1 8
+out_values 3 2 4 0 -2 1 -3 0
+
+case coverage
+starts 3 13 1 2 10 13
+ends 5 19 4 5 12 18
+weights -2 0 1 2 1 4
+out_runs 1 1 1 1 6 2 1 5 1
+out_values 0 1 3 1 0 1 0 4 0
+
+case add
+a_runs 3 1 3
+a_values -2 2 1
+b_runs 2 3 3 1
+b_values -2 0 1 2
+out_runs 2 1 1 1 2 1 1
+out_values -4 -2 2 1 2 1 2
+
+case sub
+a_runs 1
+a_values -1
+b_runs 2 1 2 3 2 4 2 2
+b_values -2 3 3 0 3 -2 2 -2
+out_runs 1 1 3 3 2 4 2 2
+out_values 1 2 -3 0 -3 2 -2 2
+
+case mul
+a_runs 3 3 4 3 3 2 2 3
+a_values 0 1 3 1 3 -1 1 1
+b_runs 2 4 3 2
+b_values 0 3 0 -2
+out_runs 3 3 3 1 1 12
+out_values 0 3 0 -6 -2 0
+
+case coverage
+starts 14 5 2 14 5
+ends 20 11 6 16 11
+weights 3 1 -2 -1 1
+out_runs 2 3 1 5 3 2 4
+out_values 0 -2 0 2 0 2 3
+
+case add
+a_runs 3 3 2
+a_values 2 2 1
+b_runs 2 3 1 1
+b_values -2 -2 1 0
+out_runs 5 1 2
+out_values 0 3 1
+
+case sub
+a_runs 1 3 1 2 3 3
+a_values -1 -2 1 3 3 -1
+b_runs 3 4 1 4 4
+b_values -1 -1 0 -2 3
+out_runs 1 3 1 2 1 2 2 1 3
+out_values 0 -1 2 4 3 5 1 -4 -3
+
+case mul
+a_runs 1 1 2
+a_values 0 3 -2
+b_runs 1 3 2 3 1 2
+b_values -2 1 3 2 -2 -1
+out_runs 1 1 2 8
+out_values 0 3 -2 0
+
+case coverage
+starts 7 2
+ends 9 4
+weights 0 -1
+out_runs 2 2 5
+out_values 0 -1 0
+
+case add
+a_runs 2 3 2 2 1 2
+a_values -2 2 2 0 2 0
+b_runs 1 4 4
+b_values 1 0 2
+out_runs 1 1 3 2 3 2
+out_values -1 -2 2 4 2 0
+
+case sub
+a_runs 2
+a_values 0
+b_runs 3 3 3 2 2 2
+b_values -1 1 1 -2 3 2
+out_runs 3 6 2 2 2
+out_values 1 -1 2 -3 -2
+
+case mul
+a_runs 1 3 4
+a_values -2 0 -2
+b_runs 4 4 1 3 1
+b_values -1 2 1 2 3
+out_runs 1 3 4 5
+out_values 2 0 -4 0
+
+case coverage
+starts 7 3 4 15 6 7 5 14
+ends 11 4 9 16 10 8 6 15
+weights -2 3 0 3 1 0 2 2
+out_runs 3 1 1 1 1 3 1 3 1 1
+out_values 0 3 0 2 1 -1 -2 0 2 3
+
+case add
+a_runs 3 3 4 2
+a_values 0 -2 -1 -1
+b_runs 3 4 2
+b_values -1 2 -1
+out_runs 3 3 1 2 3
+out_values -1 0 1 -2 -1
+
+case sub
+a_runs 3 1
+a_values -2 -1
+b_runs 2 2 4 1 2 1 3 4
+b_values -1 0 1 2 -2 -2 0 -2
+out_runs 2 1 5 1 3 3 4
+out_values -1 -2 -1 -2 2 0 2
+
+case mul
+a_runs 1
+a_values -1
+b_runs 1 4 1 3 1
+b_values -2 -2 3 3 1
+out_runs 1 9
+out_values 2 0
+
+case coverage
+starts 6 10 7
+ends 7 15 12
+weights 4 4 0
+out_runs 6 1 3 5
+out_values 0 4 0 4
+
+case add
+a_runs 1 1 4 3
+a_values 1 0 0 -2
+b_runs 1 3 4 2 3 4 1
+b_values 0 3 2 3 1 -1 0
+out_runs 1 3 2 2 1 1 3 4 1
+out_values 1 3 2 0 1 3 1 -1 0
+
+case sub
+a_runs 2 2 3 2 3 1
+a_values 1 3 -2 1 3 1
+b_runs 4 2
+b_values -2 2
+out_runs 2 2 2 1 2 3 1
+out_values 3 5 -4 -2 1 3 1
+
+case mul
+a_runs 4
+a_values 2
+b_runs 4 3 4
+b_values -2 3 3
+out_runs 4 7
+out_values -4 0
+
+case coverage
+starts 14
+ends 15
+weights 4
+out_runs 14 1
+out_values 0 4
+
+case add
+a_runs 3 2 1 4
+a_values -1 -1 0 -1
+b_runs 2 2 3 2 1 2
+b_values -2 0 2 -2 3 3
+out_runs 2 2 1 1 1 2 1 2
+out_values -3 -1 1 2 1 -3 2 3
+
+case sub
+a_runs 3 1 4 3 1 4
+a_values 1 1 0 0 -1 1
+b_runs 3 2
+b_values 1 -2
+out_runs 3 1 1 6 1 4
+out_values 0 3 2 0 -1 1
+
+case mul
+a_runs 3 1 1 3 1 1 1
+a_values 1 3 0 0 3 3 0
+b_runs 3 3 1 1
+b_values 0 0 1 -2
+out_runs 11
+out_values 0
+
+case coverage
+starts 8 13 4 8 13
+ends 13 18 7 9 16
+weights 2 1 0 4 0
+out_runs 8 1 4 5
+out_values 0 6 2 1
+
+case add
+a_runs 2
+a_values 0
+b_runs 1 4 4 2 1 4
+b_values 0 2 2 2 0 -1
+out_runs 1 10 1 4
+out_values 0 2 0 -1
+
+case sub
+a_runs 1 1 1 1
+a_values 2 0 -1 3
+b_runs 1 2 2 4 4 1 2
+b_values -1 3 2 3 -1 -2 2
+out_runs 1 1 1 1 1 4 4 1 2
+out_values 3 -3 -4 1 -2 -3 1 2 -2
+
+case mul
+a_runs 3 1 2 1 3 2
+a_values -1 3 -2 -2 2 0
+b_runs 1 3 4 2 3 3 4 4
+b_values 1 2 1 -2 2 0 1 1
+out_runs 1 2 1 3 1 2 14
+out_values -1 -2 6 -2 2 -4 0
+
+case coverage
+starts 13
+ends 15
+weights 1
+out_runs 13 2
+out_values 0 1
+
+case add
+a_runs 1 1 1 1
+a_values -1 -2 0 -2
+b_runs 4 4 4 2
+b_values -1 3 -2 -2
+out_runs 1 1 1 1 4 6
+out_values -2 -3 -1 -3 3 -2
+
+case sub
+a_runs 1 2 1
+a_values 1 1 -2
+b_runs 1 3 4 2 4 4 3
+b_values 2 -1 3 2 -2 2 1
+out_runs 1 2 1 4 2 4 4 3
+out_values -1 2 -1 -3 -2 2 -2 -1
+
+case mul
+a_runs 2 4 3 2 3 1 3 4
+a_values 1 -2 1 3 -2 2 1 -1
+b_runs 3 3 3 3 2
+b_values -1 1 1 0 0
+out_runs 2 1 3 3 13
+out_values -1 2 -2 1 0
+
+case coverage
+starts 12 11 15 8
+ends 14 14 19 10
+weights 2 -2 -2 3
+out_runs 8 2 1 1 3 4
+out_values 0 3 0 -2 0 -2
+
+case add
+a_runs 4 3 1 3 4 2
+a_values 1 2 0 1 -2 -1
+b_runs 4 1 2 3 3 3 2 1
+b_values 0 -2 -2 0 -1 -1 -2 0
+out_runs 4 4 2 1 4 1 1 1 1
+out_values 1 0 1 0 -3 -2 -3 -2 0
+
+case sub
+a_runs 4 4 3
+a_values 1 0 2
+b_runs 2 4 3 4 1
+b_values 0 2 1 0 1
+out_runs 2 2 2 2 1 2 2 1
+out_values 1 -1 -2 -1 1 2 0 -1
+
+case mul
+a_runs 3 1
+a_values 3 1
+b_runs 2
+b_values -2
+out_runs 2 2
+out_values -6 0
+
+case coverage
+starts 5 1 8
+ends 10 2 10
+weights 2 -2 3
+out_runs 1 1 3 3 2
+out_values 0 -2 0 2 5
+
+case add
+a_runs 2 3 4 4 2 4 2 1
+a_values 2 1 1 1 -1 0 0 -1
+b_runs 2 4 3 3 4 4 4
+b_values -2 3 2 -1 -1 2 -1
+out_runs 2 4 3 4 2 1 4 1 1 2
+out_values 0 4 3 0 -2 -1 2 -1 -2 -1
+
+case sub
+a_runs 2 2 4 3 1 1
+a_values 3 -1 1 -1 -2 -1
+b_runs 4 3 4 1 1 2 1
+b_values -1 -2 -1 3 0 1 3
+out_runs 2 2 3 1 3 1 3 1
+out_values 4 0 3 2 0 -5 -1 -3
+
+case mul
+a_runs 3 1
+a_values 1 -1
+b_runs 3 1 1
+b_values 3 -1 0
+out_runs 3 1 1
+out_values 3 1 0
+
+case coverage
+starts 12 3 9 9 1 4
+ends 17 9 15 12 3 10
+weights -2 -2 3 2 0 0
+out_runs 3 6 3 3 2
+out_values 0 -2 5 1 -2
+
+case add
+a_runs 2 3 4
+a_values 1 0 -1
+b_runs 2 2 2 3 2 1
+b_values -1 1 0 0 2 2
+out_runs 2 2 1 4 3
+out_values 0 1 0 -1 2
+
+case sub
+a_runs 1 1 1 4 4 3 2
+a_values 3 0 0 0 1 3 -1
+b_runs 3
+b_values 0
+out_runs 1 6 4 3 2
+out_values 3 0 1 3 -1
+
+case mul
+a_runs 2 4 3
+a_values -1 1 0
+b_runs 2 3 2 2 3 4 4
+b_values -1 -2 1 1 0 0 -2
+out_runs 2 3 1 14
+out_values 1 -2 1 0
+
+case coverage
+starts 8 4 0 5 10
+ends 11 6 1 10 15
+weights 1 -1 1 4 3
+out_runs 1 3 1 1 2 2 1 4
+out_values 1 0 -1 3 4 5 4 3
+
+case add
+a_runs 4 3 4 2 3
+a_values -2 -1 -2 0 3
+b_runs 4 4 2
+b_values -2 1 -1
+out_runs 4 3 1 2 1 2 3
+out_values -4 0 -1 -3 -2 0 3
+
+case sub
+a_runs 1 4 2 4
+a_values 0 0 3 2
+b_runs 2 3 4 1
+b_values 3 -1 2 0
+out_runs 2 5 2 2
+out_values -3 1 0 2
+
+case mul
+a_runs 4 4 3 4 4 4 4
+a_values 1 3 1 0 1 1 1
+b_runs 1 3 3 2
+b_values -1 1 -2 2
+out_runs 1 3 3 1 1 18
+out_values -1 1 -6 6 2 0
+
+case coverage
+starts 3 11 4 13
+ends 5 16 10 15
+weights 4 0 2 4
+out_runs 3 1 1 5 3 2 1
+out_values 0 4 6 2 0 4 0
+
+case add
+a_runs 1 3 2 2 1
+a_values 2 3 1 1 -1
+b_runs 1 1 2 4 2 4
+b_values 3 -1 -2 2 3 2
+out_runs 1 1 2 4 1 1 4
+out_values 5 2 1 3 2 3 2
+
+case sub
+a_runs 3
+a_values -1
+b_runs 3 2 3 1 3 3
+b_values 3 0 -1 3 -1 -1
+out_runs 3 2 3 1 6
+out_values -4 0 1 -3 1
+
+case mul
+a_runs 3 4 4 3 3 2 3 4
+a_values 2 2 0 2 3 0 -1 0
+b_runs 2
+b_values -1
+out_runs 2 24
+out_values -2 0
+
+case coverage
+starts 14 12 10 8 15 6 13
+ends 16 14 12 12 16 7 16
+weights 0 4 1 -1 0 0 2
+out_runs 8 2 2 1 1 2
+out_values 0 -1 0 4 6 2
+
+case add
+a_runs 1 2 1 2 1 4
+a_values 0 1 3 -1 -1 1
+b_runs 1
+b_values -2
+out_runs 1 2 1 3 4
+out_values -2 1 3 -1 1
+
+case sub
+a_runs 1
+a_values -2
+b_runs 4
+b_values 0
+out_runs 1 3
+out_values -2 0
+
+case mul
+a_runs 1 3 2 2 1 2 3
+a_values 2 1 -1 -1 0 0 2
+b_runs 3 3 1 3
+b_values 2 0 2 -2
+out_runs 1 2 3 1 1 6
+out_values 4 2 0 -2 2 0
+
+case coverage
+starts 9 13 13 11
+ends 14 14 17 12
+weights 3 4 -2 -1
+out_runs 9 2 1 1 1 3
+out_values 0 3 2 3 5 -2
+
+case add
+a_runs 2 2 4 3 2 4 3
+a_values 0 0 0 0 2 -1 1
+b_runs 3 2 2 4
+b_values 0 -2 0 1
+out_runs 3 2 2 4 2 4 3
+out_values 0 -2 0 1 2 -1 1
+
+case sub
+a_runs 2 2
+a_values 2 -1
+b_runs 3 1 1 2
+b_values -2 -2 2 2
+out_runs 2 2 3
+out_values 4 1 -2
+
+case mul
+a_runs 4 3
+a_values 0 -2
+b_runs 4 2 2 3
+b_values -1 0 3 -2
+out_runs 6 1 4
+out_values 0 -6 0
+
+case coverage
+starts 6 0 7 2 7
+ends 11 2 9 5 9
+weights 4 -2 2 -1 4
+out_runs 2 3 1 1 2 2
+out_values -2 -1 0 4 10 4
+
+case add
+a_runs 3 2 3 2 2 3 4
+a_values -1 0 3 -2 -1 3 -1
+b_runs 3 4 1 2 4 3
+b_values -2 -2 -2 -2 1 0
+out_runs 3 2 3 2 2 2 1 4
+out_values -3 -2 1 -4 0 4 3 -1
+
+case sub
+a_runs 2 2 4 2 2 4 3
+a_values 3 3 0 2 3 1 2
+b_runs 4 4 3 1 1 1
+b_values 3 2 0 -2 0 0
+out_runs 4 4 2 1 1 4 3
+out_values 0 -2 2 3 5 1 2
+
+case mul
+a_runs 3 4
+a_values 0 -1
+b_runs 3 2 1 3 2 4
+b_values 2 -2 -2 3 1 0
+out_runs 3 3 1 8
+out_values 0 2 -3 0
+
+case coverage
+starts 12 11 8 9 13 10
+ends 13 12 10 11 19 14
+weights -1 3 4 -2 4 2
+out_runs 8 1 1 1 1 1 1 5
+out_values 0 4 2 0 5 1 6 4
+
+case add
+a_runs 3
+a_values 1
+b_runs 2 4 1 3 4 2 4 1
+b_values -2 1 -1 2 2 -1 3 -2
+out_runs 2 1 3 1 7 2 4 1
+out_values -1 2 1 -1 2 -1 3 -2
+
+case sub
+a_runs 3 1 1
+a_values 0 -2 1
+b_runs 4 3 1
+b_values -2 -2 -1
+out_runs 3 1 1 2 1
+out_values 2 0 3 2 1
+
+case mul
+a_runs 2 4 4 1
+a_values 0 0 0 1
+b_runs 1 4 2 1 1
+b_values -2 3 -1 3 -1
+out_runs 11
+out_values 0
+
+case coverage
+starts 0 13 6 5 14 0 15
+ends 5 15 11 8 18 6 21
+weights 3 -2 2 -2 3 3 1
+out_runs 5 1 2 3 2 1 1 3 3
+out_values 6 1 0 2 0 -2 1 4 1
+
+case add
+a_runs 4 4 1 3
+a_values 1 1 2 3
+b_runs 3 3 3 4 2
+b_values -1 -2 3 2 -2
+out_runs 3 3 2 4 1 2
+out_values 0 -1 4 5 2 -2
+
+case sub
+a_runs 2 2 3 1 2 1 2 3
+a_values 1 3 -2 0 -2 3 -2 -2
+b_runs 4 1 2 1 2
+b_values 1 0 1 0 -1
+out_runs 2 2 1 2 1 2 1 5
+out_values 0 2 -2 -3 0 -1 3 -2
+
+case mul
+a_runs 4 1 2 4 2
+a_values -2 3 -2 -2 2
+b_runs 3 3 2 4 1 2
+b_values -1 -2 -1 -1 0 1
+out_runs 3 1 1 1 5 1 3
+out_values 2 4 -6 4 2 -2 0
+
+case coverage
+starts 8 10 9 13 9 2 6 14
+ends 10 16 12 19 13 6 11 20
+weights -2 1 1 4 4 1 4 -1
+out_runs 2 4 2 1 1 1 1 2 2 3 1
+out_values 0 1 4 2 7 10 6 5 4 3 -1
+
+case add
+a_runs 4 4 3 2 1 2
+a_values -2 3 1 0 2 -1
+b_runs 2 2 2 4 4 3 1
+b_values -2 -1 -1 -2 0 2 -1
+out_runs 2 2 2 2 2 1 2 1 2 1 1
+out_values -4 -3 2 1 -1 1 0 2 1 2 -1
+
+case sub
+a_runs 3 2 2 3 3
+a_values -1 0 1 3 2
+b_runs 3 3 3 1 3
+b_values 2 -2 2 -1 0
+out_runs 3 2 1 1 2 1 3
+out_values -3 2 3 -1 1 4 2
+
+case mul
+a_runs 3
+a_values 1
+b_runs 2
+b_values -2
+out_runs 2 1
+out_values -2 0
+
+case coverage
+starts 7 9
+ends 13 10
+weights 3 -1
+out_runs 7 2 1 3
+out_values 0 3 2 3
+
+case add
+a_runs 2 3 4 3
+a_values 2 1 -1 0
+b_runs 3 2 3
+b_values 1 1 -2
+out_runs 2 3 3 1 3
+out_values 3 2 -3 -1 0
+
+case sub
+a_runs 2 4
+a_values 3 3
+b_runs 2 1 2
+b_values 1 2 2
+out_runs 2 3 1
+out_values 2 1 3
+
+case mul
+a_runs 2 3 2 3
+a_values 2 0 -2 0
+b_runs 1 2 4 4 3 4 1 3
+b_values 3 -1 0 1 1 -1 0 2
+out_runs 1 1 20
+out_values 6 -2 0
+
+case coverage
+starts 11 14 4 10 8
+ends 12 16 8 12 12
+weights 2 0 3 -1 -1
+out_runs 4 4 2 1 5
+out_values 0 3 -1 -2 0
+
+case add
+a_runs 3 2 1 4 3 3 2 2
+a_values 0 -1 3 -2 -1 0 -2 2
+b_runs 2 4 4 2 1
+b_values -2 1 -1 -2 -1
+out_runs 2 1 2 1 6 1 3 2 2
+out_values -2 1 0 4 -3 -2 0 -2 2
+
+case sub
+a_runs 3
+a_values -2
+b_runs 1 4
+b_values 3 -1
+out_runs 1 2 2
+out_values -5 -1 1
+
+case mul
+a_runs 3 2 2 2 3 2
+a_values -1 -2 -1 -1 -2 3
+b_runs 3 2 1 2 1
+b_values -1 -1 2 0 0
+out_runs 3 2 1 8
+out_values 1 2 -2 0
+
+case coverage
+starts 15 9 2 0 6 15
+ends 18 11 7 4 12 19
+weights 0 -1 -1 -2 2 -1
+out_runs 2 2 2 1 2 2 1 3 4
+out_values -2 -3 -1 1 2 1 2 0 -1
+
+case add
+a_runs 1 2
+a_values 3 0
+b_runs 2 2 2 4 2
+b_values 0 1 3 3 -2
+out_runs 1 1 2 6 2
+out_values 3 0 1 3 -2
+
+case sub
+a_runs 4 3 2 1 2 2
+a_values -1 2 -1 -1 2 0
+b_runs 2 3 1
+b_values -1 0 0
+out_runs 2 2 3 3 2 2
+out_values 0 -1 2 -1 2 0
+
+case mul
+a_runs 1 3 4 4 4 4 4 3
+a_values 1 2 -2 -1 2 1 -1 -2
+b_runs 1 1
+b_values 3 1
+out_runs 1 1 25
+out_values 3 2 0
+
+case coverage
+starts 4 11 9 7
+ends 7 12 13 11
+weights 3 1 0 2
+out_runs 4 3 4 1 1
+out_values 0 3 2 1 0
+
+case add
+a_runs 4 4 4 1 4 2 2
+a_values 1 3 0 3 3 3 -2
+b_runs 1 1 4 4 4 3 2
+b_values 0 2 0 1 1 -2 1
+out_runs 1 1 2 2 2 4 2 3 2 2
+out_values 1 3 1 3 4 1 4 1 4 -2
+
+case sub
+a_runs 2 1 4 1 4 4 3 1
+a_values 1 -1 2 -2 2 3 0 2
+b_runs 1 4 3 1
+b_values 0 3 0 1
+out_runs 1 1 1 2 2 1 1 3 4 3 1
+out_values 1 -2 -4 -1 2 -2 1 2 3 0 2
+
+case mul
+a_runs 4 3 1 1 4 1 1
+a_values 0 2 0 0 -1 2 2
+b_runs 1 2 4 3 3 3
+b_values 3 -1 2 -1 0 -2
+out_runs 4 3 2 1 3 2 1
+out_values 0 4 0 1 0 -4 0
+
+case coverage
+starts 15
+ends 17
+weights 2
+out_runs 15 2
+out_values 0 2
+
+case add
+a_runs 4 3 1 4 2
+a_values -2 1 -2 1 2
+b_runs 1 1 3 2 4
+b_values -1 -2 1 -1 0
+out_runs 1 1 2 1 2 1 4 2
+out_values -3 -4 -1 2 0 -2 1 2
+
+case sub
+a_runs 1 2 2 2 1 2
+a_values 3 -2 0 1 -1 2
+b_runs 3 1 3 3 2 3 2 4
+b_values -2 1 -2 1 2 -2 2 -1
+out_runs 1 2 1 1 2 1 2 2 3 2 4
+out_values 5 0 -1 2 3 -2 1 -2 2 -2 1
+
+case mul
+a_runs 2 4 2
+a_values 0 1 3
+b_runs 3 2 4 2 2 1 2
+b_values 0 2 -1 -1 0 0 2
+out_runs 3 2 1 2 8
+out_values 0 2 -1 -3 0
+
+case coverage
+starts 9 4 4 2 7
+ends 15 10 6 3 9
+weights -2 3 0 0 -2
+out_runs 4 3 3 5
+out_values 0 3 1 -2
+
+case add
+a_runs 3 4 4 2 4 1 1 2
+a_values 2 0 -2 0 3 -1 3 0
+b_runs 3 1 3
+b_values 2 -1 1
+out_runs 3 1 3 4 2 4 1 1 2
+out_values 4 -1 1 -2 0 3 -1 3 0
+
+case sub
+a_runs 1 3 4 2 2 3 4
+a_values -1 -1 -2 2 -1 3 -1
+b_runs 1 1
+b_values -1 -1
+out_runs 2 2 4 2 2 3 4
+out_values 0 -1 -2 2 -1 3 -1
+
+case mul
+a_runs 4 3 1 3
+a_values -1 3 -1 3
+b_runs 4 2 1 4 3 4 1 4
+b_values 1 3 2 -1 3 3 -1 3
+out_runs 4 2 1 1 3 12
+out_values -1 9 6 1 -3 0
+
+case coverage
+starts 5
+ends 9
+weights 4
+out_runs 5 4
+out_values 0 4
+
+case add
+a_runs 4 4 1
+a_values 1 1 1
+b_runs 3 1 4 2 4
+b_values 2 -2 -2 0 3
+out_runs 3 5 1 1 4
+out_values 3 -1 1 0 3
+
+case sub
+a_runs 3 3 1 2 1 3
+a_values -1 2 3 -1 1 1
+b_runs 2 3 2 4 3
+b_values -1 -2 -2 2 3
+out_runs 2 1 3 1 2 2 2 1
+out_values 0 1 4 5 -3 -1 -2 -3
+
+case mul
+a_runs 2 1 1 2 3 1 2 3
+a_values -1 -2 1 -2 -2 3 -2 1
+b_runs 3 3 3 3 2 1 2 4
+b_values 0 3 -2 0 1 1 2 2
+out_runs 3 1 2 3 3 3 6
+out_values 0 3 -6 4 0 1 0
+
+case coverage
+starts 11 13 15 4 2 12
+ends 13 19 18 7 5 15
+weights -1 3 3 -1 4 2
+out_runs 2 2 1 2 4 1 1 2 3 1
+out_values 0 4 3 -1 0 -1 1 5 6 3
+
+case add
+a_runs 4 1 1
+a_values 1 1 3
+b_runs 1 2 1 3 2
+b_values 1 -1 3 1 1
+out_runs 1 2 1 1 1 3
+out_values 2 0 4 2 4 1
+
+case sub
+a_runs 3 3
+a_values -2 1
+b_runs 2 2 2
+b_values 1 0 3
+out_runs 2 1 1 2
+out_values -3 -2 1 -2
+
+case mul
+a_runs 2 2 2 1 4
+a_values 0 0 3 3 0
+b_runs 4 1 4 3
+b_values -1 -2 3 1
+out_runs 4 1 2 5
+out_values 0 -6 9 0
+
+case coverage
+starts 13 3 6 14 0 14 0
+ends 18 9 7 15 5 16 1
+weights 4 0 4 -1 2 0 4
+out_runs 1 4 1 1 6 1 1 3
+out_values 6 2 0 4 0 4 3 4
+
+case add
+a_runs 4 1
+a_values 2 -1
+b_runs 4 4 2 3 2 4
+b_values 0 -1 1 3 -1 -2
+out_runs 4 1 3 2 3 2 4
+out_values 2 -2 -1 1 3 -1 -2
+
+case sub
+a_runs 2 2 4 4 2
+a_values 2 2 -1 3 2
+b_runs 3 2 2 2 4 4 4 2
+b_values 0 0 3 3 2 2 3 1
+out_runs 4 1 3 1 3 2 3 4 2
+out_values 2 -1 -4 0 1 0 -2 -3 -1
+
+case mul
+a_runs 1 2
+a_values 0 1
+b_runs 3 4
+b_values 2 2
+out_runs 1 2 4
+out_values 0 2 0
+
+case coverage
+starts 10 3 10 2 11
+ends 12 6 13 8 15
+weights 3 1 1 -2 -2
+out_runs 2 1 3 2 2 1 1 1 2
+out_values 0 -2 -1 -2 0 4 2 -1 -2
+
+case add
+a_runs 4 1 2 4
+a_values -2 -2 1 -2
+b_runs 2 4 4 3 1
+b_values 2 -1 -2 3 2
+out_runs 2 3 1 1 3 1 2 1
+out_values 0 -3 0 -1 -4 1 3 2
+
+case sub
+a_runs 3
+a_values 1
+b_runs 1 3 3 3 3 2
+b_values 1 2 3 2 1 1
+out_runs 1 2 1 3 3 5
+out_values 0 -1 -2 -3 -2 -1
+
+case mul
+a_runs 3
+a_values 2
+b_runs 4 3 2 4 4
+b_values 0 -2 3 3 -2
+out_runs 17
+out_values 0
+
+case coverage
+starts 13 5 11 13 8 8 8
+ends 18 6 12 14 11 9 14
+weights -1 -1 -1 0 0 0 3
+out_runs 5 1 2 3 1 1 1 4
+out_values 0 -1 0 3 2 3 2 -1
+
+case add
+a_runs 3 2 3 1 1 2 1
+a_values 0 -1 1 0 -2 3 -2
+b_runs 2 3 1 2 4 3 2
+b_values 0 -2 3 2 -1 -2 -2
+out_runs 2 1 2 1 2 1 1 2 1 4
+out_values 0 -2 -3 4 3 -1 -3 2 -4 -2
+
+case sub
+a_runs 1
+a_values 1
+b_runs 4 4 4 1 4 4 4 2
+b_values 2 3 1 3 1 3 3 1
+out_runs 1 3 4 4 1 4 8 2
+out_values -1 -2 -3 -1 -3 -1 -3 -1
+
+case mul
+a_runs 1 3 1 3 1
+a_values 0 1 -1 -1 2
+b_runs 4 4 4 3 4
+b_values 0 3 2 2 2
+out_runs 4 4 1 10
+out_values 0 -3 4 0
+
+case coverage
+starts 10 2 0 15
+ends 11 4 1 20
+weights 1 0 4 0
+out_runs 1 9 1 9
+out_values 4 0 1 0
+
+case add
+a_runs 2 3 1
+a_values 2 3 2
+b_runs 4 3 2 1 2 1
+b_values 2 2 1 0 1 2
+out_runs 2 3 1 1 2 1 2 1
+out_values 4 5 4 2 1 0 1 2
+
+case sub
+a_runs 4 2 1
+a_values 0 -2 -2
+b_runs 1 2 1 4 4 4
+b_values 0 -1 -2 1 3 0
+out_runs 1 2 1 3 1 4 4
+out_values 0 1 2 -3 -1 -3 0
+
+case mul
+a_runs 2 4 3
+a_values 1 1 -1
+b_runs 2 4 1 2
+b_values -2 3 2 -1
+out_runs 2 4 1 2
+out_values -2 3 -2 1
+
+case coverage
+starts 3 15 0 11 0 4
+ends 5 19 1 13 4 7
+weights 4 3 2 -1 1 4
+out_runs 1 2 1 1 2 4 2 2 4
+out_values 3 1 5 8 4 0 -1 0 3
+
+case add
+a_runs 3 2 2 2 3
+a_values 3 1 1 -2 -1
+b_runs 1 1
+b_values 2 -2
+out_runs 1 1 1 4 2 3
+out_values 5 1 3 1 -2 -1
+
+case sub
+a_runs 1 4 2 4 1 2
+a_values 2 1 1 3 -1 0
+b_runs 1 2
+b_values 3 3
+out_runs 1 2 4 4 1 2
+out_values -1 -2 1 3 -1 0
+
+case mul
+a_runs 1 1
+a_values -2 1
+b_runs 3 4 4 3 1 1 4
+b_values 1 -2 0 0 -1 1 0
+out_runs 1 1 18
+out_values -2 1 0
+
+case coverage
+starts 3 8 8 10 15
+ends 9 9 12 16 17
+weights -1 1 3 -2 1
+out_runs 3 5 2 2 3 1 1
+out_values 0 -1 3 1 -2 -1 1
+
+case add
+a_runs 2 1 2 3 4
+a_values -1 2 3 0 3
+b_runs 4 4 3 3 4
+b_values 2 3 3 3 -2
+out_runs 2 1 1 1 3 4 2 4
+out_values 1 4 5 6 3 6 3 -2
+
+case sub
+a_runs 1
+a_values 1
+b_runs 4 3
+b_values 3 -1
+out_runs 1 3 3
+out_values -2 -3 1
+
+case mul
+a_runs 2 2 1 3
+a_values 2 -1 -1 0
+b_runs 4 2 2 4 3 2 1 3
+b_values 1 0 -1 -2 0 1 -1 2
+out_runs 2 2 17
+out_values 2 -1 0
+
+case coverage
+starts 15 12 3 14
+ends 17 16 4 18
+weights -2 3 3 -1
+out_runs 3 1 8 2 1 1 1 1
+out_values 0 3 0 3 2 0 -3 -1
+
+case add
+a_runs 1 2 1
+a_values 1 -2 0
+b_runs 3 4
+b_values 3 1
+out_runs 1 6
+out_values 4 1
+
+case sub
+a_runs 2 2 3 4 2 2 4
+a_values 2 -2 1 2 -2 -1 0
+b_runs 4 2 4 3 4 3 2
+b_values -2 2 3 0 0 0 0
+out_runs 2 2 2 1 3 1 2 2 7
+out_values 4 0 -1 -2 -1 2 -2 -1 0
+
+case mul
+a_runs 3 1 2 1 4 2
+a_values 2 -2 -2 -2 3 3
+b_runs 1 3 3 3 3 3 1
+b_values 0 0 3 -1 3 -1 -1
+out_runs 4 3 3 3 4
+out_values 0 -6 -3 9 0
+
+case coverage
+starts 13
+ends 18
+weights 4
+out_runs 13 5
+out_values 0 4
+
+case add
+a_runs 2 2 4 1 2 1 1
+a_values -1 -2 -2 2 1 2 2
+b_runs 4 1 2 1 2 2 4
+b_values 3 0 2 -1 -1 1 1
+out_runs 2 2 1 2 1 1 1 1 2 3
+out_values 2 1 -2 0 -3 1 0 2 3 1
+
+case sub
+a_runs 2 3 2 3 3 4 4
+a_values 0 2 0 3 3 -1 1
+b_runs 2 2 3 1 1 4
+b_values -2 1 -1 1 3 -2
+out_runs 2 2 1 2 1 1 4 4 4
+out_values 2 1 3 1 2 0 5 -1 1
+
+case mul
+a_runs 4 4 1 4 1 4
+a_values -2 0 1 -1 2 -1
+b_runs 2 3
+b_values 2 -1
+out_runs 2 2 14
+out_values -4 2 0
+
+case coverage
+starts 4
+ends 8
+weights -2
+out_runs 4 4
+out_values 0 -2
+
+case add
+a_runs 2 4 1 3 1 2 2 3
+a_values 1 2 3 2 2 3 1 2
+b_runs 4 4 2 2 2 3 1
+b_values 2 -1 1 0 -1 0 0
+out_runs 2 2 2 1 1 2 1 1 1 1 1 3
+out_values 3 4 1 2 1 3 2 3 2 0 1 2
+
+case sub
+a_runs 1 3 4
+a_values 3 1 3
+b_runs 1 4 3 4 3
+b_values -2 3 2 1 2
+out_runs 1 3 1 3 4 3
+out_values 5 -2 0 1 -1 -2
+
+case mul
+a_runs 4 2 3 1 1 2 1
+a_values -1 3 1 1 3 3 -1
+b_runs 1
+b_values 2
+out_runs 1 13
+out_values -2 0
+
+case coverage
+starts 14 6 1 0
+ends 16 7 2 1
+weights -1 0 -1 0
+out_runs 1 1 12 2
+out_values 0 -1 0 -1
+
+case add
+a_runs 1 3 3 2 2 2 2 2
+a_values -2 1 0 1 3 0 0 -2
+b_runs 2 2 4 1 1 4 3
+b_values 0 1 2 1 -1 1 1
+out_runs 1 1 5 1 2 1 4 2
+out_values -2 1 2 3 2 4 1 -1
+
+case sub
+a_runs 4 4 2
+a_values 0 -2 3
+b_runs 2 4 3 2 3 2
+b_values -2 -2 2 0 -1 -1
+out_runs 4 2 2 1 1 1 5
+out_values 2 0 -4 1 3 0 1
+
+case mul
+a_runs 3 1
+a_values 3 0
+b_runs 4
+b_values 3
+out_runs 3 1
+out_values 9 0
+
+case coverage
+starts 1 0 10 1 0 8
+ends 2 1 15 3 2 12
+weights 4 3 -1 1 1 3
+out_runs 1 1 1 5 2 2 3
+out_values 4 6 1 0 3 2 -1
+
+case add
+a_runs 4
+a_values 2
+b_runs 2 4
+b_values 3 0
+out_runs 2 2 2
+out_values 5 2 0
+
+case sub
+a_runs 2 2 3 3 3 4
+a_values 2 2 0 3 0 3
+b_runs 1 1 4
+b_values 0 0 1
+out_runs 2 2 2 1 3 3 4
+out_values 2 1 -1 0 3 0 3
+
+case mul
+a_runs 4 3 1 3 4 3 3 4
+a_values 0 1 2 -1 0 -2 0 3
+b_runs 3 1 4
+b_values 3 0 3
+out_runs 4 3 1 17
+out_values 0 3 6 0
+
+case coverage
+starts 9 3 2 9
+ends 15 7 3 15
+weights 1 2 3 3
+out_runs 2 1 4 2 6
+out_values 0 3 2 0 4
+
+case add
+a_runs 2 1 3 4 2 4 4 1
+a_values -1 0 -2 -1 1 -2 -2 2
+b_runs 2 3 3 3 1 1 1 3
+b_values -2 2 1 2 3 3 3 1
+out_runs 2 1 2 1 2 2 1 1 2 3 3 1
+out_values -3 2 0 -1 0 1 3 4 1 -1 -2 2
+
+case sub
+a_runs 3
+a_values 2
+b_runs 2 1 4 1
+b_values -1 1 2 3
+out_runs 2 1 4 1
+out_values 3 1 -2 -3
+
+case mul
+a_runs 4 4 1 3 1 3
+a_values -1 2 2 -2 1 1
+b_runs 2 3 2 4 4 4 4
+b_values -1 3 -1 1 -2 1 0
+out_runs 2 2 1 2 2 2 1 3 1 7
+out_values 1 -3 6 -2 2 -2 4 -2 1 0
+
+case coverage
+starts 6 11 3
+ends 9 15 4
+weights 3 0 -2
+out_runs 3 1 2 3 6
+out_values 0 -2 0 3 0
+
+case add
+a_runs 4 1 4 4
+a_values 0 2 3 -2
+b_runs 3 2 4 4
+b_values 0 3 -1 0
+out_runs 3 1 1 4 4
+out_values 0 3 5 2 -2
+
+case sub
+a_runs 2
+a_values -1
+b_runs 3 2 4 1 4 2 1 2
+b_values 1 -2 0 1 2 2 0 2
+out_runs 2 1 2 4 1 6 1 2
+out_values -2 -1 2 0 -1 -2 0 -2
+
+case mul
+a_runs 3 4 2 3 1
+a_values -1 3 0 3 2
+b_runs 4 2 3 4 3 4
+b_values 2 1 0 0 3 3
+out_runs 3 1 2 14
+out_values -2 6 3 0
+
+case coverage
+starts 4 2 1 11 10
+ends 7 5 6 17 14
+weights -1 -1 1 0 -2
+out_runs 1 1 2 1 1 1 3 4 3
+out_values 0 1 0 -1 0 -1 0 -2 0
