@@ -101,6 +101,10 @@ cd crates/runlength-py && maturin develop --release && pytest tests
 
 # Regenerate the pyrle cross-check cases (needs a Python that imports pyrle):
 PYTHONPATH=~/code/pyrle python3.12 scripts/gen_pyrle_fixtures.py
+
+# Check the reference port of pyranges' to_rle / to_bigwig against
+# pyranges1 + pyrle (needs both installed, plus pyBigWig):
+PYTHONPATH=~/code/pyrle python scripts/pyranges_port.py 1000
 ```
 
 ## Releasing

@@ -14,12 +14,12 @@ use runlength_arrow::kernels::{self, Kernel};
 use runlength_arrow::{ArrowRle, ArrowRleBatch, common_numeric_type};
 
 use crate::convert::{
-    FillArg, OrRaise, array_from_py, array_to_py, ints_from_py, scalar_of_type, table_capsule,
-    table_from_py, table_to_py, to_arrow, to_pandas, to_polars, value_to_py,
+    FillArg, OrRaise, array_to_py, ints_from_py, is_table_like, keys_from_py, scalar_of_type,
+    table_capsule, table_to_py, to_arrow, to_pandas, to_polars, value_to_py,
 };
 use crate::rle::{
-    PyRle, call_python, fill_array, fill_of, format_values, kernel_for, parse_backend,
-    parse_slice_agg,
+    PyRle, call_python, combine_scalar, fill_array, fill_of, format_values, kernel_for,
+    parse_backend, parse_slice_agg, scalar_operand,
 };
 
 /// Many Rles, each identified by a row of key columns of any types (for
@@ -83,19 +83,41 @@ fn parse_how(how: &str) -> PyResult<How> {
 }
 
 impl PyRleBatch {
-    fn binary(&self, other: &Bound<'_, PyAny>, kernel: Kernel) -> PyResult<PyRleBatch> {
-        let other = other
-            .extract::<PyRef<PyRleBatch>>()
-            .map_err(|_| PyTypeError::new_err("RleBatch operators need another RleBatch"))?;
+    /// `self <kernel> other` for another batch (keys outer-joined) or a single
+    /// value (applied to every Rle); `reflected` swaps the sides for a value.
+    /// With `to_float` (for `/`), integers become floats first.
+    fn binary(
+        &self,
+        py: Python<'_>,
+        other: &Bound<'_, PyAny>,
+        kernel: Kernel,
+        reflected: bool,
+        to_float: bool,
+    ) -> PyResult<PyRleBatch> {
+        let Ok(other) = other.extract::<PyRef<PyRleBatch>>() else {
+            let value = scalar_operand(other, "RleBatch")?;
+            let inner = &self.inner;
+            let out = py.detach(|| {
+                inner.map_rles(|r| combine_scalar(r, &value, kernel, reflected, to_float))
+            });
+            return Ok(out.or_raise()?.into());
+        };
         let (a, b) = (&self.inner, &other.inner);
-        let common = common_numeric_type(a.values().data_type(), b.values().data_type());
+        let common = if to_float {
+            Some(DataType::Float64)
+        } else {
+            common_numeric_type(a.values().data_type(), b.values().data_type())
+        };
         let (a, b) = match common {
-            Some(t) if a.values().data_type() != b.values().data_type() => {
+            Some(t) if a.values().data_type() != &t || b.values().data_type() != &t => {
                 (cast_batch(a, &t)?, cast_batch(b, &t)?)
             }
             _ => (a.clone(), b.clone()),
         };
-        Ok(a.zip_with_default(&b, kernel).or_raise()?.into())
+        Ok(py
+            .detach(|| a.zip_with_default(&b, kernel))
+            .or_raise()?
+            .into())
     }
 
     /// One row per key: the key columns plus `name`, computed by `f`.
@@ -160,22 +182,20 @@ impl PyRleBatch {
 /// one key column.
 fn keys_like(batch: &ArrowRleBatch, obj: &Bound<'_, PyAny>) -> PyResult<RecordBatch> {
     let schema = batch.keys().schema();
-    let table = match table_from_py(obj) {
-        Ok(table) => table,
-        Err(err) if schema.fields().len() == 1 => match array_from_py(obj) {
-            Ok(array) => {
-                let name = schema.field(0).name().clone();
-                RecordBatch::try_from_iter([(name, array)]).or_raise()?
-            }
-            Err(_) => return Err(err),
-        },
-        Err(err) => return Err(err),
-    };
+    // A single array (not a table) matches a single key column whatever its
+    // name; table columns are matched by name.
+    let single = !is_table_like(obj)? && schema.fields().len() == 1;
+    let table = keys_from_py(obj)?;
     let columns = schema
         .fields()
         .iter()
         .map(|field| {
-            let column = table.column_by_name(field.name()).ok_or_else(|| {
+            let column = if single {
+                Some(table.column(0))
+            } else {
+                table.column_by_name(field.name())
+            };
+            let column = column.ok_or_else(|| {
                 PyValueError::new_err(format!("keys have no column {:?}", field.name()))
             })?;
             cast(column.as_ref(), field.data_type()).or_raise()
@@ -208,7 +228,7 @@ impl PyRleBatch {
     /// the same value type.
     #[staticmethod]
     fn from_rles(keys: &Bound<'_, PyAny>, rles: Vec<PyRef<'_, PyRle>>) -> PyResult<Self> {
-        let keys = table_from_py(keys)?;
+        let keys = keys_from_py(keys)?;
         let data_type = rles
             .first()
             .map_or(DataType::Null, |r| r.inner.data_type().clone());
@@ -460,33 +480,69 @@ impl PyRleBatch {
         )
     }
 
-    fn __add__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(other, kernels::add)
+    fn __add__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
+        self.binary(py, other, kernels::add, false, false)
     }
-    fn __sub__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(other, kernels::sub)
+    fn __radd__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
+        self.binary(py, other, kernels::add, true, false)
     }
-    fn __mul__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(other, kernels::mul)
+    fn __sub__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
+        self.binary(py, other, kernels::sub, false, false)
     }
-    fn __truediv__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        let other = other
-            .extract::<PyRef<PyRleBatch>>()
-            .map_err(|_| PyTypeError::new_err("RleBatch operators need another RleBatch"))?;
-        let a = cast_batch(&self.inner, &DataType::Float64)?;
-        let b = cast_batch(&other.inner, &DataType::Float64)?;
-        Ok(a.zip_with_default(&b, kernels::div).or_raise()?.into())
+    fn __rsub__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
+        self.binary(py, other, kernels::sub, true, false)
     }
-    fn __and__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(other, kernels::and)
+    fn __mul__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
+        self.binary(py, other, kernels::mul, false, false)
     }
-    fn __or__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(other, kernels::or)
+    fn __rmul__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
+        self.binary(py, other, kernels::mul, true, false)
+    }
+    /// True division, as in Python: integers are divided as floats.
+    fn __truediv__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
+        self.binary(py, other, kernels::div, false, true)
+    }
+    fn __rtruediv__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
+        self.binary(py, other, kernels::div, true, true)
+    }
+    fn __and__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
+        self.binary(py, other, kernels::and, false, false)
+    }
+    fn __rand__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
+        self.binary(py, other, kernels::and, true, false)
+    }
+    fn __or__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
+        self.binary(py, other, kernels::or, false, false)
+    }
+    fn __ror__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
+        self.binary(py, other, kernels::or, true, false)
     }
 
-    /// Element-wise comparison per key, returning a batch of boolean Rles.
-    fn __richcmp__(&self, other: &Bound<'_, PyAny>, op: CompareOp) -> PyResult<Self> {
-        self.binary(other, kernel_for(op))
+    /// Element-wise comparison with another batch (per key) or a single
+    /// value, returning a batch of boolean Rles.
+    fn __richcmp__(
+        &self,
+        py: Python<'_>,
+        other: &Bound<'_, PyAny>,
+        op: CompareOp,
+    ) -> PyResult<Self> {
+        self.binary(py, other, kernel_for(op), false, false)
+    }
+
+    /// Applies `func` to the run values of every Rle and merges each result;
+    /// see `Rle.map`. Keys are processed in parallel.
+    #[pyo3(signature = (func, backend="arrow"))]
+    fn map(&self, py: Python<'_>, func: &Bound<'_, PyAny>, backend: &str) -> PyResult<Self> {
+        let backend = parse_backend(backend)?;
+        let func: Py<PyAny> = func.clone().unbind();
+        let inner = &self.inner;
+        // As in zip_with: release the GIL, take it per callback.
+        let out = py.detach(|| {
+            inner.map_rles(|r| {
+                r.map(|values| Python::attach(|py| call_python(func.bind(py), backend, &[values])))
+            })
+        });
+        Ok(out.or_raise()?.into())
     }
 
     fn __bool__(&self) -> PyResult<bool> {

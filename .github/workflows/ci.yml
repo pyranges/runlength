@@ -29,6 +29,6 @@ jobs:
           python-version: "3.12"
       - run: |
           python -m venv .venv
-          .venv/bin/pip install maturin pytest polars pandas pyarrow numpy
+          .venv/bin/pip install maturin pytest polars pandas pyarrow numpy arro3-core
           cd crates/runlength-py && ../../.venv/bin/maturin develop --release
       - run: .venv/bin/python -m pytest crates/runlength-py/tests

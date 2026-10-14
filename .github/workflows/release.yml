@@ -71,7 +71,7 @@ jobs:
           python -m venv .wheel-venv
           if [ -d .wheel-venv/Scripts ]; then py=.wheel-venv/Scripts/python; else py=.wheel-venv/bin/python; fi
           $py -m pip install --upgrade pip
-          $py -m pip install pytest polars pandas pyarrow numpy
+          $py -m pip install pytest polars pandas pyarrow numpy arro3-core
           $py -m pip install --no-index --find-links crates/runlength-py/dist runlength
           cd crates/runlength-py/tests && ../../../$py -m pytest -q
       - uses: actions/upload-artifact@v4

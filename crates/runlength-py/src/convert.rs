@@ -212,6 +212,30 @@ pub fn table_from_py(obj: &Bound<'_, PyAny>) -> PyResult<RecordBatch> {
     concat_batches(&schema, &batches).or_raise()
 }
 
+/// Whether `obj` is a table (a DataFrame, pyarrow or arro3 Table, or a dict
+/// of columns) rather than a single array or value.
+pub fn is_table_like(obj: &Bound<'_, PyAny>) -> PyResult<bool> {
+    Ok(obj.cast::<PyDict>().is_ok()
+        || obj.hasattr(intern!(obj.py(), "columns"))?
+        || obj.hasattr(intern!(obj.py(), "column_names"))?)
+}
+
+/// Reads key columns: a table (see [`table_from_py`]), or a single array
+/// (a polars or pandas Series, pyarrow or numpy array, or list) as one
+/// column named after the Series, or `key`.
+pub fn keys_from_py(obj: &Bound<'_, PyAny>) -> PyResult<RecordBatch> {
+    if is_table_like(obj)? {
+        return table_from_py(obj);
+    }
+    let name = obj
+        .getattr(intern!(obj.py(), "name"))
+        .ok()
+        .and_then(|n| n.extract::<String>().ok())
+        .filter(|n| !n.is_empty())
+        .unwrap_or_else(|| "key".to_string());
+    RecordBatch::try_from_iter([(name, array_from_py(obj)?)]).or_raise()
+}
+
 /// Exports indices to Python as `int64`, the index type numpy, polars and
 /// pandas all accept.
 pub fn indices_to_py(indices: impl IntoIterator<Item = usize>) -> PyArray {

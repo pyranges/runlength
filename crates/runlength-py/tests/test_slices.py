@@ -96,3 +96,37 @@ def test_overlap_plan_by_key_aggregates_with_polars():
         .agg(pl.col("Score").median())
     )
     assert median["Score"].to_list() == [1.0, 2.0, 3.0, 5.0]
+
+
+def test_batch_scalar_operators_and_map():
+    keys = pl.DataFrame({"k": ["x", "y"]})
+    b = rl.RleBatch.from_rles(keys, [rl.Rle([2, 1], [1, 2]), rl.Rle([3], [4])])
+    assert dense((b * 2.5).get("x")) == [2.5, 2.5, 5.0]
+    assert dense((10 - b).get("y")) == [6, 6, 6]
+    assert dense((1 / b).get("y")) == [0.25] * 3
+    assert dense((b / 2).get("x")) == [0.5, 0.5, 1.0]
+    assert dense((b > 1).get("x")) == [False, False, True]
+    assert dense(b.map(np.sqrt, backend="numpy").get("y")) == [2.0, 2.0, 2.0]
+    merged = b.map(lambda v: pa.compute.greater(v, 0), backend="pyarrow").get("x")
+    assert pl.Series(merged.runs).to_list() == [3]
+    with pytest.raises(TypeError, match="unsupported operand"):
+        b + object()
+
+
+def test_keys_can_be_a_single_array():
+    starts, ends = [0, 1, 2], [2, 3, 4]
+    from_series = rl.coverage_by_key(pl.Series("Chromosome", ["a", "b", "a"]), starts, ends)
+    assert from_series.keys.column_names == ["Chromosome"]
+    from_list = rl.coverage_by_key(["a", "b", "a"], starts, ends)
+    assert from_list.keys.column_names == ["key"]
+    assert dense(from_list.get("a")) == [1, 1, 1, 1]
+    from_pandas = rl.coverage_by_key(pl.Series("c", ["a", "b", "a"]).to_pandas(), starts, ends)
+    assert from_pandas.keys.column_names == ["c"]
+    plan = rl.overlap_plan_by_key(["a", "b", "a"], starts, ends)
+    assert pl.DataFrame(plan)["key"].to_list() == ["a", "a", "b", "b"]
+
+
+def test_returned_objects_work_without_other_libraries():
+    b = rl.coverage_by_key(["a", "b"], [0, 1], [2, 3])
+    assert str(b.keys.schema).count("key") == 1
+    assert b.get("a").values.type is not None

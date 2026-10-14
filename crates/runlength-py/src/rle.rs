@@ -15,7 +15,8 @@ use runlength_arrow::{ArrowRle, SliceAgg, common_numeric_type};
 use crate::batch::PyRleBatch;
 use crate::convert::{
     FillArg, OrRaise, array_from_py, array_to_py, bools_from_py, indices_to_py, ints_from_py,
-    scalar_from_py, scalar_of_type, table_capsule, to_arrow, to_pandas, to_polars, value_to_py,
+    is_table_like, scalar_from_py, scalar_of_type, table_capsule, to_arrow, to_pandas, to_polars,
+    value_to_py,
 };
 
 /// A run-length encoded sequence of values of any Arrow type.
@@ -49,13 +50,65 @@ pub(crate) fn parse_keep(keep: &str) -> PyResult<Keep> {
 }
 
 /// Converts both sides to a common numeric type if they differ.
-pub(crate) fn coerce(a: &ArrowRle, b: &ArrowRle) -> PyResult<(ArrowRle, ArrowRle)> {
+fn coerce_rles(a: &ArrowRle, b: &ArrowRle) -> runlength_arrow::Result<(ArrowRle, ArrowRle)> {
     match common_numeric_type(a.data_type(), b.data_type()) {
-        Some(t) if a.data_type() != b.data_type() => {
-            Ok((a.cast(&t).or_raise()?, b.cast(&t).or_raise()?))
-        }
+        Some(t) if a.data_type() != b.data_type() => Ok((a.cast(&t)?, b.cast(&t)?)),
         _ => Ok((a.clone(), b.clone())),
     }
+}
+
+/// `a <kernel> b` as Python operators do it: numbers are converted to a
+/// common type, and with `to_float` (for `/`) integers become floats.
+pub(crate) fn combine(
+    a: &ArrowRle,
+    b: &ArrowRle,
+    kernel: Kernel,
+    to_float: bool,
+) -> runlength_arrow::Result<ArrowRle> {
+    let (a, b) = coerce_rles(a, b)?;
+    let (a, b) = if to_float && a.data_type().is_integer() {
+        (a.cast(&DataType::Float64)?, b.cast(&DataType::Float64)?)
+    } else {
+        (a, b)
+    };
+    a.zip_with_default(&b, kernel)
+}
+
+/// `rle <kernel> value` (or `value <kernel> rle` if `reflected`) for a single
+/// value, which is repeated over the sequence's length.
+pub(crate) fn combine_scalar(
+    rle: &ArrowRle,
+    value: &ArrayRef,
+    kernel: Kernel,
+    reflected: bool,
+    to_float: bool,
+) -> runlength_arrow::Result<ArrowRle> {
+    let other = ArrowRle::from_runs(&[rle.len()], value.clone())?;
+    if reflected {
+        combine(&other, rle, kernel, to_float)
+    } else {
+        combine(rle, &other, kernel, to_float)
+    }
+}
+
+/// Reads a single operand value, or raises the TypeError Python expects for
+/// an unsupported operand.
+pub(crate) fn scalar_operand(other: &Bound<'_, PyAny>, owner: &str) -> PyResult<ArrayRef> {
+    let value = if is_table_like(other)? {
+        Err(())
+    } else {
+        scalar_from_py(other).map_err(|_| ())
+    };
+    value.map_err(|_| {
+        PyTypeError::new_err(format!(
+            "unsupported operand type: {owner} and {}",
+            other
+                .get_type()
+                .name()
+                .map(|n| n.to_string())
+                .unwrap_or_default()
+        ))
+    })
 }
 
 pub(crate) fn kernel_for(op: CompareOp) -> Kernel {
@@ -179,25 +232,6 @@ pub(crate) fn format_values(values: &dyn Array, limit: usize) -> String {
 }
 
 impl PyRle {
-    /// Turns the right operand of an operator into a sequence: another `Rle`,
-    /// or a single value repeated over this sequence's length.
-    fn operand(&self, other: &Bound<'_, PyAny>) -> PyResult<ArrowRle> {
-        if let Ok(rle) = other.extract::<PyRef<PyRle>>() {
-            return Ok(rle.inner.clone());
-        }
-        let value = scalar_from_py(other).map_err(|_| {
-            PyTypeError::new_err(format!(
-                "unsupported operand type: Rle and {}",
-                other
-                    .get_type()
-                    .name()
-                    .map(|n| n.to_string())
-                    .unwrap_or_default()
-            ))
-        })?;
-        ArrowRle::from_runs(&[self.inner.len()], value).or_raise()
-    }
-
     fn binary(&self, other: &Bound<'_, PyAny>, kernel: Kernel, reflected: bool) -> PyResult<PyRle> {
         self.binary_as(other, kernel, reflected, false)
     }
@@ -210,22 +244,15 @@ impl PyRle {
         reflected: bool,
         to_float: bool,
     ) -> PyResult<PyRle> {
-        let other = self.operand(other)?;
-        let (a, b) = if reflected {
-            (other, self.inner.clone())
-        } else {
-            (self.inner.clone(), other)
+        let out = match other.extract::<PyRef<PyRle>>() {
+            Ok(rle) if reflected => combine(&rle.inner, &self.inner, kernel, to_float),
+            Ok(rle) => combine(&self.inner, &rle.inner, kernel, to_float),
+            Err(_) => {
+                let value = scalar_operand(other, "Rle")?;
+                combine_scalar(&self.inner, &value, kernel, reflected, to_float)
+            }
         };
-        let (a, b) = coerce(&a, &b)?;
-        let (a, b) = if to_float && a.data_type().is_integer() {
-            (
-                a.cast(&DataType::Float64).or_raise()?,
-                b.cast(&DataType::Float64).or_raise()?,
-            )
-        } else {
-            (a, b)
-        };
-        Ok(a.zip_with_default(&b, kernel).or_raise()?.into())
+        Ok(out.or_raise()?.into())
     }
 
     pub(crate) fn run_table(&self) -> PyResult<RecordBatch> {

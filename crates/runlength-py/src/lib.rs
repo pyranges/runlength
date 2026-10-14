@@ -14,8 +14,8 @@ use runlength_arrow::{Agg, ArrowRle, ArrowRleBatch};
 
 use crate::batch::PyRleBatch;
 use crate::convert::{
-    FillArg, OrRaise, array_from_py, array_to_py, indices_to_py, ints_from_py, scalar_of_type,
-    table_from_py, table_to_py,
+    FillArg, OrRaise, array_from_py, array_to_py, indices_to_py, ints_from_py, keys_from_py,
+    scalar_of_type, table_to_py,
 };
 use crate::rle::{PyRle, call_python, parse_backend};
 
@@ -108,7 +108,7 @@ fn coverage_by_key(
     fill: FillArg,
 ) -> PyResult<PyRleBatch> {
     let agg = parse_agg(agg, values.is_some())?;
-    let keys = table_from_py(keys)?;
+    let keys = keys_from_py(keys)?;
     let starts = ints_from_py(starts, "starts")?;
     let ends = ints_from_py(ends, "ends")?;
     let values = values.map(array_from_py).transpose()?;
@@ -232,7 +232,7 @@ fn overlap_plan_by_key(
     starts: &Bound<'_, PyAny>,
     ends: &Bound<'_, PyAny>,
 ) -> PyResult<PyTable> {
-    let keys = table_from_py(keys)?;
+    let keys = keys_from_py(keys)?;
     let starts = ints_from_py(starts, "starts")?;
     let ends = ints_from_py(ends, "ends")?;
     let table = py
