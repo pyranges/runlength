@@ -79,21 +79,34 @@ fn concat_chunks(chunks: Vec<ArrayRef>, data_type: &DataType) -> PyResult<ArrayR
 /// Reads a one-dimensional array from Python.
 pub fn array_from_py(obj: &Bound<'_, PyAny>) -> PyResult<ArrayRef> {
     let py = obj.py();
+    let has_to_numpy = obj.hasattr(intern!(py, "to_numpy"))?;
     if obj.hasattr(intern!(py, "__arrow_c_array__"))?
         || obj.hasattr(intern!(py, "__arrow_c_stream__"))?
     {
-        let any: AnyArray = obj.extract()?;
-        let (chunks, field) = any.into_chunked_array()?.into_inner();
-        return concat_chunks(chunks, field.data_type());
+        let exported = obj.extract::<AnyArray>().and_then(|any| {
+            let (chunks, field) = any.into_chunked_array()?.into_inner();
+            concat_chunks(chunks, field.data_type())
+        });
+        match exported {
+            Ok(array) => return Ok(array),
+            // pandas advertises Arrow export but needs pyarrow for it; read
+            // it through numpy instead.
+            Err(_) if has_to_numpy => {}
+            Err(err) => return Err(err),
+        }
     }
     // numpy arrays and other buffer-protocol objects.
     if let Ok(array) = obj.extract::<PyArray>() {
         return Ok(array.into_inner().0);
     }
     // pandas Series and Index without Arrow export.
-    if obj.hasattr(intern!(py, "to_numpy"))? && !obj.is_instance_of::<pyo3::types::PyList>() {
+    if has_to_numpy {
         let converted = obj.call_method0(intern!(py, "to_numpy"))?;
         return array_from_py(&converted);
+    }
+    // numpy arrays of objects or strings, which have no Arrow buffer layout.
+    if obj.hasattr(intern!(py, "dtype"))? && obj.hasattr(intern!(py, "tolist"))? {
+        return array_from_py(&obj.call_method0(intern!(py, "tolist"))?);
     }
     if let Ok(values) = obj.extract::<Vec<Option<bool>>>() {
         return Ok(Arc::new(BooleanArray::from(values)));
@@ -207,9 +220,28 @@ pub fn table_from_py(obj: &Bound<'_, PyAny>) -> PyResult<RecordBatch> {
             .collect::<PyResult<Vec<_>>>()?;
         return RecordBatch::try_from_iter(columns).or_raise();
     }
-    let any: AnyRecordBatch = obj.extract()?;
-    let (batches, schema) = any.into_table()?.into_inner();
-    concat_batches(&schema, &batches).or_raise()
+    let exported = obj.extract::<AnyRecordBatch>().and_then(|any| {
+        let (batches, schema) = any.into_table()?.into_inner();
+        concat_batches(&schema, &batches).or_raise()
+    });
+    match exported {
+        Ok(batch) => Ok(batch),
+        // A pandas DataFrame without pyarrow: read it column by column.
+        Err(err) if obj.hasattr(intern!(obj.py(), "columns"))? => {
+            let columns = obj
+                .getattr(intern!(obj.py(), "columns"))?
+                .try_iter()?
+                .map(|name| {
+                    let name = name?;
+                    let values = obj.get_item(&name)?;
+                    Ok((name.str()?.to_string(), array_from_py(&values)?))
+                })
+                .collect::<PyResult<Vec<_>>>()
+                .map_err(|_| err)?;
+            RecordBatch::try_from_iter(columns).or_raise()
+        }
+        Err(err) => Err(err),
+    }
 }
 
 /// Whether `obj` is a table (a DataFrame, pyarrow or arro3 Table, or a dict
@@ -292,6 +324,33 @@ pub fn to_polars<'py>(obj: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyAny>> {
         .call_method1(intern!(py, "DataFrame"), (obj,))
 }
 
-pub fn to_pandas<'py>(obj: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyAny>> {
-    to_arrow(obj)?.call_method0(intern!(obj.py(), "to_pandas"))
+/// pandas reads Arrow through pyarrow; without it, `batch` is converted
+/// through numpy (numbers and booleans without nulls) and lists (the rest).
+pub fn to_pandas<'py>(
+    obj: &Bound<'py, PyAny>,
+    batch: impl FnOnce() -> PyResult<RecordBatch>,
+) -> PyResult<Bound<'py, PyAny>> {
+    let py = obj.py();
+    if py.import(intern!(py, "pyarrow")).is_ok() {
+        return to_arrow(obj)?.call_method0(intern!(py, "to_pandas"));
+    }
+    let batch = batch()?;
+    let numpy = py.import(intern!(py, "numpy"))?;
+    let columns = PyDict::new(py);
+    for (field, column) in batch.schema().fields().iter().zip(batch.columns()) {
+        let data_type = column.data_type();
+        let as_numpy = (data_type.is_primitive() || data_type == &DataType::Boolean)
+            && column.null_count() == 0;
+        let values = if as_numpy {
+            numpy.call_method1(intern!(py, "asarray"), (array_to_py(column.clone()),))?
+        } else {
+            let list = (0..column.len())
+                .map(|i| value_to_py(py, column, i))
+                .collect::<PyResult<Vec<_>>>()?;
+            list.into_pyobject(py)?.into_any()
+        };
+        columns.set_item(field.name(), values)?;
+    }
+    py.import(intern!(py, "pandas"))?
+        .call_method1(intern!(py, "DataFrame"), (columns,))
 }

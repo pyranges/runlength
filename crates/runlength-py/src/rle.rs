@@ -607,7 +607,7 @@ impl PyRle {
 
     /// The runs as a pandas DataFrame with columns start, end and value.
     fn to_pandas<'py>(slf: &Bound<'py, Self>) -> PyResult<Bound<'py, PyAny>> {
-        to_pandas(slf.as_any())
+        to_pandas(slf.as_any(), || slf.get().run_table())
     }
 
     /// Exports the run table (start, end, value) as an Arrow stream.

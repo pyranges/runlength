@@ -463,7 +463,9 @@ impl PyRleBatch {
     /// The runs of all keys as a pandas DataFrame: the key columns, then
     /// start, end and value.
     fn to_pandas<'py>(slf: &Bound<'py, Self>) -> PyResult<Bound<'py, PyAny>> {
-        to_pandas(slf.as_any())
+        to_pandas(slf.as_any(), || {
+            slf.get().inner.to_record_batch().or_raise()
+        })
     }
 
     /// Exports the run table as an Arrow stream.
