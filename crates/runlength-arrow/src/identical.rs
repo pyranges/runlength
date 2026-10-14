@@ -22,7 +22,11 @@ pub fn identical_neighbours(values: &dyn Array) -> Result<Vec<bool>> {
     // Arrow compares floats by total order, under which NaNs with different
     // bit patterns differ, so floats use the core rule directly.
     match values.data_type() {
-        DataType::Float16 => return Ok(float_mask(values.as_primitive::<Float16Type>(), |v| v.to_f32())),
+        DataType::Float16 => {
+            return Ok(float_mask(values.as_primitive::<Float16Type>(), |v| {
+                v.to_f32()
+            }));
+        }
         DataType::Float32 => return Ok(float_mask(values.as_primitive::<Float32Type>(), |v| v)),
         DataType::Float64 => return Ok(float_mask(values.as_primitive::<Float64Type>(), |v| v)),
         _ => {}

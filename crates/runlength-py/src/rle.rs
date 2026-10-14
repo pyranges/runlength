@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use arrow_array::{Array, ArrayRef, Int64Array, RecordBatch, UInt64Array, make_array};
+use arrow_array::{Array, ArrayRef, Int64Array, RecordBatch, make_array};
 use arrow_cast::display::{ArrayFormatter, FormatOptions};
 use arrow_schema::{ArrowError, DataType, Field, Schema};
 use pyo3::basic::CompareOp;
@@ -14,8 +14,8 @@ use runlength_arrow::{ArrowRle, common_numeric_type};
 
 use crate::batch::PyRleBatch;
 use crate::convert::{
-    OrRaise, array_from_py, array_to_py, bools_from_py, ints_from_py, scalar_from_py, scalar_of_type,
-    table_capsule, to_arrow, to_pandas, to_polars, value_to_py,
+    FillArg, OrRaise, array_from_py, array_to_py, bools_from_py, indices_to_py, ints_from_py,
+    scalar_from_py, scalar_of_type, table_capsule, to_arrow, to_pandas, to_polars, value_to_py,
 };
 
 /// A run-length encoded sequence of values of any Arrow type.
@@ -42,14 +42,18 @@ pub(crate) fn parse_keep(keep: &str) -> PyResult<Keep> {
     match keep {
         "first" => Ok(Keep::First),
         "last" => Ok(Keep::Last),
-        other => Err(PyValueError::new_err(format!("keep must be 'first' or 'last', got {other:?}"))),
+        other => Err(PyValueError::new_err(format!(
+            "keep must be 'first' or 'last', got {other:?}"
+        ))),
     }
 }
 
 /// Converts both sides to a common numeric type if they differ.
 pub(crate) fn coerce(a: &ArrowRle, b: &ArrowRle) -> PyResult<(ArrowRle, ArrowRle)> {
     match common_numeric_type(a.data_type(), b.data_type()) {
-        Some(t) if a.data_type() != b.data_type() => Ok((a.cast(&t).or_raise()?, b.cast(&t).or_raise()?)),
+        Some(t) if a.data_type() != b.data_type() => {
+            Ok((a.cast(&t).or_raise()?, b.cast(&t).or_raise()?))
+        }
         _ => Ok((a.clone(), b.clone())),
     }
 }
@@ -86,7 +90,11 @@ pub(crate) fn parse_backend(backend: &str) -> PyResult<Backend> {
     }
 }
 
-fn to_backend<'py>(py: Python<'py>, array: PyArray, backend: Backend) -> PyResult<Bound<'py, PyAny>> {
+fn to_backend<'py>(
+    py: Python<'py>,
+    array: PyArray,
+    backend: Backend,
+) -> PyResult<Bound<'py, PyAny>> {
     let array = array.into_pyobject(py)?.into_any();
     match backend {
         Backend::Arrow => Ok(array),
@@ -97,7 +105,11 @@ fn to_backend<'py>(py: Python<'py>, array: PyArray, backend: Backend) -> PyResul
 }
 
 /// Calls a Python function with Arrow arrays, for `zip_with` and `map`.
-pub(crate) fn call_python(func: &Bound<'_, PyAny>, backend: Backend, args: &[&dyn Array]) -> Result<ArrayRef, ArrowError> {
+pub(crate) fn call_python(
+    func: &Bound<'_, PyAny>,
+    backend: Backend,
+    args: &[&dyn Array],
+) -> Result<ArrayRef, ArrowError> {
     let py = func.py();
     let call = || -> PyResult<ArrayRef> {
         let converted = args
@@ -110,12 +122,32 @@ pub(crate) fn call_python(func: &Bound<'_, PyAny>, backend: Backend, args: &[&dy
     call().map_err(|e| ArrowError::ExternalError(Box::new(e)))
 }
 
-pub(crate) fn fill_of(fill: Option<&Bound<'_, PyAny>>, data_type: &DataType) -> PyResult<Option<ArrayRef>> {
+/// A single fill value of `data_type`: the given value, null, or the type's
+/// default fill (null if it has none).
+pub(crate) fn fill_array(
+    py: Python<'_>,
+    fill: FillArg,
+    data_type: &DataType,
+) -> PyResult<ArrayRef> {
+    let null = || arrow_array::new_null_array(data_type, 1);
+    match fill {
+        FillArg::Value(value) => scalar_of_type(value.bind(py), data_type),
+        FillArg::Null => Ok(null()),
+        FillArg::Default => Ok(runlength_arrow::default_fill(data_type).unwrap_or_else(null)),
+    }
+}
+
+pub(crate) fn fill_of(
+    fill: Option<&Bound<'_, PyAny>>,
+    data_type: &DataType,
+) -> PyResult<Option<ArrayRef>> {
     fill.map(|f| scalar_of_type(f, data_type)).transpose()
 }
 
 pub(crate) fn format_values(values: &dyn Array, limit: usize) -> String {
-    let Ok(formatter) = ArrayFormatter::try_new(values, &FormatOptions::default().with_null("null")) else {
+    let Ok(formatter) =
+        ArrayFormatter::try_new(values, &FormatOptions::default().with_null("null"))
+    else {
         return "[...]".to_string();
     };
     let n = values.len();
@@ -124,7 +156,9 @@ pub(crate) fn format_values(values: &dyn Array, limit: usize) -> String {
     } else {
         let head = (0..limit / 2).map(|i| formatter.value(i).to_string());
         let tail = (n - limit / 2..n).map(|i| formatter.value(i).to_string());
-        head.chain(std::iter::once("...".to_string())).chain(tail).collect()
+        head.chain(std::iter::once("...".to_string()))
+            .chain(tail)
+            .collect()
     };
     format!("[{}]", shown.join(", "))
 }
@@ -139,7 +173,11 @@ impl PyRle {
         let value = scalar_from_py(other).map_err(|_| {
             PyTypeError::new_err(format!(
                 "unsupported operand type: Rle and {}",
-                other.get_type().name().map(|n| n.to_string()).unwrap_or_default()
+                other
+                    .get_type()
+                    .name()
+                    .map(|n| n.to_string())
+                    .unwrap_or_default()
             ))
         })?;
         ArrowRle::from_runs(&[self.inner.len()], value).or_raise()
@@ -150,12 +188,25 @@ impl PyRle {
     }
 
     /// With `to_float`, integer operands become `Float64` first (for `/`).
-    fn binary_as(&self, other: &Bound<'_, PyAny>, kernel: Kernel, reflected: bool, to_float: bool) -> PyResult<PyRle> {
+    fn binary_as(
+        &self,
+        other: &Bound<'_, PyAny>,
+        kernel: Kernel,
+        reflected: bool,
+        to_float: bool,
+    ) -> PyResult<PyRle> {
         let other = self.operand(other)?;
-        let (a, b) = if reflected { (other, self.inner.clone()) } else { (self.inner.clone(), other) };
+        let (a, b) = if reflected {
+            (other, self.inner.clone())
+        } else {
+            (self.inner.clone(), other)
+        };
         let (a, b) = coerce(&a, &b)?;
         let (a, b) = if to_float && a.data_type().is_integer() {
-            (a.cast(&DataType::Float64).or_raise()?, b.cast(&DataType::Float64).or_raise()?)
+            (
+                a.cast(&DataType::Float64).or_raise()?,
+                b.cast(&DataType::Float64).or_raise()?,
+            )
         } else {
             (a, b)
         };
@@ -199,14 +250,18 @@ impl PyRle {
     /// Encodes one value per position, merging identical neighbours.
     #[staticmethod]
     fn from_dense(values: &Bound<'_, PyAny>) -> PyResult<Self> {
-        Ok(ArrowRle::from_dense(array_from_py(values)?).or_raise()?.into())
+        Ok(ArrowRle::from_dense(array_from_py(values)?)
+            .or_raise()?
+            .into())
     }
 
     /// Builds a sequence from cumulative run ends and one value per run.
     #[staticmethod]
     fn from_ends(ends: &Bound<'_, PyAny>, values: &Bound<'_, PyAny>) -> PyResult<Self> {
         let ends = ints_from_py(ends, "ends")?;
-        Ok(ArrowRle::try_new(ends, array_from_py(values)?).or_raise()?.into())
+        Ok(ArrowRle::try_new(ends, array_from_py(values)?)
+            .or_raise()?
+            .into())
     }
 
     /// The length of each run.
@@ -262,7 +317,9 @@ impl PyRle {
         if let Ok(slice) = key.cast::<PySlice>() {
             let idx = slice.indices(len as isize)?;
             if idx.step != 1 {
-                return Err(PyValueError::new_err("slices with a step are not supported"));
+                return Err(PyValueError::new_err(
+                    "slices with a step are not supported",
+                ));
             }
             let sliced: PyRle = self.inner.slice(idx.start as i64, idx.stop as i64).into();
             return Ok(sliced.into_pyobject(py)?.into_any().unbind());
@@ -271,20 +328,27 @@ impl PyRle {
         if pos < 0 {
             pos += len;
         }
-        let run = self
-            .inner
-            .run_index(pos)
-            .ok_or_else(|| PyIndexError::new_err(format!("position out of range for length {len}")))?;
+        let run = self.inner.run_index(pos).ok_or_else(|| {
+            PyIndexError::new_err(format!("position out of range for length {len}"))
+        })?;
         value_to_py(py, self.inner.values(), run)
     }
 
     /// Many slices at once, as an RleBatch keyed by slice number. Ends past the
     /// sequence are clamped.
-    fn getitems(&self, py: Python<'_>, starts: &Bound<'_, PyAny>, ends: &Bound<'_, PyAny>) -> PyResult<PyRleBatch> {
+    fn getitems(
+        &self,
+        py: Python<'_>,
+        starts: &Bound<'_, PyAny>,
+        ends: &Bound<'_, PyAny>,
+    ) -> PyResult<PyRleBatch> {
         let starts = ints_from_py(starts, "starts")?;
         let ends = ints_from_py(ends, "ends")?;
         let inner = &self.inner;
-        Ok(py.detach(|| inner.getitems(&starts, &ends)).or_raise()?.into())
+        Ok(py
+            .detach(|| inner.getitems(&starts, &ends))
+            .or_raise()?
+            .into())
     }
 
     /// Merges neighbouring runs. Without a mask, runs merge when their values
@@ -307,10 +371,9 @@ impl PyRle {
     fn merge_plan(&self, mask: &Bound<'_, PyAny>) -> PyResult<(PyArray, PyArray)> {
         let plan = runlength::merge_plan(self.inner.ends(), &bools_from_py(mask)?)
             .map_err(|e| PyValueError::new_err(e.to_string()))?;
-        let offsets = plan.offsets.iter().map(|&o| o as u64).collect::<Vec<_>>();
         Ok((
             array_to_py(Arc::new(Int64Array::from(plan.ends))),
-            array_to_py(Arc::new(UInt64Array::from(offsets))),
+            indices_to_py(plan.offsets),
         ))
     }
 
@@ -326,8 +389,11 @@ impl PyRle {
     /// number of runs means the segment lies past its end.
     fn plan(&self, other: PyRef<'_, PyRle>) -> (PyArray, PyArray, PyArray) {
         let p = self.inner.plan_with(&other.inner);
-        let idx = |v: Vec<usize>| array_to_py(Arc::new(UInt64Array::from_iter_values(v.into_iter().map(|i| i as u64))));
-        (array_to_py(Arc::new(Int64Array::from(p.ends))), idx(p.idx_a), idx(p.idx_b))
+        (
+            array_to_py(Arc::new(Int64Array::from(p.ends))),
+            indices_to_py(p.idx_a),
+            indices_to_py(p.idx_b),
+        )
     }
 
     /// Combines with `other` position by position using `func`.
@@ -367,7 +433,11 @@ impl PyRle {
     #[pyo3(signature = (func, backend="arrow"))]
     fn map(&self, func: &Bound<'_, PyAny>, backend: &str) -> PyResult<Self> {
         let backend = parse_backend(backend)?;
-        Ok(self.inner.map(|values| call_python(func, backend, &[values])).or_raise()?.into())
+        Ok(self
+            .inner
+            .map(|values| call_python(func, backend, &[values]))
+            .or_raise()?
+            .into())
     }
 
     /// Casts the values to another Arrow type, given as a string such as
@@ -377,6 +447,36 @@ impl PyRle {
             .parse()
             .map_err(|e: ArrowError| PyValueError::new_err(e.to_string()))?;
         Ok(self.inner.cast(&data_type).or_raise()?.into())
+    }
+
+    /// Shifts values `distance` positions right (left if negative), keeping
+    /// the length. Positions shifted in hold `fill`: by default 0 for numbers,
+    /// false for booleans and null otherwise; `fill=None` means null.
+    #[pyo3(signature = (distance, fill=FillArg::Default))]
+    fn shift(&self, py: Python<'_>, distance: i64, fill: FillArg) -> PyResult<Self> {
+        let fill = fill_array(py, fill, self.inner.data_type())?;
+        Ok(self.inner.shift(distance, fill.as_ref()).or_raise()?.into())
+    }
+
+    /// The sequence back to front.
+    fn reverse(&self) -> PyResult<Self> {
+        Ok(self.inner.reversed().or_raise()?.into())
+    }
+
+    /// For a boolean Rle, the ranges where it is true, as (starts, ends);
+    /// nulls count as false. For example `(coverage > 0).ranges()`.
+    fn ranges(&self) -> PyResult<(PyArray, PyArray)> {
+        let (starts, ends) = self.inner.true_ranges().or_raise()?;
+        Ok((
+            array_to_py(Arc::new(Int64Array::from(starts))),
+            array_to_py(Arc::new(Int64Array::from(ends))),
+        ))
+    }
+
+    /// Replaces nulls with `value`.
+    fn fill_null(&self, value: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let fill = scalar_of_type(value, self.inner.data_type())?;
+        Ok(self.inner.fill_null(fill.as_ref()).or_raise()?.into())
     }
 
     /// Whether both sequences hold identical values at every position,
@@ -425,7 +525,8 @@ impl PyRle {
 
     /// One value per position, as a numpy array.
     fn to_numpy<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        py.import("numpy")?.call_method1("asarray", (self.to_dense()?,))
+        py.import("numpy")?
+            .call_method1("asarray", (self.to_dense()?,))
     }
 
     /// The runs as a pyarrow Table with columns start, end and value.
@@ -505,13 +606,15 @@ impl PyRle {
 
     fn __invert__(&self) -> PyResult<Self> {
         self.inner
-            .map(|values| match values.as_any().downcast_ref::<arrow_array::BooleanArray>() {
-                Some(b) => Ok(Arc::new(arrow_arith::boolean::not(b)?) as ArrayRef),
-                None => Err(ArrowError::InvalidArgumentError(format!(
-                    "~ needs boolean values, got {}",
-                    values.data_type()
-                ))),
-            })
+            .map(
+                |values| match values.as_any().downcast_ref::<arrow_array::BooleanArray>() {
+                    Some(b) => Ok(Arc::new(arrow_arith::boolean::not(b)?) as ArrayRef),
+                    None => Err(ArrowError::InvalidArgumentError(format!(
+                        "~ needs boolean values, got {}",
+                        values.data_type()
+                    ))),
+                },
+            )
             .or_raise()
             .map(Into::into)
     }

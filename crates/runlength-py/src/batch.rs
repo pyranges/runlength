@@ -13,7 +13,8 @@ use runlength_arrow::kernels::{self, Kernel};
 use runlength_arrow::{ArrowRle, ArrowRleBatch, common_numeric_type};
 
 use crate::convert::{
-    OrRaise, scalar_of_type, table_capsule, table_from_py, table_to_py, to_arrow, to_pandas, to_polars, value_to_py,
+    OrRaise, scalar_of_type, table_capsule, table_from_py, table_to_py, to_arrow, to_pandas,
+    to_polars, value_to_py,
 };
 use crate::rle::{PyRle, call_python, fill_of, format_values, kernel_for, parse_backend};
 
@@ -32,6 +33,36 @@ pub struct PyRleBatch {
 impl From<ArrowRleBatch> for PyRleBatch {
     fn from(inner: ArrowRleBatch) -> Self {
         PyRleBatch { inner }
+    }
+}
+
+/// A column name or a list of them.
+#[derive(FromPyObject)]
+pub(crate) enum StrOrList {
+    One(String),
+    Many(Vec<String>),
+}
+
+impl StrOrList {
+    fn into_vec(self) -> Vec<String> {
+        match self {
+            StrOrList::One(s) => vec![s],
+            StrOrList::Many(v) => v,
+        }
+    }
+}
+
+pub(crate) fn binary_kernel(op: &str) -> PyResult<Kernel> {
+    match op {
+        "add" => Ok(kernels::add),
+        "sub" => Ok(kernels::sub),
+        "mul" => Ok(kernels::mul),
+        "div" => Ok(kernels::div),
+        "and" => Ok(kernels::and),
+        "or" => Ok(kernels::or),
+        other => Err(PyValueError::new_err(format!(
+            "op must be 'add', 'sub', 'mul', 'div', 'and' or 'or', got {other:?}"
+        ))),
     }
 }
 
@@ -55,7 +86,9 @@ impl PyRleBatch {
         let (a, b) = (&self.inner, &other.inner);
         let common = common_numeric_type(a.values().data_type(), b.values().data_type());
         let (a, b) = match common {
-            Some(t) if a.values().data_type() != b.values().data_type() => (cast_batch(a, &t)?, cast_batch(b, &t)?),
+            Some(t) if a.values().data_type() != b.values().data_type() => {
+                (cast_batch(a, &t)?, cast_batch(b, &t)?)
+            }
             _ => (a.clone(), b.clone()),
         };
         Ok(a.zip_with_default(&b, kernel).or_raise()?.into())
@@ -67,20 +100,42 @@ impl PyRleBatch {
         name: &str,
         f: impl Fn(&ArrowRle) -> runlength_arrow::Result<ArrayRef>,
     ) -> PyResult<PyTable> {
-        let columns = self.inner.iter().map(|r| f(&r)).collect::<runlength_arrow::Result<Vec<_>>>().or_raise()?;
-        let data_type = columns.first().map_or(DataType::Float64, |c| c.data_type().clone());
+        let columns = self
+            .inner
+            .iter()
+            .map(|r| f(&r))
+            .collect::<runlength_arrow::Result<Vec<_>>>()
+            .or_raise()?;
+        let data_type = columns
+            .first()
+            .map_or(DataType::Float64, |c| c.data_type().clone());
         let refs: Vec<&dyn Array> = columns.iter().map(|c| c.as_ref()).collect();
-        let column = if refs.is_empty() { arrow_array::new_empty_array(&data_type) } else { concat(&refs).or_raise()? };
+        let column = if refs.is_empty() {
+            arrow_array::new_empty_array(&data_type)
+        } else {
+            concat(&refs).or_raise()?
+        };
         let keys = self.inner.keys();
-        let mut fields: Vec<Field> = keys.schema().fields().iter().map(|f| f.as_ref().clone()).collect();
+        let mut fields: Vec<Field> = keys
+            .schema()
+            .fields()
+            .iter()
+            .map(|f| f.as_ref().clone())
+            .collect();
         fields.push(Field::new(name, data_type, true));
         let mut arrays = keys.columns().to_vec();
         arrays.push(column);
         table_to_py(RecordBatch::try_new(Arc::new(Schema::new(fields)), arrays).or_raise()?)
     }
 
-    fn float_aggregate(&self, name: &str, f: impl Fn(&ArrowRle) -> runlength_arrow::Result<Option<f64>>) -> PyResult<PyTable> {
-        self.aggregate(name, |r| Ok(Arc::new(Float64Array::from(vec![f(r)?])) as ArrayRef))
+    fn float_aggregate(
+        &self,
+        name: &str,
+        f: impl Fn(&ArrowRle) -> runlength_arrow::Result<Option<f64>>,
+    ) -> PyResult<PyTable> {
+        self.aggregate(name, |r| {
+            Ok(Arc::new(Float64Array::from(vec![f(r)?])) as ArrayRef)
+        })
     }
 
     /// The key at `position` as a tuple of Python values.
@@ -100,7 +155,11 @@ fn cast_batch(batch: &ArrowRleBatch, data_type: &DataType) -> PyResult<ArrowRleB
     if batch.values().data_type() == data_type {
         return Ok(batch.clone());
     }
-    let rles = batch.iter().map(|r| r.cast(data_type)).collect::<runlength_arrow::Result<Vec<_>>>().or_raise()?;
+    let rles = batch
+        .iter()
+        .map(|r| r.cast(data_type))
+        .collect::<runlength_arrow::Result<Vec<_>>>()
+        .or_raise()?;
     ArrowRleBatch::from_rles(batch.keys().clone(), rles, data_type).or_raise()
 }
 
@@ -112,9 +171,13 @@ impl PyRleBatch {
     #[staticmethod]
     fn from_rles(keys: &Bound<'_, PyAny>, rles: Vec<PyRef<'_, PyRle>>) -> PyResult<Self> {
         let keys = table_from_py(keys)?;
-        let data_type = rles.first().map_or(DataType::Null, |r| r.inner.data_type().clone());
+        let data_type = rles
+            .first()
+            .map_or(DataType::Null, |r| r.inner.data_type().clone());
         let rles = rles.iter().map(|r| r.inner.clone()).collect();
-        Ok(ArrowRleBatch::from_rles(keys, rles, &data_type).or_raise()?.into())
+        Ok(ArrowRleBatch::from_rles(keys, rles, &data_type)
+            .or_raise()?
+            .into())
     }
 
     /// The key table, one row per Rle.
@@ -139,9 +202,15 @@ impl PyRleBatch {
         let n = self.inner.len() as isize;
         let index = if position < 0 { position + n } else { position };
         if !(0..n).contains(&index) {
-            return Err(PyIndexError::new_err(format!("position {position} out of range for {n} keys")));
+            return Err(PyIndexError::new_err(format!(
+                "position {position} out of range for {n} keys"
+            )));
         }
-        Ok(self.inner.get_index(index as usize).expect("checked above").into())
+        Ok(self
+            .inner
+            .get_index(index as usize)
+            .expect("checked above")
+            .into())
     }
 
     /// The Rle for a key, or None. A key is a tuple with one value per key
@@ -166,13 +235,20 @@ impl PyRleBatch {
             .collect::<PyResult<Vec<_>>>()?;
         let lookup = RecordBatch::try_new(keys.schema(), columns).or_raise()?;
         let position = self.inner.positions(&lookup).or_raise()?[0];
-        Ok(position.and_then(|p| self.inner.get_index(p)).map(Into::into))
+        Ok(position
+            .and_then(|p| self.inner.get_index(p))
+            .map(Into::into))
     }
 
     /// (key tuple, Rle) pairs in key order.
     fn items<'py>(&self, py: Python<'py>) -> PyResult<Vec<(Bound<'py, PyTuple>, PyRle)>> {
         (0..self.inner.len())
-            .map(|i| Ok((self.key_tuple(py, i)?, self.inner.get_index(i).expect("in range").into())))
+            .map(|i| {
+                Ok((
+                    self.key_tuple(py, i)?,
+                    self.inner.get_index(i).expect("in range").into(),
+                ))
+            })
             .collect()
     }
 
@@ -206,6 +282,38 @@ impl PyRleBatch {
             })
         });
         Ok(joined.or_raise()?.into())
+    }
+
+    /// Combines the Rles whose keys agree on the remaining key columns, with
+    /// `op` ("add", "sub", "mul", "div", "and" or "or"), padding with zero.
+    /// Give the columns to `keep` or to `drop`, for example
+    /// `batch.collapse(drop="Strand")` to add up the strands.
+    #[pyo3(signature = (keep=None, drop=None, op="add"))]
+    fn collapse(
+        &self,
+        keep: Option<Vec<String>>,
+        drop: Option<StrOrList>,
+        op: &str,
+    ) -> PyResult<Self> {
+        let names: Vec<String> = self
+            .inner
+            .keys()
+            .schema()
+            .fields()
+            .iter()
+            .map(|f| f.name().clone())
+            .collect();
+        let keep = match (keep, drop) {
+            (Some(keep), None) => keep,
+            (None, Some(drop)) => {
+                let drop = drop.into_vec();
+                names.into_iter().filter(|n| !drop.contains(n)).collect()
+            }
+            _ => return Err(PyValueError::new_err("give exactly one of keep and drop")),
+        };
+        let keep: Vec<&str> = keep.iter().map(String::as_str).collect();
+        let kernel = binary_kernel(op)?;
+        Ok(self.inner.collapse(&keep, kernel).or_raise()?.into())
     }
 
     /// Sum per key, as a table of the key columns plus `sum`.
@@ -265,7 +373,11 @@ impl PyRleBatch {
         py: Python<'py>,
         requested_schema: Option<Bound<'py, PyCapsule>>,
     ) -> PyResult<Bound<'py, PyCapsule>> {
-        table_capsule(py, self.inner.to_record_batch().or_raise()?, requested_schema)
+        table_capsule(
+            py,
+            self.inner.to_record_batch().or_raise()?,
+            requested_schema,
+        )
     }
 
     fn __add__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {

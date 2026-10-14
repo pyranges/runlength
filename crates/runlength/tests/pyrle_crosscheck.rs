@@ -14,7 +14,12 @@ fn parse() -> Vec<(String, HashMap<String, Vec<i64>>)> {
         .filter(|block| !block.trim().is_empty())
         .map(|block| {
             let mut lines = block.lines();
-            let op = lines.next().unwrap().strip_prefix("case ").unwrap().to_string();
+            let op = lines
+                .next()
+                .unwrap()
+                .strip_prefix("case ")
+                .unwrap()
+                .to_string();
             let fields = lines
                 .map(|l| {
                     let mut parts = l.split_whitespace();
@@ -28,7 +33,11 @@ fn parse() -> Vec<(String, HashMap<String, Vec<i64>>)> {
 }
 
 fn rle(fields: &HashMap<String, Vec<i64>>, prefix: &str) -> Rle<i64> {
-    Rle::from_runs(&fields[&format!("{prefix}_runs")], fields[&format!("{prefix}_values")].clone()).unwrap()
+    Rle::from_runs(
+        &fields[&format!("{prefix}_runs")],
+        fields[&format!("{prefix}_values")].clone(),
+    )
+    .unwrap()
 }
 
 #[test]
@@ -44,8 +53,16 @@ fn matches_pyrle() {
             "coverage" => coverage_sum(&f["starts"], &f["ends"], &f["weights"], None).unwrap(),
             other => panic!("unknown op {other}"),
         };
-        assert_eq!(actual.to_dense(), expected.to_dense(), "case {n} ({op}): {f:?}");
+        assert_eq!(
+            actual.to_dense(),
+            expected.to_dense(),
+            "case {n} ({op}): {f:?}"
+        );
         // pyrle merges its results too, so the runs should agree exactly.
-        assert_eq!(actual.runs(), expected.merged().runs(), "case {n} ({op}) runs: {f:?}");
+        assert_eq!(
+            actual.runs(),
+            expected.merged().runs(),
+            "case {n} ({op}) runs: {f:?}"
+        );
     }
 }

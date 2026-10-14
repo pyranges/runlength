@@ -51,6 +51,7 @@ mod batch;
 mod coverage;
 mod error;
 mod identical;
+mod many;
 mod merge;
 mod num;
 mod ops;
@@ -58,18 +59,23 @@ mod plan;
 mod reduce;
 mod rle;
 mod slice;
+mod transform;
 
 pub use batch::{How, RleBatch};
 pub use coverage::{
-    coverage_count, coverage_count_by_key, coverage_sum, coverage_sum_by_key, coverage_sum_opt,
+    OverlapPlan, coverage_count, coverage_count_by_key, coverage_max, coverage_max_by_key,
+    coverage_min, coverage_min_by_key, coverage_sum, coverage_sum_by_key, coverage_sum_opt,
+    overlap_plan,
 };
 pub use error::{Error, Result};
 pub use identical::Identical;
+pub use many::{PlanMany, plan_many, zip_many};
 pub use merge::{Keep, MergePlan, merge_plan};
 pub use num::Num;
 pub use ops::{zip_with, zip_with_raw};
 pub use plan::{Plan, plan};
 pub use rle::{Rle, RleLike, RleRef};
+pub use transform::concat;
 
 /// The types and traits needed for everyday use.
 pub mod prelude {

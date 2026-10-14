@@ -9,6 +9,7 @@ use crate::ops;
 use crate::plan::{self, Plan, Segments};
 use crate::reduce;
 use crate::slice;
+use crate::transform;
 
 /// A run-length encoded sequence that owns its data.
 ///
@@ -161,7 +162,10 @@ impl<V> Rle<V> {
         debug_assert!(end > self.len());
         match self.values.last() {
             Some(last) if last.identical(&value) => {
-                *self.ends.last_mut().expect("ends and values have equal length") = end;
+                *self
+                    .ends
+                    .last_mut()
+                    .expect("ends and values have equal length") = end;
             }
             _ => {
                 self.ends.push(end);
@@ -455,6 +459,30 @@ pub trait RleLike<V> {
         ops::compare(self.view(), other.view(), |a, b| a >= b)
     }
 
+    /// Shifts values `distance` positions to the right (left if negative),
+    /// keeping the length: positions shifted in hold `fill`, values shifted
+    /// past either end are dropped. The result is merged.
+    fn shift(&self, distance: i64, fill: V) -> Rle<V>
+    where
+        V: Clone + Identical,
+    {
+        transform::shift(self.view(), distance, fill)
+    }
+
+    /// The sequence back to front.
+    fn reversed(&self) -> Rle<V>
+    where
+        V: Clone,
+    {
+        transform::reversed(self.view())
+    }
+
+    /// The half-open ranges `(starts, ends)` where `pred` holds, with
+    /// touching ranges joined. For example, where coverage is positive.
+    fn ranges_where<F: FnMut(&V) -> bool>(&self, pred: F) -> (Vec<i64>, Vec<i64>) {
+        transform::ranges_where(self.view(), pred)
+    }
+
     /// The sum over all positions (each value times its run length).
     fn sum(&self) -> V
     where
@@ -538,7 +566,11 @@ impl<V: Identical> PartialEq for RleRef<'_, V> {
     }
 }
 
-fn debug_rle<V: fmt::Debug>(name: &str, rle: RleRef<'_, V>, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+fn debug_rle<V: fmt::Debug>(
+    name: &str,
+    rle: RleRef<'_, V>,
+    f: &mut fmt::Formatter<'_>,
+) -> fmt::Result {
     f.debug_struct(name)
         .field("runs", &rle.runs())
         .field("values", &rle.values)

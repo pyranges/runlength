@@ -3,7 +3,9 @@
 
 use proptest::prelude::*;
 use runlength::prelude::*;
-use runlength::{coverage_count, coverage_count_by_key, coverage_sum, coverage_sum_by_key, coverage_sum_opt};
+use runlength::{
+    coverage_count, coverage_count_by_key, coverage_sum, coverage_sum_by_key, coverage_sum_opt,
+};
 
 /// Runs and values with small ranges, so zero-length runs and identical
 /// neighbours are common.
@@ -30,7 +32,11 @@ fn padded(v: &[i64], n: usize) -> Vec<i64> {
 
 fn zip_dense(a: &[i64], b: &[i64], f: impl Fn(i64, i64) -> i64) -> Vec<i64> {
     let n = a.len().max(b.len());
-    padded(a, n).into_iter().zip(padded(b, n)).map(|(x, y)| f(x, y)).collect()
+    padded(a, n)
+        .into_iter()
+        .zip(padded(b, n))
+        .map(|(x, y)| f(x, y))
+        .collect()
 }
 
 fn intervals() -> impl Strategy<Value = Vec<(i64, i64, i64)>> {
@@ -284,7 +290,9 @@ fn float_coverage_has_no_residue_in_gaps() {
 fn generic_values() {
     let a = Rle::from_runs(&[2, 2], vec!["x".to_string(), "y".to_string()]).unwrap();
     let b = Rle::from_runs(&[1, 3], vec![1, 2]).unwrap();
-    let c = a.zip_with(&b, None, None, |s, n| s.repeat(*n as usize)).unwrap();
+    let c = a
+        .zip_with(&b, None, None, |s, n| s.repeat(*n as usize))
+        .unwrap();
     assert_eq!(c.to_dense(), vec!["x", "xx", "yy", "yy"]);
     assert_eq!(c.runs(), vec![1, 1, 2]);
 }

@@ -12,14 +12,18 @@ fn weighted<V: Copy>(rle: RleRef<'_, V>) -> impl Iterator<Item = (i64, V)> + '_ 
 }
 
 pub(crate) fn sum<V: Num>(rle: RleRef<'_, V>) -> V {
-    weighted(rle).fold(V::default(), |acc, (run, value)| acc + value * V::from_i64(run))
+    weighted(rle).fold(V::default(), |acc, (run, value)| {
+        acc + value * V::from_i64(run)
+    })
 }
 
 pub(crate) fn mean<V: Num>(rle: RleRef<'_, V>) -> Option<f64> {
     if rle.is_empty() {
         return None;
     }
-    let total: f64 = weighted(rle).map(|(run, value)| run as f64 * value.to_f64()).sum();
+    let total: f64 = weighted(rle)
+        .map(|(run, value)| run as f64 * value.to_f64())
+        .sum();
     Some(total / rle.len() as f64)
 }
 

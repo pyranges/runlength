@@ -5,7 +5,8 @@
 //! cover nothing, but still count towards the length, which is the largest
 //! interval end.
 
-use std::collections::HashMap;
+use std::cmp::Ordering;
+use std::collections::{BinaryHeap, HashMap};
 use std::hash::Hash;
 
 use rayon::prelude::*;
@@ -32,8 +33,17 @@ struct Sweep<V> {
 ///
 /// When no interval is active the running sum is reset to exactly zero, so
 /// floating-point rounding cannot leave small non-zero values in gaps.
-fn sweep<V: Num>(starts: &[i64], ends: &[i64], idx: &[usize], weight: impl Fn(usize) -> V) -> Sweep<V> {
-    let mut by_start: Vec<usize> = idx.iter().copied().filter(|&i| starts[i] < ends[i]).collect();
+fn sweep<V: Num>(
+    starts: &[i64],
+    ends: &[i64],
+    idx: &[usize],
+    weight: impl Fn(usize) -> V,
+) -> Sweep<V> {
+    let mut by_start: Vec<usize> = idx
+        .iter()
+        .copied()
+        .filter(|&i| starts[i] < ends[i])
+        .collect();
     let mut by_end = by_start.clone();
     by_start.sort_unstable_by_key(|&i| starts[i]);
     by_end.sort_unstable_by_key(|&i| ends[i]);
@@ -128,7 +138,10 @@ pub fn coverage_sum<V: Num + Identical>(
 ) -> Result<Rle<V>> {
     validate_intervals(starts, ends)?;
     check_values(starts, values)?;
-    let rle = finish(sweep(starts, ends, &all(starts.len()), |i| values[i]), |sum, _| sum);
+    let rle = finish(
+        sweep(starts, ends, &all(starts.len()), |i| values[i]),
+        |sum, _| sum,
+    );
     pad(rle, length, V::default())
 }
 
@@ -149,7 +162,10 @@ pub fn coverage_sum_opt<V: Num + Identical>(
 /// The number of intervals covering each position.
 pub fn coverage_count(starts: &[i64], ends: &[i64], length: Option<i64>) -> Result<Rle<i64>> {
     validate_intervals(starts, ends)?;
-    let rle = finish(sweep(starts, ends, &all(starts.len()), |_| 1i64), |_, count| count);
+    let rle = finish(
+        sweep(starts, ends, &all(starts.len()), |_| 1i64),
+        |_, count| count,
+    );
     pad(rle, length, 0)
 }
 
@@ -182,7 +198,12 @@ fn check_keys<K>(keys: &[K], starts: &[i64]) -> Result<()> {
 
 /// [`coverage_sum`] per key, computed in parallel. Keys appear in order of
 /// first appearance; each sequence covers `0..max(end)` of its intervals.
-pub fn coverage_sum_by_key<K, V>(keys: &[K], starts: &[i64], ends: &[i64], values: &[V]) -> Result<RleBatch<K, V>>
+pub fn coverage_sum_by_key<K, V>(
+    keys: &[K],
+    starts: &[i64],
+    ends: &[i64],
+    values: &[V],
+) -> Result<RleBatch<K, V>>
 where
     K: Hash + Eq + Clone + Send + Sync,
     V: Num + Identical,
@@ -200,7 +221,11 @@ where
 
 /// [`coverage_count`] per key, computed in parallel. Keys appear in order of
 /// first appearance; each sequence covers `0..max(end)` of its intervals.
-pub fn coverage_count_by_key<K>(keys: &[K], starts: &[i64], ends: &[i64]) -> Result<RleBatch<K, i64>>
+pub fn coverage_count_by_key<K>(
+    keys: &[K],
+    starts: &[i64],
+    ends: &[i64],
+) -> Result<RleBatch<K, i64>>
 where
     K: Hash + Eq + Clone + Send + Sync,
 {
@@ -212,4 +237,359 @@ where
         .map(|idx| finish(sweep(starts, ends, idx, |_| 1i64), |_, count| count))
         .collect();
     Ok(RleBatch::from_rles_unchecked(unique, rles))
+}
+
+/// Orders values for max/min coverage: comparable values by their order
+/// (reversed for min), and values not comparable with themselves (`NaN`)
+/// below every comparable value, so they only win when nothing else covers.
+struct Ranked<'a, V> {
+    value: &'a V,
+    local: usize,
+    max: bool,
+}
+
+impl<V: PartialOrd> Ranked<'_, V> {
+    fn rank(&self, other: &Self) -> Ordering {
+        let comparable = |v: &V| v.partial_cmp(v).is_some();
+        let by_value = match (comparable(self.value), comparable(other.value)) {
+            (true, true) => {
+                let order = self
+                    .value
+                    .partial_cmp(other.value)
+                    .unwrap_or(Ordering::Equal);
+                if self.max { order } else { order.reverse() }
+            }
+            (true, false) => Ordering::Greater,
+            (false, true) => Ordering::Less,
+            (false, false) => Ordering::Equal,
+        };
+        by_value.then(self.local.cmp(&other.local))
+    }
+}
+
+impl<V: PartialOrd> PartialEq for Ranked<'_, V> {
+    fn eq(&self, other: &Self) -> bool {
+        self.rank(other) == Ordering::Equal
+    }
+}
+impl<V: PartialOrd> Eq for Ranked<'_, V> {}
+impl<V: PartialOrd> PartialOrd for Ranked<'_, V> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+impl<V: PartialOrd> Ord for Ranked<'_, V> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.rank(other)
+    }
+}
+
+/// The intervals of `idx` sorted by start and by end, as local positions
+/// into `idx`, skipping empty intervals.
+fn sorted_locals(starts: &[i64], ends: &[i64], idx: &[usize]) -> (Vec<usize>, Vec<usize>) {
+    let mut by_start: Vec<usize> = (0..idx.len())
+        .filter(|&k| starts[idx[k]] < ends[idx[k]])
+        .collect();
+    let mut by_end = by_start.clone();
+    by_start.sort_unstable_by_key(|&k| starts[idx[k]]);
+    by_end.sort_unstable_by_key(|&k| ends[idx[k]]);
+    (by_start, by_end)
+}
+
+/// Receives the events of [`sweep_events`].
+trait Visitor {
+    /// A segment ends at `end`; called before the intervals that start or
+    /// stop there are applied.
+    fn emit(&mut self, end: i64);
+    /// Interval `k` (a local position in `idx`) starts.
+    fn start(&mut self, k: usize);
+    /// Interval `k` stops.
+    fn stop(&mut self, k: usize);
+}
+
+/// Sweeps over the non-empty intervals in `idx` in position order.
+fn sweep_events(starts: &[i64], ends: &[i64], idx: &[usize], visitor: &mut impl Visitor) {
+    let (by_start, by_end) = sorted_locals(starts, ends, idx);
+    let (mut s, mut e) = (0, 0);
+    let mut pos = 0;
+    while e < by_end.len() {
+        let next_start = by_start.get(s).map_or(i64::MAX, |&k| starts[idx[k]]);
+        let p = next_start.min(ends[idx[by_end[e]]]);
+        if p > pos {
+            visitor.emit(p);
+            pos = p;
+        }
+        while s < by_start.len() && starts[idx[by_start[s]]] == p {
+            visitor.start(by_start[s]);
+            s += 1;
+        }
+        while e < by_end.len() && ends[idx[by_end[e]]] == p {
+            visitor.stop(by_end[e]);
+            e += 1;
+        }
+    }
+}
+
+fn max_end(ends: &[i64], idx: &[usize]) -> i64 {
+    idx.iter().map(|&i| ends[i]).max().unwrap_or(0)
+}
+
+/// Tracks the largest (or smallest) active value with a heap, removing
+/// stopped intervals lazily when they reach the top.
+struct Extreme<'a, V> {
+    idx: &'a [usize],
+    values: &'a [V],
+    max: bool,
+    active: Vec<bool>,
+    heap: BinaryHeap<Ranked<'a, V>>,
+    out: Rle<Option<V>>,
+}
+
+impl<V: PartialOrd + Clone + Identical> Visitor for Extreme<'_, V> {
+    fn emit(&mut self, end: i64) {
+        while self.heap.peek().is_some_and(|top| !self.active[top.local]) {
+            self.heap.pop();
+        }
+        let value = self.heap.peek().map(|top| top.value.clone());
+        self.out.push_merged(end, value);
+    }
+
+    fn start(&mut self, k: usize) {
+        self.active[k] = true;
+        self.heap.push(Ranked {
+            value: &self.values[self.idx[k]],
+            local: k,
+            max: self.max,
+        });
+    }
+
+    fn stop(&mut self, k: usize) {
+        self.active[k] = false;
+    }
+}
+
+fn extreme<V>(
+    starts: &[i64],
+    ends: &[i64],
+    idx: &[usize],
+    values: &[V],
+    max: bool,
+) -> Rle<Option<V>>
+where
+    V: PartialOrd + Clone + Identical,
+{
+    let mut visitor = Extreme {
+        idx,
+        values,
+        max,
+        active: vec![false; idx.len()],
+        heap: BinaryHeap::new(),
+        out: Rle::new(),
+    };
+    sweep_events(starts, ends, idx, &mut visitor);
+    let mut out = visitor.out;
+    out.extend_to(max_end(ends, idx), None)
+        .expect("the sweep never passes the largest end");
+    out
+}
+
+/// The largest of `values` over the intervals covering each position, or
+/// `None` where no interval covers it. Works for any ordered value type;
+/// `NaN` only wins where nothing else covers the position.
+pub fn coverage_max<V>(
+    starts: &[i64],
+    ends: &[i64],
+    values: &[V],
+    length: Option<i64>,
+) -> Result<Rle<Option<V>>>
+where
+    V: PartialOrd + Clone + Identical,
+{
+    validate_intervals(starts, ends)?;
+    check_values(starts, values)?;
+    pad(
+        extreme(starts, ends, &all(starts.len()), values, true),
+        length,
+        None,
+    )
+}
+
+/// The smallest of `values` over the intervals covering each position; see
+/// [`coverage_max`].
+pub fn coverage_min<V>(
+    starts: &[i64],
+    ends: &[i64],
+    values: &[V],
+    length: Option<i64>,
+) -> Result<Rle<Option<V>>>
+where
+    V: PartialOrd + Clone + Identical,
+{
+    validate_intervals(starts, ends)?;
+    check_values(starts, values)?;
+    pad(
+        extreme(starts, ends, &all(starts.len()), values, false),
+        length,
+        None,
+    )
+}
+
+fn extreme_by_key<K, V>(
+    keys: &[K],
+    starts: &[i64],
+    ends: &[i64],
+    values: &[V],
+    max: bool,
+) -> Result<RleBatch<K, Option<V>>>
+where
+    K: Hash + Eq + Clone + Send + Sync,
+    V: PartialOrd + Clone + Identical + Send + Sync,
+{
+    validate_intervals(starts, ends)?;
+    check_keys(keys, starts)?;
+    check_values(starts, values)?;
+    let (unique, groups) = group_by_key(keys);
+    let rles = groups
+        .par_iter()
+        .map(|idx| extreme(starts, ends, idx, values, max))
+        .collect();
+    Ok(RleBatch::from_rles_unchecked(unique, rles))
+}
+
+/// [`coverage_max`] per key, computed in parallel.
+pub fn coverage_max_by_key<K, V>(
+    keys: &[K],
+    starts: &[i64],
+    ends: &[i64],
+    values: &[V],
+) -> Result<RleBatch<K, Option<V>>>
+where
+    K: Hash + Eq + Clone + Send + Sync,
+    V: PartialOrd + Clone + Identical + Send + Sync,
+{
+    extreme_by_key(keys, starts, ends, values, true)
+}
+
+/// [`coverage_min`] per key, computed in parallel.
+pub fn coverage_min_by_key<K, V>(
+    keys: &[K],
+    starts: &[i64],
+    ends: &[i64],
+    values: &[V],
+) -> Result<RleBatch<K, Option<V>>>
+where
+    K: Hash + Eq + Clone + Send + Sync,
+    V: PartialOrd + Clone + Identical + Send + Sync,
+{
+    extreme_by_key(keys, starts, ends, values, false)
+}
+
+/// Which intervals cover each segment, for aggregating interval values in
+/// any way.
+///
+/// Segments are cut at every interval start and end, and cover
+/// `0..max(end)` (or `0..length`). Segment `s` ends at `ends[s]` and is
+/// covered by intervals `interval_ids[offsets[s]..offsets[s + 1]]` (sorted;
+/// none where uncovered). This is the same layout as an Arrow list column.
+///
+/// The ids can be large when many intervals overlap deeply; for sums, counts,
+/// maxima and minima, the `coverage_*` functions avoid building them.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct OverlapPlan {
+    pub ends: Vec<i64>,
+    pub offsets: Vec<usize>,
+    pub interval_ids: Vec<usize>,
+}
+
+impl OverlapPlan {
+    pub fn num_segments(&self) -> usize {
+        self.ends.len()
+    }
+
+    /// The ids of the intervals covering segment `s`.
+    pub fn ids(&self, s: usize) -> &[usize] {
+        &self.interval_ids[self.offsets[s]..self.offsets[s + 1]]
+    }
+}
+
+/// Tracks the active intervals, with each one's slot for O(1) removal.
+struct Overlap<'a> {
+    idx: &'a [usize],
+    active: Vec<usize>,
+    slot: Vec<usize>,
+    out: OverlapPlan,
+}
+
+impl Visitor for Overlap<'_> {
+    fn emit(&mut self, end: i64) {
+        let first = self.out.interval_ids.len();
+        self.out
+            .interval_ids
+            .extend(self.active.iter().map(|&k| self.idx[k]));
+        self.out.interval_ids[first..].sort_unstable();
+        self.out.ends.push(end);
+        self.out.offsets.push(self.out.interval_ids.len());
+    }
+
+    fn start(&mut self, k: usize) {
+        self.slot[k] = self.active.len();
+        self.active.push(k);
+    }
+
+    fn stop(&mut self, k: usize) {
+        let i = self.slot[k];
+        self.active.swap_remove(i);
+        if let Some(&moved) = self.active.get(i) {
+            self.slot[moved] = i;
+        }
+    }
+}
+
+fn overlap(starts: &[i64], ends: &[i64], idx: &[usize]) -> OverlapPlan {
+    let mut visitor = Overlap {
+        idx,
+        active: Vec::new(),
+        slot: vec![usize::MAX; idx.len()],
+        out: OverlapPlan {
+            ends: Vec::new(),
+            offsets: vec![0],
+            interval_ids: Vec::new(),
+        },
+    };
+    sweep_events(starts, ends, idx, &mut visitor);
+    let mut out = visitor.out;
+    let length = max_end(ends, idx);
+    if length > out.ends.last().copied().unwrap_or(0) {
+        out.ends.push(length);
+        out.offsets.push(out.interval_ids.len());
+    }
+    out
+}
+
+/// Computes the [`OverlapPlan`] for intervals `[start, end)`.
+///
+/// ```
+/// use runlength::overlap_plan;
+///
+/// let p = overlap_plan(&[0, 2, 3], &[5, 7, 4], None).unwrap();
+/// assert_eq!(p.ends, vec![2, 3, 4, 5, 7]);
+/// assert_eq!(p.ids(2), &[0, 1, 2]);
+/// ```
+pub fn overlap_plan(starts: &[i64], ends: &[i64], length: Option<i64>) -> Result<OverlapPlan> {
+    validate_intervals(starts, ends)?;
+    let mut plan = overlap(starts, ends, &all(starts.len()));
+    if let Some(length) = length {
+        let current = plan.ends.last().copied().unwrap_or(0);
+        if length < current {
+            return Err(Error::LengthTooShort {
+                requested: length,
+                required: current,
+            });
+        }
+        if length > current {
+            plan.ends.push(length);
+            plan.offsets.push(plan.interval_ids.len());
+        }
+    }
+    Ok(plan)
 }

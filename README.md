@@ -16,11 +16,21 @@ any value type, not just `f64`.
 import polars as pl
 import runlength as rl
 
-df = pl.DataFrame({"Chromosome": ["chr1", "chr1", "chr2"], "Start": [0, 2, 5], "End": [3, 4, 7]})
-cov = rl.coverage_by_key(df.select("Chromosome"), df["Start"], df["End"])  # an RleBatch
-cov.get("chr1")              # Rle(length=4, runs=3, dtype=Int64) ...
-(cov + cov).to_polars()      # Chromosome, start, end, value
-pl.DataFrame(cov.mean())     # Chromosome, mean
+df = pl.DataFrame({
+    "Chromosome": ["chr1", "chr1", "chr2"],
+    "Strand": ["+", "-", "+"],
+    "Start": [0, 2, 5],
+    "End": [3, 4, 7],
+    "Score": [0.5, 2.0, 1.0],
+})
+keys = df.select("Chromosome", "Strand")
+cov = rl.coverage_by_key(keys, df["Start"], df["End"])  # an RleBatch
+cov.get(("chr1", "+"))           # Rle(length=3, runs=1, dtype=Int64) ...
+(cov + cov).to_polars()          # Chromosome, Strand, start, end, value
+pl.DataFrame(cov.mean())         # Chromosome, Strand, mean
+per_chrom = cov.collapse(drop="Strand")          # add the strands together
+starts, ends = (per_chrom.get("chr1") > 0).ranges()   # back to intervals
+best = rl.coverage_by_key(keys, df["Start"], df["End"], df["Score"], agg="max", fill=None)
 
 a = rl.Rle([3, 2], ["x", "y"])              # values of any type
 b = rl.Rle([1, 4], pl.Series(["p", "q"]))
@@ -62,9 +72,11 @@ assert_eq!((&a + &b).to_dense(), vec![11, 21, 21, 22, 22]);
 | Combining | `plan`, `zip_with`, `zip_with_raw`, `+ - * / & \| ^`, unary `-` and `!`, `elem_eq/ne/lt/le/gt/ge` |
 | Merging | `merge`, `merge_by(pred)`, `merge_mask(mask, Keep)`, `merge_plan(mask)`, `is_merged` |
 | Slicing | `get`, `slice`, `getitems` (many slices → batch) |
+| Rearranging | `shift`, `reversed`, `concat`, `ranges_where` |
+| Many inputs | `plan_many`, `zip_many` |
 | Reductions | `sum`, `mean`, `variance(ddof)`, `std(ddof)`, `min`, `max` (all weighted by run length) |
-| Batches | `RleBatch<K, V>`: many sequences under any hashable keys, joins with `How::{Outer, Inner, Left, Right}`, parallel with rayon |
-| Coverage | `coverage_sum`, `coverage_sum_opt`, `coverage_count`, and `_by_key` variants |
+| Batches | `RleBatch<K, V>`: many sequences under any hashable keys, joins with `How::{Outer, Inner, Left, Right}`, `collapse`, parallel with rayon |
+| Coverage | `coverage_sum`, `coverage_count`, `coverage_max`, `coverage_min` (with `_by_key` variants), and `overlap_plan` for any other aggregation |
 
 ## Conventions
 

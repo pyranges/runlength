@@ -1,7 +1,10 @@
 use std::sync::Arc;
 
 use arrow_array::cast::AsArray;
-use arrow_array::{Array, ArrayRef, ArrowPrimitiveType, BooleanArray, Int64Array, PrimitiveArray, UInt64Array, new_empty_array};
+use arrow_array::{
+    Array, ArrayRef, ArrowPrimitiveType, BooleanArray, Int64Array, PrimitiveArray, UInt64Array,
+    new_empty_array,
+};
 use arrow_cast::cast;
 use arrow_schema::{ArrowError, DataType};
 use arrow_select::concat::concat;
@@ -56,7 +59,11 @@ pub fn default_fill(data_type: &DataType) -> Option<ArrayRef> {
 }
 
 /// Gathers `values[idx]`, where an index equal to `values.len()` means `fill`.
-fn gather(values: &ArrayRef, idx: &[usize], fill: Option<&dyn Array>) -> Result<ArrayRef> {
+pub(crate) fn gather(
+    values: &ArrayRef,
+    idx: &[usize],
+    fill: Option<&dyn Array>,
+) -> Result<ArrayRef> {
     let n = values.len();
     if idx.len() == n && idx.iter().enumerate().all(|(k, &i)| k == i) {
         return Ok(values.clone());
@@ -72,7 +79,12 @@ fn gather(values: &ArrayRef, idx: &[usize], fill: Option<&dyn Array>) -> Result<
     Ok(take(source.as_ref(), &indices, None)?)
 }
 
-fn check_fill(fill: Option<&dyn Array>, data_type: &DataType) -> Result<()> {
+/// An owned reference to a borrowed array.
+pub(crate) fn array_ref(array: &dyn Array) -> ArrayRef {
+    arrow_array::make_array(array.to_data())
+}
+
+pub(crate) fn check_fill(fill: Option<&dyn Array>, data_type: &DataType) -> Result<()> {
     if let Some(fill) = fill {
         if fill.len() != 1 || fill.data_type() != data_type {
             return Err(Error::InvalidFill {
@@ -135,7 +147,9 @@ impl ArrowRle {
     pub fn from_rle<T: ArrowPrimitiveType>(rle: &Rle<T::Native>) -> Self {
         ArrowRle {
             ends: rle.ends().to_vec(),
-            values: Arc::new(PrimitiveArray::<T>::from_iter_values(rle.values().iter().copied())),
+            values: Arc::new(PrimitiveArray::<T>::from_iter_values(
+                rle.values().iter().copied(),
+            )),
         }
     }
 
@@ -258,7 +272,11 @@ impl ArrowRle {
         for (i, run) in self.runs().into_iter().enumerate() {
             indices.extend(std::iter::repeat_n(i as u64, run as usize));
         }
-        Ok(take(self.values.as_ref(), &UInt64Array::from(indices), None)?)
+        Ok(take(
+            self.values.as_ref(),
+            &UInt64Array::from(indices),
+            None,
+        )?)
     }
 
     /// The plan for combining this sequence with `other`. See [`Plan`].
@@ -293,7 +311,11 @@ impl ArrowRle {
             Keep::First => w[0] as u64,
             Keep::Last => w[1] as u64 - 1,
         });
-        let values = take(self.values.as_ref(), &UInt64Array::from_iter_values(kept), None)?;
+        let values = take(
+            self.values.as_ref(),
+            &UInt64Array::from_iter_values(kept),
+            None,
+        )?;
         Ok(ArrowRle {
             ends: groups.ends,
             values,
@@ -307,7 +329,13 @@ impl ArrowRle {
     /// segment; any Arrow kernel fits. The shorter side is padded with its
     /// fill value, a single value of the same type; with no fill value,
     /// unequal lengths are an error.
-    pub fn zip_with<F>(&self, other: &ArrowRle, fill_a: Option<&dyn Array>, fill_b: Option<&dyn Array>, f: F) -> Result<ArrowRle>
+    pub fn zip_with<F>(
+        &self,
+        other: &ArrowRle,
+        fill_a: Option<&dyn Array>,
+        fill_b: Option<&dyn Array>,
+        f: F,
+    ) -> Result<ArrowRle>
     where
         F: FnOnce(&dyn Array, &dyn Array) -> std::result::Result<ArrayRef, ArrowError>,
     {
@@ -315,7 +343,13 @@ impl ArrowRle {
     }
 
     /// Like [`zip_with`](ArrowRle::zip_with) but without merging the result.
-    pub fn zip_with_raw<F>(&self, other: &ArrowRle, fill_a: Option<&dyn Array>, fill_b: Option<&dyn Array>, f: F) -> Result<ArrowRle>
+    pub fn zip_with_raw<F>(
+        &self,
+        other: &ArrowRle,
+        fill_a: Option<&dyn Array>,
+        fill_b: Option<&dyn Array>,
+        f: F,
+    ) -> Result<ArrowRle>
     where
         F: FnOnce(&dyn Array, &dyn Array) -> std::result::Result<ArrayRef, ArrowError>,
     {
@@ -339,7 +373,10 @@ impl ArrowRle {
                 actual: values.len(),
             });
         }
-        Ok(ArrowRle { ends: p.ends, values })
+        Ok(ArrowRle {
+            ends: p.ends,
+            values,
+        })
     }
 
     /// Applies an Arrow kernel to the run values and merges the result.
@@ -400,13 +437,17 @@ impl PartialEq for ArrowRle {
             return false;
         }
         let p = self.plan_with(other);
-        let (Ok(a), Ok(b)) = (gather(&self.values, &p.idx_a, None), gather(&other.values, &p.idx_b, None)) else {
+        let (Ok(a), Ok(b)) = (
+            gather(&self.values, &p.idx_a, None),
+            gather(&other.values, &p.idx_b, None),
+        ) else {
             return false;
         };
         // Interleave a and b so each pair becomes a neighbouring pair.
         let n = a.len();
         let indices: Vec<(usize, usize)> = (0..n).flat_map(|k| [(0, k), (1, k)]).collect();
-        let Ok(pairs) = arrow_select::interleave::interleave(&[a.as_ref(), b.as_ref()], &indices) else {
+        let Ok(pairs) = arrow_select::interleave::interleave(&[a.as_ref(), b.as_ref()], &indices)
+        else {
             return false;
         };
         identical_neighbours(pairs.as_ref())

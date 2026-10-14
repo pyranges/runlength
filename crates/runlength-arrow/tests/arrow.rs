@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use arrow_array::builder::{ListBuilder, Int32Builder};
+use arrow_array::builder::{Int32Builder, ListBuilder};
 use arrow_array::cast::AsArray;
 use arrow_array::types::{Float64Type, Int64Type};
 use arrow_array::{
@@ -9,7 +9,9 @@ use arrow_array::{
 use arrow_schema::{DataType, Field, Schema};
 use proptest::prelude::*;
 use runlength::prelude::*;
-use runlength_arrow::{ArrowRle, ArrowRleBatch, coverage, coverage_by_key, identical_neighbours, kernels};
+use runlength_arrow::{
+    ArrowRle, ArrowRleBatch, coverage, coverage_by_key, identical_neighbours, kernels,
+};
 
 fn rle() -> impl Strategy<Value = Rle<i64>> {
     prop::collection::vec((0i64..4, 0i64..3), 0..8).prop_map(|pairs| {
@@ -121,10 +123,12 @@ fn float_merging_follows_core_rule() {
 
 #[test]
 fn strings_with_nulls() {
-    let rle = ArrowRle::from_dense(strings(&[Some("a"), Some("a"), None, None, Some("b")])).unwrap();
+    let rle =
+        ArrowRle::from_dense(strings(&[Some("a"), Some("a"), None, None, Some("b")])).unwrap();
     assert_eq!(rle.runs(), vec![2, 2, 1]);
 
-    let other = ArrowRle::from_dense(strings(&[Some("a"), Some("x"), None, Some("y"), Some("b")])).unwrap();
+    let other =
+        ArrowRle::from_dense(strings(&[Some("a"), Some("x"), None, Some("y"), Some("b")])).unwrap();
     let same = rle.zip_with(&other, None, None, kernels::eq).unwrap();
     let values: Vec<Option<bool>> = same.values().as_boolean().iter().collect();
     // Comparisons with null are null, as in SQL.
@@ -135,7 +139,9 @@ fn strings_with_nulls() {
     let short = rle.slice(0, 3);
     assert!(short.elem_eq(&rle).is_err());
     let fill = strings(&[Some("?")]);
-    let filled = short.zip_with(&rle, Some(fill.as_ref()), None, kernels::ne).unwrap();
+    let filled = short
+        .zip_with(&rle, Some(fill.as_ref()), None, kernels::ne)
+        .unwrap();
     assert_eq!(filled.len(), 5);
 }
 
@@ -151,39 +157,75 @@ fn nested_values_merge() {
 
 #[test]
 fn custom_merge_with_mask_and_keep() {
-    let rle = ArrowRle::from_runs(&[1, 2, 0, 3], Arc::new(Int64Array::from(vec![1, 2, 9, 3]))).unwrap();
+    let rle =
+        ArrowRle::from_runs(&[1, 2, 0, 3], Arc::new(Int64Array::from(vec![1, 2, 9, 3]))).unwrap();
     assert_eq!(rle.runs(), vec![1, 2, 3]);
     let merged = rle.merge_mask(&[true, false], Keep::Last).unwrap();
     assert_eq!(merged.runs(), vec![3, 3]);
-    assert_eq!(merged.values().as_primitive::<Int64Type>().values().to_vec(), vec![2, 3]);
+    assert_eq!(
+        merged
+            .values()
+            .as_primitive::<Int64Type>()
+            .values()
+            .to_vec(),
+        vec![2, 3]
+    );
 }
 
 #[test]
 fn batch_join_with_multi_column_keys() {
     let ones = |n: i64| ArrowRle::from_runs(&[n], Arc::new(Float64Array::from(vec![1.0]))).unwrap();
-    let a = ArrowRleBatch::from_rles(keys(&["chr1", "chr2"], &["+", "+"]), vec![ones(3), ones(2)], &DataType::Float64).unwrap();
-    let b = ArrowRleBatch::from_rles(keys(&["chr2", "chr1"], &["+", "-"]), vec![ones(4), ones(1)], &DataType::Float64).unwrap();
+    let a = ArrowRleBatch::from_rles(
+        keys(&["chr1", "chr2"], &["+", "+"]),
+        vec![ones(3), ones(2)],
+        &DataType::Float64,
+    )
+    .unwrap();
+    let b = ArrowRleBatch::from_rles(
+        keys(&["chr2", "chr1"], &["+", "-"]),
+        vec![ones(4), ones(1)],
+        &DataType::Float64,
+    )
+    .unwrap();
 
     let sum = a.add(&b).unwrap();
     let chrom = sum.keys().column(0).as_string::<i32>();
     let strand = sum.keys().column(1).as_string::<i32>();
-    let keys: Vec<(&str, &str)> = (0..sum.len()).map(|i| (chrom.value(i), strand.value(i))).collect();
+    let keys: Vec<(&str, &str)> = (0..sum.len())
+        .map(|i| (chrom.value(i), strand.value(i)))
+        .collect();
     assert_eq!(keys, vec![("chr1", "+"), ("chr2", "+"), ("chr1", "-")]);
     let dense: Vec<Vec<f64>> = sum
         .iter()
-        .map(|r| r.to_dense().unwrap().as_primitive::<Float64Type>().values().to_vec())
+        .map(|r| {
+            r.to_dense()
+                .unwrap()
+                .as_primitive::<Float64Type>()
+                .values()
+                .to_vec()
+        })
         .collect();
-    assert_eq!(dense, vec![vec![1.0; 3], vec![2.0, 2.0, 1.0, 1.0], vec![1.0]]);
+    assert_eq!(
+        dense,
+        vec![vec![1.0; 3], vec![2.0, 2.0, 1.0, 1.0], vec![1.0]]
+    );
 
     let inner = a.zip_with(&b, How::Inner, None, None, kernels::add);
     assert!(inner.is_err(), "chr2 has lengths 2 and 4 and no fill value");
 
     let table = sum.to_record_batch().unwrap();
-    let names: Vec<String> = table.schema().fields().iter().map(|f| f.name().clone()).collect();
+    let names: Vec<String> = table
+        .schema()
+        .fields()
+        .iter()
+        .map(|f| f.name().clone())
+        .collect();
     assert_eq!(names, vec!["Chromosome", "Strand", "start", "end", "value"]);
     assert_eq!(table.num_rows(), 4);
 
-    let positions = sum.positions(&keys_of(&[("chr1", "-"), ("chrX", "+")])).unwrap();
+    let positions = sum
+        .positions(&keys_of(&[("chr1", "-"), ("chrX", "+")]))
+        .unwrap();
     assert_eq!(positions, vec![Some(2), None]);
 }
 
@@ -203,7 +245,10 @@ fn coverage_keeps_value_type() {
     let sums = coverage(&starts, &ends, Some(&weights), Some(6)).unwrap();
     assert_eq!(sums.data_type(), &DataType::Float64);
     let dense = sums.to_dense().unwrap();
-    assert_eq!(dense.as_primitive::<Float64Type>().values().to_vec(), vec![0.5, 0.5, 1.5, 1.0, 0.0, 0.0]);
+    assert_eq!(
+        dense.as_primitive::<Float64Type>().values().to_vec(),
+        vec![0.5, 0.5, 1.5, 1.0, 0.0, 0.0]
+    );
 
     let strings = StringArray::from(vec!["a", "b"]);
     assert!(coverage(&starts, &ends, Some(&strings), None).is_err());
@@ -216,7 +261,12 @@ fn invalid_input() {
     assert!(ArrowRle::from_runs(&[1, -1], values.clone()).is_err());
     let rle = ArrowRle::try_new(vec![1, 2], values).unwrap();
     let bad_fill: ArrayRef = Arc::new(BooleanArray::from(vec![true]));
-    assert!(rle.zip_with(&rle, Some(bad_fill.as_ref()), None, kernels::add).is_err());
+    assert!(
+        rle.zip_with(&rle, Some(bad_fill.as_ref()), None, kernels::add)
+            .is_err()
+    );
     let duplicate = keys(&["chr1", "chr1"], &["+", "+"]);
-    assert!(ArrowRleBatch::from_rles(duplicate, vec![rle.clone(), rle], &DataType::UInt64).is_err());
+    assert!(
+        ArrowRleBatch::from_rles(duplicate, vec![rle.clone(), rle], &DataType::UInt64).is_err()
+    );
 }

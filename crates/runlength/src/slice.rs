@@ -59,7 +59,8 @@ pub(crate) fn getitems<V: Clone>(
     ends: &[i64],
 ) -> Result<RleBatch<usize, V>> {
     validate_intervals(starts, ends)?;
-    Ok(RleBatch::from_slices((0..starts.len()).collect(), |k, out_ends, out_values| {
-        slice_into(rle, starts[k], ends[k], out_ends, out_values)
-    }))
+    Ok(RleBatch::from_slices(
+        (0..starts.len()).collect(),
+        |k, out_ends, out_values| slice_into(rle, starts[k], ends[k], out_ends, out_values),
+    ))
 }

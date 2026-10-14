@@ -131,7 +131,10 @@ impl<K, V> RleBatch<K, V> {
 
     /// Iterates over `(key, sequence)` in key order.
     pub fn iter(&self) -> impl Iterator<Item = (&K, RleRef<'_, V>)> {
-        self.keys.iter().enumerate().map(|(i, k)| (k, self.rle_at(i)))
+        self.keys
+            .iter()
+            .enumerate()
+            .map(|(i, k)| (k, self.rle_at(i)))
     }
 
     /// Splits the batch into keys, offsets, ends and values.
@@ -147,7 +150,10 @@ impl<K, V> RleBatch<K, V> {
         T: Send,
         F: Fn(RleRef<'_, V>) -> T + Sync,
     {
-        (0..self.len()).into_par_iter().map(|i| f(self.rle_at(i))).collect()
+        (0..self.len())
+            .into_par_iter()
+            .map(|i| f(self.rle_at(i)))
+            .collect()
     }
 
     /// Transforms every sequence in parallel, keeping the keys.
@@ -162,6 +168,54 @@ impl<K, V> RleBatch<K, V> {
     }
 }
 
+impl<K, V> RleBatch<K, V> {
+    /// Combines the sequences whose keys map to the same new key, folding
+    /// each group with `f` in key order, in parallel across groups.
+    ///
+    /// For example, `batch.collapse(|(chrom, _strand)| chrom.clone(), Some(&0),
+    /// |a, b| a + b)` adds the strands of each chromosome together. New keys
+    /// appear in order of first appearance. Sequences of different lengths are
+    /// padded with `fill`; with no fill value that is an error.
+    pub fn collapse<K2, F, G>(&self, key: F, fill: Option<&V>, f: G) -> Result<RleBatch<K2, V>>
+    where
+        K: Send + Sync,
+        K2: Hash + Eq + Clone + Send + Sync,
+        V: Clone + Identical + Send + Sync,
+        F: Fn(&K) -> K2,
+        G: Fn(&V, &V) -> V + Sync,
+    {
+        let mut positions: HashMap<K2, usize> = HashMap::new();
+        let mut unique = Vec::new();
+        let mut groups: Vec<Vec<usize>> = Vec::new();
+        for (i, k) in self.keys.iter().enumerate() {
+            let new_key = key(k);
+            let g = *positions.entry(new_key.clone()).or_insert_with(|| {
+                unique.push(new_key);
+                groups.push(Vec::new());
+                groups.len() - 1
+            });
+            groups[g].push(i);
+        }
+        let rles = groups
+            .par_iter()
+            .enumerate()
+            .map(|(position, members)| {
+                let mut acc = self.rle_at(members[0]).merged();
+                for &i in &members[1..] {
+                    acc = ops::zip_with(acc.view(), self.rle_at(i), fill, fill, &f).map_err(
+                        |source| Error::InKey {
+                            position,
+                            source: Box::new(source),
+                        },
+                    )?;
+                }
+                Ok(acc)
+            })
+            .collect::<Result<Vec<_>>>()?;
+        Ok(RleBatch::from_rles_unchecked(unique, rles))
+    }
+}
+
 impl<K: Hash + Eq + Clone, V> RleBatch<K, V> {
     /// Builds a batch from `(key, sequence)` pairs. Duplicate keys are an error.
     pub fn from_rles<I: IntoIterator<Item = (K, Rle<V>)>>(rles: I) -> Result<Self> {
@@ -173,7 +227,12 @@ impl<K: Hash + Eq + Clone, V> RleBatch<K, V> {
     }
 
     /// Builds a batch from its flat parts, validating them.
-    pub fn from_parts(keys: Vec<K>, offsets: Vec<usize>, ends: Vec<i64>, values: Vec<V>) -> Result<Self> {
+    pub fn from_parts(
+        keys: Vec<K>,
+        offsets: Vec<usize>,
+        ends: Vec<i64>,
+        values: Vec<V>,
+    ) -> Result<Self> {
         if offsets.len() != keys.len() + 1 {
             return Err(Error::LengthMismatch {
                 what: "offsets and keys + 1",
@@ -188,7 +247,10 @@ impl<K: Hash + Eq + Clone, V> RleBatch<K, V> {
                 right: values.len(),
             });
         }
-        if offsets[0] != 0 || offsets[keys.len()] != ends.len() || offsets.windows(2).any(|w| w[0] > w[1]) {
+        if offsets[0] != 0
+            || offsets[keys.len()] != ends.len()
+            || offsets.windows(2).any(|w| w[0] > w[1])
+        {
             return Err(Error::InvalidOffsets);
         }
         for (position, w) in offsets.windows(2).enumerate() {
@@ -214,7 +276,12 @@ impl<K: Hash + Eq + Clone, V> RleBatch<K, V> {
 
     fn index(&self) -> &HashMap<K, usize> {
         self.index.get_or_init(|| {
-            self.keys.iter().cloned().enumerate().map(|(i, k)| (k, i)).collect()
+            self.keys
+                .iter()
+                .cloned()
+                .enumerate()
+                .map(|(i, k)| (k, i))
+                .collect()
         })
     }
 
@@ -255,7 +322,12 @@ impl<K: Hash + Eq + Clone, V> RleBatch<K, V> {
     /// Many slices at once: slice `k` is `keys[k]`'s sequence at
     /// `starts[k]..ends[k]`, clamped. A missing key gives an empty slice.
     /// The result is keyed by slice number.
-    pub fn getitems<Q>(&self, keys: &[Q], starts: &[i64], ends: &[i64]) -> Result<RleBatch<usize, V>>
+    pub fn getitems<Q>(
+        &self,
+        keys: &[Q],
+        starts: &[i64],
+        ends: &[i64],
+    ) -> Result<RleBatch<usize, V>>
     where
         K: Borrow<Q>,
         Q: Hash + Eq,
@@ -269,14 +341,21 @@ impl<K: Hash + Eq + Clone, V> RleBatch<K, V> {
                 right: starts.len(),
             });
         }
-        Ok(RleBatch::from_slices((0..keys.len()).collect(), |k, out_ends, out_values| {
-            let rle = self.get(&keys[k]).unwrap_or_else(RleRef::empty);
-            slice::slice_into(rle, starts[k], ends[k], out_ends, out_values)
-        }))
+        Ok(RleBatch::from_slices(
+            (0..keys.len()).collect(),
+            |k, out_ends, out_values| {
+                let rle = self.get(&keys[k]).unwrap_or_else(RleRef::empty);
+                slice::slice_into(rle, starts[k], ends[k], out_ends, out_values)
+            },
+        ))
     }
 
     /// The output keys of a join and the position of each on both sides.
-    fn join<'a, B>(&'a self, other: &'a RleBatch<K, B>, how: How) -> Vec<(&'a K, Option<usize>, Option<usize>)> {
+    fn join<'a, B>(
+        &'a self,
+        other: &'a RleBatch<K, B>,
+        how: How,
+    ) -> Vec<(&'a K, Option<usize>, Option<usize>)> {
         let mut out = Vec::with_capacity(self.len().max(other.len()));
         for (i, key) in self.keys.iter().enumerate() {
             let j = other.position(key);
@@ -362,7 +441,11 @@ impl<K: fmt::Debug, V: fmt::Debug> fmt::Debug for RleBatch<K, V> {
 /// [`equals`](RleLike::equals).
 impl<K: PartialEq, V: Identical> PartialEq for RleBatch<K, V> {
     fn eq(&self, other: &Self) -> bool {
-        self.keys == other.keys && self.iter().zip(other.iter()).all(|((_, a), (_, b))| a.equals(&b))
+        self.keys == other.keys
+            && self
+                .iter()
+                .zip(other.iter())
+                .all(|((_, a), (_, b))| a.equals(&b))
     }
 }
 

@@ -7,16 +7,46 @@ use arrow_schema::DataType;
 macro_rules! with_numeric_type {
     ($values:expr, |$T:ident| $body:expr) => {
         match $values.data_type() {
-            ::arrow_schema::DataType::Int8 => { type $T = ::arrow_array::types::Int8Type; $body }
-            ::arrow_schema::DataType::Int16 => { type $T = ::arrow_array::types::Int16Type; $body }
-            ::arrow_schema::DataType::Int32 => { type $T = ::arrow_array::types::Int32Type; $body }
-            ::arrow_schema::DataType::Int64 => { type $T = ::arrow_array::types::Int64Type; $body }
-            ::arrow_schema::DataType::UInt8 => { type $T = ::arrow_array::types::UInt8Type; $body }
-            ::arrow_schema::DataType::UInt16 => { type $T = ::arrow_array::types::UInt16Type; $body }
-            ::arrow_schema::DataType::UInt32 => { type $T = ::arrow_array::types::UInt32Type; $body }
-            ::arrow_schema::DataType::UInt64 => { type $T = ::arrow_array::types::UInt64Type; $body }
-            ::arrow_schema::DataType::Float32 => { type $T = ::arrow_array::types::Float32Type; $body }
-            ::arrow_schema::DataType::Float64 => { type $T = ::arrow_array::types::Float64Type; $body }
+            ::arrow_schema::DataType::Int8 => {
+                type $T = ::arrow_array::types::Int8Type;
+                $body
+            }
+            ::arrow_schema::DataType::Int16 => {
+                type $T = ::arrow_array::types::Int16Type;
+                $body
+            }
+            ::arrow_schema::DataType::Int32 => {
+                type $T = ::arrow_array::types::Int32Type;
+                $body
+            }
+            ::arrow_schema::DataType::Int64 => {
+                type $T = ::arrow_array::types::Int64Type;
+                $body
+            }
+            ::arrow_schema::DataType::UInt8 => {
+                type $T = ::arrow_array::types::UInt8Type;
+                $body
+            }
+            ::arrow_schema::DataType::UInt16 => {
+                type $T = ::arrow_array::types::UInt16Type;
+                $body
+            }
+            ::arrow_schema::DataType::UInt32 => {
+                type $T = ::arrow_array::types::UInt32Type;
+                $body
+            }
+            ::arrow_schema::DataType::UInt64 => {
+                type $T = ::arrow_array::types::UInt64Type;
+                $body
+            }
+            ::arrow_schema::DataType::Float32 => {
+                type $T = ::arrow_array::types::Float32Type;
+                $body
+            }
+            ::arrow_schema::DataType::Float64 => {
+                type $T = ::arrow_array::types::Float64Type;
+                $body
+            }
             other => Err($crate::Error::UnsupportedType(other.clone())),
         }
     };

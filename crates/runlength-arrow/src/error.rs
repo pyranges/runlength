@@ -10,7 +10,11 @@ pub enum Error {
     /// An error from an Arrow kernel, such as mismatched types or overflow.
     Arrow(ArrowError),
     /// A fill value was not a single value of the right type.
-    InvalidFill { expected: DataType, actual: DataType, len: usize },
+    InvalidFill {
+        expected: DataType,
+        actual: DataType,
+        len: usize,
+    },
     /// An operation returned a different number of values than it was given.
     WrongLength { expected: usize, actual: usize },
     /// Two batches have keys with different column names or types.
@@ -19,6 +23,8 @@ pub enum Error {
     UnsupportedType(DataType),
     /// The values contain nulls where they are not allowed.
     UnexpectedNulls,
+    /// An aggregation needs values but none were given.
+    MissingValues,
     /// An operation failed for the key at `position` in the output.
     InKey { position: usize, source: Box<Error> },
 }
@@ -54,6 +60,7 @@ impl fmt::Display for Error {
             }
             Error::UnsupportedType(t) => write!(f, "unsupported value type {t}"),
             Error::UnexpectedNulls => write!(f, "values must not contain nulls"),
+            Error::MissingValues => write!(f, "this aggregation needs values"),
             Error::InKey { position, source } => {
                 write!(f, "key at output position {position}: {source}")
             }

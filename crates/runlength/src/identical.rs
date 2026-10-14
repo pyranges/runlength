@@ -26,7 +26,23 @@ macro_rules! identical_via_eq {
 }
 
 identical_via_eq!(
-    bool, char, i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize, String, str, ()
+    bool,
+    char,
+    i8,
+    i16,
+    i32,
+    i64,
+    i128,
+    isize,
+    u8,
+    u16,
+    u32,
+    u64,
+    u128,
+    usize,
+    String,
+    str,
+    ()
 );
 
 macro_rules! identical_float {

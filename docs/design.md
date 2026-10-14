@@ -105,12 +105,34 @@ nor pandas is primary, and neither is a dependency:
 It targets the stable ABI for Python 3.11+ (pyo3-arrow's buffer support needs
 3.11 under the stable ABI).
 
+## Rearranging and combining
+
+- `shift`, `reversed`, `concat` and `ranges_where` (`ranges()` in Python, for
+  boolean sequences) cover what pyranges needs for transcript coordinates
+  and for turning coverage back into intervals.
+- `plan_many` / `zip_many` combine any number of sequences in one pass.
+- `RleBatch::collapse` merges sequences whose keys become identical, such as
+  the two strands of a chromosome, with an explicit operation; nothing is
+  collapsed implicitly.
+
+## More coverage
+
+- `coverage_max` / `coverage_min` sweep with a heap of active intervals and
+  work for any ordered type (numbers, strings). `NaN` only wins where nothing
+  else covers a position.
+- `overlap_plan` returns, for every segment, the ids of the intervals that
+  cover it (list-column layout), for aggregations the sweeps cannot do. It
+  can be large when intervals overlap deeply, which is why the common
+  aggregations have their own sweeps.
+- At the Arrow and Python level, `coverage(..., agg=...)` leaves uncovered
+  positions null until `fill` (0 by default) is applied; `fill=None` keeps
+  them null.
+
 ## Later
 
-- `shift`, `concat`, `reverse`, `to_ranges`, `collapse`, n-ary plans.
-- Coverage max/min (sweep with a heap) and a generic `overlap_plan`: segments
-  plus the ids of the intervals covering each one, in list-column layout, for
-  any aggregation.
+- An `overlap_plan` per key, and `RleBatch` versions of `shift`, `concat` and
+  friends (today: map over the Rles).
+- A positioned wrapper (`start` + `Rle`) if a use appears.
 
 ## Dropped from pyrle
 

@@ -5,7 +5,12 @@ use crate::identical::Identical;
 use crate::plan::Segments;
 use crate::rle::{Rle, RleLike, RleRef};
 
-fn check_lengths<A, B>(a: RleRef<'_, A>, b: RleRef<'_, B>, fill_a: bool, fill_b: bool) -> Result<()> {
+fn check_lengths<A, B>(
+    a: RleRef<'_, A>,
+    b: RleRef<'_, B>,
+    fill_a: bool,
+    fill_b: bool,
+) -> Result<()> {
     let (len_a, len_b) = (a.len(), b.len());
     if (len_a < len_b && !fill_a) || (len_b < len_a && !fill_b) {
         return Err(Error::UnequalLength {

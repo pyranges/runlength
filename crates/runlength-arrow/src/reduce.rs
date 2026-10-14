@@ -29,7 +29,9 @@ impl ArrowRle {
     /// The sum over all positions, as one value of the values' type. Integer
     /// sums wrap on overflow.
     pub fn sum(&self) -> Result<ArrayRef> {
-        with_numeric_type!(self.values, |T| Ok(single::<T>(Some(core_view::<T>(self)?.sum()))))
+        with_numeric_type!(self.values, |T| Ok(single::<T>(Some(
+            core_view::<T>(self)?.sum()
+        ))))
     }
 
     /// The mean over all positions, or `None` if the sequence is empty.
@@ -50,11 +52,15 @@ impl ArrowRle {
 
     /// The smallest value ignoring `NaN`, as one value (null if there is none).
     pub fn min(&self) -> Result<ArrayRef> {
-        with_numeric_type!(self.values, |T| Ok(single::<T>(core_view::<T>(self)?.min().copied())))
+        with_numeric_type!(self.values, |T| Ok(single::<T>(
+            core_view::<T>(self)?.min().copied()
+        )))
     }
 
     /// The largest value ignoring `NaN`, as one value (null if there is none).
     pub fn max(&self) -> Result<ArrayRef> {
-        with_numeric_type!(self.values, |T| Ok(single::<T>(core_view::<T>(self)?.max().copied())))
+        with_numeric_type!(self.values, |T| Ok(single::<T>(
+            core_view::<T>(self)?.max().copied()
+        )))
     }
 }

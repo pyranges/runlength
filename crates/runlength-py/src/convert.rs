@@ -79,7 +79,9 @@ fn concat_chunks(chunks: Vec<ArrayRef>, data_type: &DataType) -> PyResult<ArrayR
 /// Reads a one-dimensional array from Python.
 pub fn array_from_py(obj: &Bound<'_, PyAny>) -> PyResult<ArrayRef> {
     let py = obj.py();
-    if obj.hasattr(intern!(py, "__arrow_c_array__"))? || obj.hasattr(intern!(py, "__arrow_c_stream__"))? {
+    if obj.hasattr(intern!(py, "__arrow_c_array__"))?
+        || obj.hasattr(intern!(py, "__arrow_c_stream__"))?
+    {
         let any: AnyArray = obj.extract()?;
         let (chunks, field) = any.into_chunked_array()?.into_inner();
         return concat_chunks(chunks, field.data_type());
@@ -115,7 +117,9 @@ pub fn array_from_py(obj: &Bound<'_, PyAny>) -> PyResult<ArrayRef> {
 pub fn ints_from_py(obj: &Bound<'_, PyAny>, what: &str) -> PyResult<Vec<i64>> {
     let array = array_from_py(obj)?;
     if array.null_count() > 0 {
-        return Err(PyValueError::new_err(format!("{what} must not contain nulls")));
+        return Err(PyValueError::new_err(format!(
+            "{what} must not contain nulls"
+        )));
     }
     if !array.data_type().is_integer() && !array.is_empty() {
         return Err(PyTypeError::new_err(format!(
@@ -164,6 +168,26 @@ pub fn scalar_from_py(obj: &Bound<'_, PyAny>) -> PyResult<ArrayRef> {
     Ok(array)
 }
 
+/// A `fill` argument that tells an omitted value (`Default`) from an
+/// explicit `None` (`Null`).
+pub enum FillArg {
+    Default,
+    Null,
+    Value(Py<PyAny>),
+}
+
+impl<'a, 'py> FromPyObject<'a, 'py> for FillArg {
+    type Error = PyErr;
+
+    fn extract(obj: pyo3::Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
+        if obj.is_none() {
+            Ok(FillArg::Null)
+        } else {
+            Ok(FillArg::Value(obj.to_owned().unbind()))
+        }
+    }
+}
+
 /// Reads a single value and casts it to `data_type`.
 pub fn scalar_of_type(obj: &Bound<'_, PyAny>, data_type: &DataType) -> PyResult<ArrayRef> {
     let value = scalar_from_py(obj)?;
@@ -188,6 +212,14 @@ pub fn table_from_py(obj: &Bound<'_, PyAny>) -> PyResult<RecordBatch> {
     concat_batches(&schema, &batches).or_raise()
 }
 
+/// Exports indices to Python as `int64`, the index type numpy, polars and
+/// pandas all accept.
+pub fn indices_to_py(indices: impl IntoIterator<Item = usize>) -> PyArray {
+    array_to_py(Arc::new(Int64Array::from_iter_values(
+        indices.into_iter().map(|i| i as i64),
+    )))
+}
+
 /// Exports an array to Python.
 pub fn array_to_py(array: ArrayRef) -> PyArray {
     PyArray::from_array_ref(array)
@@ -202,7 +234,10 @@ pub fn table_to_py(batch: RecordBatch) -> PyResult<PyTable> {
 /// Converts value `index` of `array` to a Python object.
 pub fn value_to_py(py: Python<'_>, array: &ArrayRef, index: usize) -> PyResult<Py<PyAny>> {
     let scalar = PyScalar::try_from_array_ref(array.slice(index, 1))?;
-    Ok(scalar.into_pyobject(py)?.call_method0(intern!(py, "as_py"))?.unbind())
+    Ok(scalar
+        .into_pyobject(py)?
+        .call_method0(intern!(py, "as_py"))?
+        .unbind())
 }
 
 /// Implements `__arrow_c_stream__` for a table.
@@ -212,7 +247,8 @@ pub fn table_capsule<'py>(
     requested_schema: Option<Bound<'py, PyCapsule>>,
 ) -> PyResult<Bound<'py, PyCapsule>> {
     let schema = batch.schema();
-    let field = Field::new_struct("", schema.fields().clone(), false).with_metadata(schema.metadata().clone());
+    let field = Field::new_struct("", schema.fields().clone(), false)
+        .with_metadata(schema.metadata().clone());
     let array: ArrayRef = Arc::new(StructArray::from(batch));
     let reader = Box::new(ArrayIterator::new(vec![Ok(array)], Arc::new(field)));
     Ok(to_stream_pycapsule(py, reader, requested_schema)?)
@@ -222,12 +258,14 @@ pub fn table_capsule<'py>(
 /// objects with `__arrow_c_stream__`.
 pub fn to_arrow<'py>(obj: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyAny>> {
     let py = obj.py();
-    py.import(intern!(py, "pyarrow"))?.call_method1(intern!(py, "table"), (obj,))
+    py.import(intern!(py, "pyarrow"))?
+        .call_method1(intern!(py, "table"), (obj,))
 }
 
 pub fn to_polars<'py>(obj: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyAny>> {
     let py = obj.py();
-    py.import(intern!(py, "polars"))?.call_method1(intern!(py, "DataFrame"), (obj,))
+    py.import(intern!(py, "polars"))?
+        .call_method1(intern!(py, "DataFrame"), (obj,))
 }
 
 pub fn to_pandas<'py>(obj: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyAny>> {

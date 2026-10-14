@@ -7,6 +7,26 @@ copying (``pl.Series(rle.values)``, ``pa.array(rle.values)``,
 ``to_polars()``, ``to_pandas()`` and ``to_arrow()``.
 """
 
-from runlength._runlength import Rle, RleBatch, __version__, coverage, coverage_by_key
+from runlength._runlength import (
+    Rle,
+    RleBatch,
+    __version__,
+    concat,
+    coverage,
+    coverage_by_key,
+    overlap_plan,
+    plan_many,
+    zip_many,
+)
 
-__all__ = ["Rle", "RleBatch", "coverage", "coverage_by_key", "__version__"]
+__all__ = [
+    "Rle",
+    "RleBatch",
+    "concat",
+    "coverage",
+    "coverage_by_key",
+    "overlap_plan",
+    "plan_many",
+    "zip_many",
+    "__version__",
+]

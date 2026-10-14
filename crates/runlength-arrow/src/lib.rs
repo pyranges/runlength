@@ -34,11 +34,13 @@ pub mod kernels;
 mod numeric;
 mod reduce;
 mod rle;
+mod transform;
 
 pub use batch::ArrowRleBatch;
-pub use coverage::{coverage, coverage_by_key};
+pub use coverage::{Agg, coverage, coverage_agg, coverage_agg_by_key, coverage_by_key};
 pub use error::{Error, Result};
 pub use identical::identical_neighbours;
 pub use numeric::common_numeric_type;
 pub use rle::{ArrowRle, default_fill};
-pub use runlength::{How, Keep};
+pub use runlength::{How, Keep, OverlapPlan, PlanMany, overlap_plan, plan_many};
+pub use transform::{concat, zip_many};

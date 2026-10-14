@@ -1,7 +1,9 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
-use arrow_array::{Array, ArrayRef, Int64Array, RecordBatch, RecordBatchOptions, UInt64Array, new_empty_array};
+use arrow_array::{
+    Array, ArrayRef, Int64Array, RecordBatch, RecordBatchOptions, UInt64Array, new_empty_array,
+};
 use arrow_row::{RowConverter, Rows, SortField};
 use arrow_schema::{ArrowError, DataType, Field, Schema};
 use arrow_select::concat::concat;
@@ -31,7 +33,11 @@ pub struct ArrowRleBatch {
 
 /// A key table with one column.
 pub(crate) fn single_key_column(name: &str, column: ArrayRef) -> RecordBatch {
-    let schema = Schema::new(vec![Field::new(name, column.data_type().clone(), column.is_nullable())]);
+    let schema = Schema::new(vec![Field::new(
+        name,
+        column.data_type().clone(),
+        column.is_nullable(),
+    )]);
     RecordBatch::try_new(Arc::new(schema), vec![column]).expect("one column matches its own schema")
 }
 
@@ -61,7 +67,12 @@ fn concat_values(rles: &[ArrowRle], data_type: &DataType) -> Result<ArrayRef> {
 impl ArrowRleBatch {
     /// Builds a batch from its flat parts, validating them. Keys must be
     /// unique.
-    pub fn try_new(keys: RecordBatch, offsets: Vec<usize>, ends: Vec<i64>, values: ArrayRef) -> Result<Self> {
+    pub fn try_new(
+        keys: RecordBatch,
+        offsets: Vec<usize>,
+        ends: Vec<i64>,
+        values: ArrayRef,
+    ) -> Result<Self> {
         let n = keys.num_rows();
         if offsets.len() != n + 1 {
             return Err(runlength::Error::LengthMismatch {
@@ -103,7 +114,12 @@ impl ArrowRleBatch {
         })
     }
 
-    pub(crate) fn from_parts_unchecked(keys: RecordBatch, offsets: Vec<usize>, ends: Vec<i64>, values: ArrayRef) -> Result<Self> {
+    pub(crate) fn from_parts_unchecked(
+        keys: RecordBatch,
+        offsets: Vec<usize>,
+        ends: Vec<i64>,
+        values: ArrayRef,
+    ) -> Result<Self> {
         debug_assert_eq!(offsets.len(), keys.num_rows() + 1);
         Ok(ArrowRleBatch {
             keys,
@@ -200,16 +216,27 @@ impl ArrowRleBatch {
                 .iter()
                 .zip(theirs.fields())
                 .all(|(a, b)| a.name() == b.name() && a.data_type() == b.data_type());
-        if same { Ok(()) } else { Err(Error::KeySchemaMismatch) }
+        if same {
+            Ok(())
+        } else {
+            Err(Error::KeySchemaMismatch)
+        }
     }
 
     /// The output keys of a join, as (side, row) pairs for `interleave`, and
     /// each key's position on both sides.
     #[allow(clippy::type_complexity)]
-    fn join(&self, other: &ArrowRleBatch, how: How) -> Result<(Vec<(usize, usize)>, Vec<(Option<usize>, Option<usize>)>)> {
+    fn join(
+        &self,
+        other: &ArrowRleBatch,
+        how: How,
+    ) -> Result<(Vec<(usize, usize)>, Vec<(Option<usize>, Option<usize>)>)> {
         self.check_key_schema(&other.keys)?;
         let converter = key_converter(&self.keys)?;
-        let (rows_a, rows_b) = (key_rows(&converter, &self.keys)?, key_rows(&converter, &other.keys)?);
+        let (rows_a, rows_b) = (
+            key_rows(&converter, &self.keys)?,
+            key_rows(&converter, &other.keys)?,
+        );
         let index_a: HashMap<_, _> = rows_a.iter().enumerate().map(|(i, row)| (row, i)).collect();
         let index_b: HashMap<_, _> = rows_b.iter().enumerate().map(|(j, row)| (row, j)).collect();
 
@@ -239,7 +266,14 @@ impl ArrowRleBatch {
     /// in the right batch. A key missing on one side is an empty sequence
     /// there, padded with that side's fill value. See
     /// [`ArrowRle::zip_with`] for `f`.
-    pub fn zip_with<F>(&self, other: &ArrowRleBatch, how: How, fill_a: Option<&dyn Array>, fill_b: Option<&dyn Array>, f: F) -> Result<ArrowRleBatch>
+    pub fn zip_with<F>(
+        &self,
+        other: &ArrowRleBatch,
+        how: How,
+        fill_a: Option<&dyn Array>,
+        fill_b: Option<&dyn Array>,
+        f: F,
+    ) -> Result<ArrowRleBatch>
     where
         F: Fn(&dyn Array, &dyn Array) -> std::result::Result<ArrayRef, ArrowError> + Sync,
     {
@@ -248,21 +282,35 @@ impl ArrowRleBatch {
             .par_iter()
             .enumerate()
             .map(|(position, &(i, j))| {
-                let a = i.map_or_else(|| ArrowRle::empty(self.values.data_type()), |i| self.rle_at(i));
-                let b = j.map_or_else(|| ArrowRle::empty(other.values.data_type()), |j| other.rle_at(j));
-                a.zip_with(&b, fill_a, fill_b, &f).map_err(|e| e.in_key(position))
+                let a = i.map_or_else(
+                    || ArrowRle::empty(self.values.data_type()),
+                    |i| self.rle_at(i),
+                );
+                let b = j.map_or_else(
+                    || ArrowRle::empty(other.values.data_type()),
+                    |j| other.rle_at(j),
+                );
+                a.zip_with(&b, fill_a, fill_b, &f)
+                    .map_err(|e| e.in_key(position))
             })
             .collect::<Result<Vec<_>>>()?;
 
         let columns = (0..self.keys.num_columns())
-            .map(|c| interleave(&[self.keys.column(c).as_ref(), other.keys.column(c).as_ref()], &sources))
+            .map(|c| {
+                interleave(
+                    &[self.keys.column(c).as_ref(), other.keys.column(c).as_ref()],
+                    &sources,
+                )
+            })
             .collect::<std::result::Result<Vec<_>, _>>()?;
         let keys = RecordBatch::try_new_with_options(
             self.keys.schema(),
             columns,
             &RecordBatchOptions::new().with_row_count(Some(sources.len())),
         )?;
-        let data_type = rles.first().map_or(DataType::Null, |r| r.data_type().clone());
+        let data_type = rles
+            .first()
+            .map_or(DataType::Null, |r| r.data_type().clone());
         let mut offsets = Vec::with_capacity(rles.len() + 1);
         offsets.push(0);
         let mut ends = Vec::new();
@@ -289,7 +337,13 @@ impl ArrowRleBatch {
             }
         }
         let key_index = UInt64Array::from(key_index);
-        let mut fields: Vec<Field> = self.keys.schema().fields().iter().map(|f| f.as_ref().clone()).collect();
+        let mut fields: Vec<Field> = self
+            .keys
+            .schema()
+            .fields()
+            .iter()
+            .map(|f| f.as_ref().clone())
+            .collect();
         let mut columns = self
             .keys
             .columns()
