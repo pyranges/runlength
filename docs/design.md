@@ -84,11 +84,29 @@ checked directly, since Arrow's total order treats NaNs with different bit
 patterns as different). Batch keys are a `RecordBatch` of any columns,
 hashed with Arrow's row format. It uses Arrow 59 to match pyo3-arrow.
 
+## Python bindings
+
+`runlength-py` wraps the Arrow layer with pyo3 and pyo3-arrow. Neither polars
+nor pandas is primary, and neither is a dependency:
+
+- Input is read through the Arrow PyCapsule interface, the buffer protocol
+  (numpy), or plain lists.
+- Output arrays and tables are pyo3-arrow objects that speak the same
+  interface; `to_polars`, `to_pandas`, `to_arrow` and `to_numpy` import those
+  libraries only when called. `Rle` and `RleBatch` export their run table via
+  `__arrow_c_stream__`, so `pl.DataFrame(rle)` works directly.
+- Python callbacks (`zip_with`, `map`) choose what they receive with
+  `backend=` ("arrow", "pyarrow", "polars" or "numpy").
+- Python operators follow Python: `/` is true division, `==` is element-wise
+  (`equals` compares whole sequences), and an Rle has no truth value.
+- Heavy work releases the GIL. Batch callbacks run on rayon threads, each
+  taking the GIL for the call.
+
+It targets the stable ABI for Python 3.11+ (pyo3-arrow's buffer support needs
+3.11 under the stable ABI).
+
 ## Later
 
-- `runlength-py`: pyo3 bindings holding Arrow arrays, with `to_polars`,
-  `to_pandas`, `to_numpy` and `to_arrow`. Neither polars nor pandas is the
-  primary backend.
 - `shift`, `concat`, `reverse`, `to_ranges`, `collapse`, n-ary plans.
 - Coverage max/min (sweep with a heap) and a generic `overlap_plan`: segments
   plus the ids of the intervals covering each one, in list-column layout, for

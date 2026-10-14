@@ -8,8 +8,33 @@ any value type, not just `f64`.
 |---|---|
 | `runlength` | The core: generic `Rle<V>`, plans, merging, batches, coverage. Depends only on rayon. |
 | `runlength-arrow` | The same over Apache Arrow arrays, so values can be any Arrow type, and batch keys are Arrow tables. |
+| `runlength-py` | The `runlength` Python package (pyo3). Works with polars, pandas, pyarrow and numpy; none of them is required. |
 
-Python bindings will come as a separate crate (`runlength-py`).
+## Python
+
+```python
+import polars as pl
+import runlength as rl
+
+df = pl.DataFrame({"Chromosome": ["chr1", "chr1", "chr2"], "Start": [0, 2, 5], "End": [3, 4, 7]})
+cov = rl.coverage_by_key(df.select("Chromosome"), df["Start"], df["End"])  # an RleBatch
+cov.get("chr1")              # Rle(length=4, runs=3, dtype=Int64) ...
+(cov + cov).to_polars()      # Chromosome, start, end, value
+pl.DataFrame(cov.mean())     # Chromosome, mean
+
+a = rl.Rle([3, 2], ["x", "y"])              # values of any type
+b = rl.Rle([1, 4], pl.Series(["p", "q"]))
+a.zip_with(b, lambda x, y: x + y, backend="polars")   # any function, any library
+a.plan(b)                                    # or just the plan: (ends, idx_a, idx_b)
+```
+
+Inputs can be polars or pandas Series and DataFrames, pyarrow or numpy arrays,
+or lists. Outputs (`rle.values`, `rle.runs`, `batch.keys`, ...) speak the Arrow
+PyCapsule interface, so `pl.Series(x)`, `pa.array(x)` and `np.asarray(x)` read
+them without copying. `==`, `<` etc. are element-wise and return boolean Rles;
+`a.equals(b)` compares whole sequences.
+
+Build it locally with `cd crates/runlength-py && maturin develop --release`.
 
 ```rust
 use runlength::prelude::*;
@@ -59,6 +84,7 @@ See [docs/design.md](docs/design.md) for the reasoning behind these choices.
 cargo test                                        # unit, property and doc tests
 PROPTEST_CASES=5000 cargo test --release          # more property-test cases
 cargo run --release --example bench               # rough timings
+cd crates/runlength-py && maturin develop --release && pytest tests
 
 # Regenerate the pyrle cross-check cases (needs a Python that imports pyrle):
 PYTHONPATH=~/code/pyrle python3.12 scripts/gen_pyrle_fixtures.py

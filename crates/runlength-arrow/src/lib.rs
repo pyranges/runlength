@@ -31,11 +31,14 @@ mod coverage;
 mod error;
 mod identical;
 pub mod kernels;
+mod numeric;
+mod reduce;
 mod rle;
 
 pub use batch::ArrowRleBatch;
 pub use coverage::{coverage, coverage_by_key};
 pub use error::{Error, Result};
 pub use identical::identical_neighbours;
+pub use numeric::common_numeric_type;
 pub use rle::{ArrowRle, default_fill};
 pub use runlength::{How, Keep};

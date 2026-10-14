@@ -309,7 +309,12 @@ impl ArrowRleBatch {
         )?)
     }
 
-    /// Combines with `other` by an outer join, using [`default_fill`].
+    /// Combines with `other` by an outer join, using [`default_fill`] on each
+    /// side, and merges.
+    pub fn zip_with_default(&self, other: &ArrowRleBatch, f: Kernel) -> Result<ArrowRleBatch> {
+        self.op(other, f)
+    }
+
     fn op(&self, other: &ArrowRleBatch, f: Kernel) -> Result<ArrowRleBatch> {
         let fill_a = default_fill(self.values.data_type());
         let fill_b = default_fill(other.values.data_type());

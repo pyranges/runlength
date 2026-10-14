@@ -361,7 +361,25 @@ impl ArrowRle {
         .merge()
     }
 
-    /// Combines with `other` using [`default_fill`] on each side.
+    /// Casts the values to `data_type` and merges any neighbours that become
+    /// identical (for example when floats are truncated to integers).
+    pub fn cast(&self, data_type: &DataType) -> Result<ArrowRle> {
+        if self.data_type() == data_type {
+            return Ok(self.clone());
+        }
+        let values = cast(self.values.as_ref(), data_type)?;
+        ArrowRle {
+            ends: self.ends.clone(),
+            values,
+        }
+        .merge()
+    }
+
+    /// Combines with `other` using [`default_fill`] on each side, and merges.
+    pub fn zip_with_default(&self, other: &ArrowRle, f: Kernel) -> Result<ArrowRle> {
+        self.op(other, f)
+    }
+
     fn op(&self, other: &ArrowRle, f: Kernel) -> Result<ArrowRle> {
         let fill_a = default_fill(self.data_type());
         let fill_b = default_fill(other.data_type());

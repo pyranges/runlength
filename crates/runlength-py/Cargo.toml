@@ -1,0 +1,23 @@
+[package]
+name = "runlength-py"
+version = "0.1.0"
+description = "Python bindings for runlength."
+publish = false
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[lib]
+name = "_runlength"
+crate-type = ["cdylib"]
+
+[dependencies]
+runlength = { path = "../runlength" }
+runlength-arrow = { path = "../runlength-arrow" }
+pyo3 = { version = "0.29", features = ["abi3-py311"] }
+pyo3-arrow = "0.19"
+arrow-arith = "59"
+arrow-array = "59"
+arrow-cast = "59"
+arrow-schema = "59"
+arrow-select = "59"

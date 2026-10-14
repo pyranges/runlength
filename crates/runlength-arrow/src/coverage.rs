@@ -2,10 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use arrow_array::cast::AsArray;
-use arrow_array::types::{
-    Float32Type, Float64Type, Int8Type, Int16Type, Int32Type, Int64Type, UInt8Type, UInt16Type, UInt32Type,
-    UInt64Type,
-};
+use arrow_array::types::Int64Type;
 use arrow_array::{Array, ArrayRef, ArrowPrimitiveType, PrimitiveArray, RecordBatch, UInt64Array};
 use arrow_buffer::ScalarBuffer;
 use arrow_select::take::take;
@@ -13,6 +10,7 @@ use runlength::RleBatch;
 
 use crate::batch::{ArrowRleBatch, key_converter, key_rows};
 use crate::error::{Error, Result};
+use crate::numeric::with_numeric_type;
 use crate::rle::ArrowRle;
 
 fn to_array<T: ArrowPrimitiveType>(values: Vec<T::Native>) -> ArrayRef {
@@ -24,26 +22,6 @@ fn native<T: ArrowPrimitiveType>(values: &dyn Array) -> Result<&[T::Native]> {
         return Err(Error::UnexpectedNulls);
     }
     Ok(values.as_primitive::<T>().values())
-}
-
-/// Runs `$body` with `$T` bound to the Arrow type of `$values`, for the
-/// numeric types coverage supports.
-macro_rules! with_numeric_type {
-    ($values:expr, |$T:ident| $body:expr) => {
-        match $values.data_type() {
-            arrow_schema::DataType::Int8 => { type $T = Int8Type; $body }
-            arrow_schema::DataType::Int16 => { type $T = Int16Type; $body }
-            arrow_schema::DataType::Int32 => { type $T = Int32Type; $body }
-            arrow_schema::DataType::Int64 => { type $T = Int64Type; $body }
-            arrow_schema::DataType::UInt8 => { type $T = UInt8Type; $body }
-            arrow_schema::DataType::UInt16 => { type $T = UInt16Type; $body }
-            arrow_schema::DataType::UInt32 => { type $T = UInt32Type; $body }
-            arrow_schema::DataType::UInt64 => { type $T = UInt64Type; $body }
-            arrow_schema::DataType::Float32 => { type $T = Float32Type; $body }
-            arrow_schema::DataType::Float64 => { type $T = Float64Type; $body }
-            other => Err(Error::UnsupportedType(other.clone())),
-        }
-    };
 }
 
 /// Coverage of half-open intervals `[start, end)`.
