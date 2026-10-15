@@ -14,6 +14,11 @@ nav:
       - Batches: guide/batches.md
       - Merging runs: guide/merging.md
       - polars, pandas, numpy and pyarrow: guide/interop.md
+      - Working with plans: guide/plans.md
+  - Genomics recipes:
+      - Homopolymers: genomics/homopolymers.md
+      - Comparing chromatin states: genomics/chromatin-states.md
+      - Annotation tracks and transcripts: genomics/transcripts.md
   - Coming from pyrle: pyrle.md
   - Benchmarks: benchmarks.md
   - Rust: rust.md

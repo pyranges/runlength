@@ -42,6 +42,8 @@ Rle(length=5, runs=3, dtype=Int64)
 
 Because the plan doesn't involve values, it works for any value types, and
 you can compute it once and use it for several operations on the same pair.
+[Working with plans](plans.md) shows how, and how to analyse segments as a
+table.
 
 ## Your own function: `zip_with`
 

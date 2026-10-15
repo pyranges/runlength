@@ -52,8 +52,12 @@ Wheels are available for Linux, macOS and Windows.
 - [Tutorial](tutorial.md): the basics in ten minutes.
 - User guide: [combining sequences](guide/combining.md),
   [coverage and intervals](guide/coverage.md), [batches](guide/batches.md),
-  [merging runs](guide/merging.md), and
-  [polars, pandas, numpy and pyarrow](guide/interop.md).
+  [merging runs](guide/merging.md),
+  [polars, pandas, numpy and pyarrow](guide/interop.md), and
+  [working with plans](guide/plans.md) for advanced use.
+- Genomics recipes: [homopolymers](genomics/homopolymers.md),
+  [comparing chromatin states](genomics/chromatin-states.md), and
+  [annotation tracks and transcripts](genomics/transcripts.md).
 - [Coming from pyrle](pyrle.md): what changed, with a translation table.
 - [Benchmarks](benchmarks.md) against Bioconductor's IRanges and pyrle.
 - [Rust](rust.md): using the crates directly.

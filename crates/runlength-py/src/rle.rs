@@ -84,11 +84,19 @@ pub(crate) fn parse_keep(keep: &str) -> PyResult<Keep> {
     }
 }
 
-/// Converts both sides to a common numeric type if they differ.
+/// Converts both sides to a common type if they differ: a common numeric
+/// type, or for strings, the left side's encoding (polars gives `Utf8View`,
+/// lists and pyarrow `Utf8`).
 fn coerce_rles(a: &ArrowRle, b: &ArrowRle) -> runlength_arrow::Result<(ArrowRle, ArrowRle)> {
+    let is_string =
+        |t: &DataType| matches!(t, DataType::Utf8 | DataType::LargeUtf8 | DataType::Utf8View);
     match common_numeric_type(a.data_type(), b.data_type()) {
-        Some(t) if a.data_type() != b.data_type() => Ok((a.cast(&t)?, b.cast(&t)?)),
-        _ => Ok((a.clone(), b.clone())),
+        _ if a.data_type() == b.data_type() => Ok((a.clone(), b.clone())),
+        Some(t) => Ok((a.cast(&t)?, b.cast(&t)?)),
+        None if is_string(a.data_type()) && is_string(b.data_type()) => {
+            Ok((a.clone(), b.cast(a.data_type())?))
+        }
+        None => Ok((a.clone(), b.clone())),
     }
 }
 
