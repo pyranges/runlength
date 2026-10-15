@@ -121,10 +121,16 @@ impl PyRleBatch {
             return Ok(out.or_raise()?.into());
         };
         let (a, b) = (&self.inner, &other.inner);
+        let (ta, tb) = (a.values().data_type(), b.values().data_type());
+        let is_string =
+            |t: &DataType| matches!(t, DataType::Utf8 | DataType::LargeUtf8 | DataType::Utf8View);
         let common = if to_float {
             Some(DataType::Float64)
+        } else if ta != tb && is_string(ta) && is_string(tb) {
+            // Different string encodings, e.g. from polars and from a list.
+            Some(ta.clone())
         } else {
-            common_numeric_type(a.values().data_type(), b.values().data_type())
+            common_numeric_type(ta, tb)
         };
         let (a, b) = match common {
             Some(t) if a.values().data_type() != &t || b.values().data_type() != &t => {
