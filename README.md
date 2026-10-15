@@ -1,111 +1,173 @@
 # runlength
 
-Generic run-length encoded sequences in Rust, with plan-based arithmetic. It is
-the successor to [pyrle](https://github.com/pyranges/pyrle), with a new API and
-any value type, not just `f64`.
+Run-length encoded sequences of any type, in Rust and Python.
 
-| Crate | Contents |
-|---|---|
-| `runlength` | The core: generic `Rle<V>`, plans, merging, batches, coverage. Depends only on rayon. |
-| `runlength-arrow` | The same over Apache Arrow arrays, so values can be any Arrow type, and batch keys are Arrow tables. |
-| `runlength-py` | The `runlength` Python package (pyo3). Works with polars, pandas, pyarrow and numpy; none of them is required. |
+A run-length encoded sequence stores each run of repeated values once:
+`1 1 1 2 2` becomes the runs `[3, 2]` with the values `[1, 2]`. Long
+sequences with few changes, such as read coverage along a genome, become
+small, and arithmetic on them is fast because it works run by run.
+
+runlength is the successor to [pyrle](https://github.com/pyranges/pyrle). It
+holds values of any type (numbers, strings, booleans, dates, with nulls),
+combines sequences with any function, and keeps many sequences under keys of
+any type, processed in parallel. In Python it works with polars, pandas,
+numpy and pyarrow, and requires none of them.
+
+**Documentation: <https://pyranges.github.io/runlength/>**
+
+```sh
+pip install runlength
+cargo add runlength
+```
 
 ## Python
 
 ```python
-import polars as pl
-import runlength as rl
-
-df = pl.DataFrame({
-    "Chromosome": ["chr1", "chr1", "chr2"],
-    "Strand": ["+", "-", "+"],
-    "Start": [0, 2, 5],
-    "End": [3, 4, 7],
-    "Score": [0.5, 2.0, 1.0],
-})
-keys = df.select("Chromosome", "Strand")
-cov = rl.coverage_by_key(keys, df["Start"], df["End"])  # an RleBatch
-cov.get(("chr1", "+"))           # Rle(length=3, runs=1, dtype=Int64) ...
-(cov + cov).to_polars()          # Chromosome, Strand, start, end, value
-pl.DataFrame(cov.mean())         # Chromosome, Strand, mean
-per_chrom = cov.collapse(drop="Strand")          # add the strands together
-starts, ends = (per_chrom.get("chr1") > 0).ranges()   # back to intervals
-best = rl.coverage_by_key(keys, df["Start"], df["End"], df["Score"], agg="max", fill=None)
-cov.slice_agg(keys, df["Start"], df["End"], agg="mean")   # mean coverage per interval, no copies
-
-a = rl.Rle([3, 2], ["x", "y"])              # values of any type
-b = rl.Rle([1, 4], pl.Series(["p", "q"]))
-a.zip_with(b, lambda x, y: x + y, backend="polars")   # any function, any library
-a.plan(b)                                    # or just the plan: (ends, idx_a, idx_b)
+>>> import runlength as rl
+>>> a = rl.Rle([3, 2], [1, 2])        # the sequence 1 1 1 2 2
+>>> a
+Rle(length=5, runs=2, dtype=Int64)
+  runs:   [3, 2]
+  values: [1, 2]
+>>> b = rl.Rle([1, 4], [10, 20])      # 10 20 20 20 20
+>>> a + b
+Rle(length=5, runs=3, dtype=Int64)
+  runs:   [1, 2, 2]
+  values: [11, 21, 22]
+>>> a.mean(), a[3]
+(1.4, 2)
+>>> a[1:4]                             # slices start at 0
+Rle(length=3, runs=2, dtype=Int64)
+  runs:   [2, 1]
+  values: [1, 2]
 ```
 
-Inputs can be polars or pandas Series and DataFrames, pyarrow or numpy arrays,
-or lists. Outputs (`rle.values`, `rle.runs`, `batch.keys`, ...) speak the Arrow
-PyCapsule interface, so `pl.Series(x)`, `pa.array(x)` and `np.asarray(x)` read
-them without copying. `==`, `<` etc. are element-wise and return boolean Rles;
-`a.equals(b)` compares whole sequences.
+Coverage turns intervals into a sequence, here one per chromosome and
+strand, and back into intervals:
 
-Build it locally with `cd crates/runlength-py && maturin develop --release`.
+```python
+>>> import polars as pl
+>>> reads = pl.DataFrame({
+...     "chrom": ["chr1", "chr1", "chr2"],
+...     "strand": ["+", "-", "+"],
+...     "start": [0, 2, 5],
+...     "end": [3, 4, 7],
+... })
+>>> cov = rl.coverage_by_key(reads.select("chrom", "strand"), reads["start"], reads["end"])
+>>> cov
+RleBatch(keys=3, runs=5, dtype=Int64)
+  ('chr1', '+'): length=3, runs=[3], values=[1]
+  ('chr1', '-'): length=4, runs=[2, 2], values=[0, 1]
+  ('chr2', '+'): length=7, runs=[5, 2], values=[0, 1]
+>>> per_chrom = cov.collapse(drop="strand")       # add up the strands
+>>> per_chrom.to_polars().filter(pl.col("value") > 0)
+shape: (4, 4)
+┌───────┬───────┬─────┬───────┐
+│ chrom ┆ start ┆ end ┆ value │
+│ ---   ┆ ---   ┆ --- ┆ ---   │
+│ str   ┆ i64   ┆ i64 ┆ i64   │
+╞═══════╪═══════╪═════╪═══════╡
+│ chr1  ┆ 0     ┆ 2   ┆ 1     │
+│ chr1  ┆ 2     ┆ 3   ┆ 2     │
+│ chr1  ┆ 3     ┆ 4   ┆ 1     │
+│ chr2  ┆ 5     ┆ 7   ┆ 1     │
+└───────┴───────┴─────┴───────┘
+```
+
+Mean coverage over many intervals at once, without copying them:
+
+```python
+>>> genes = pl.DataFrame({"chrom": ["chr1", "chr2"], "start": [0, 4], "end": [4, 7]})
+>>> per_chrom.slice_agg(genes.select("chrom"), genes["start"], genes["end"], agg="mean").to_pylist()
+[1.25, 0.6666666666666666]
+```
+
+Any function can combine sequences, written with numpy, polars or pyarrow, on
+any value type. runlength works out where the output runs are; your function
+only sees one value per run:
+
+```python
+>>> names = rl.Rle([3, 2], ["x", "y"])
+>>> names.zip_with(b, lambda n, v: n + "=" + v.cast(pl.String), backend="polars")
+Rle(length=5, runs=3, dtype=Utf8View)
+  runs:   [1, 2, 2]
+  values: ["x=10", "x=20", "y=20"]
+```
+
+## Rust
 
 ```rust
 use runlength::prelude::*;
 
-let a = Rle::from_runs(&[3, 2], vec![1, 2])?;
-let b = Rle::from_runs(&[1, 4], vec![10, 20])?;
+fn main() -> runlength::Result<()> {
+    let a = Rle::from_runs(&[3, 2], vec![1, 2])?;
+    let b = Rle::from_runs(&[1, 4], vec![10, 20])?;
+    assert_eq!(format!("{:?}", &a + &b), "Rle { runs: [1, 2, 2], values: [11, 21, 22] }");
 
-// The plan only looks at run boundaries...
-let p = a.plan_with(&b);
-assert_eq!(p.ends, vec![1, 3, 5]);
-assert_eq!((p.idx_a, p.idx_b), (vec![0, 0, 1], vec![0, 1, 1]));
+    // The plan says where the output runs end, and which run of each input
+    // covers each one, without looking at values...
+    let plan = a.plan_with(&b);
+    assert_eq!(plan.ends, vec![1, 3, 5]);
+    assert_eq!((plan.idx_a, plan.idx_b), (vec![0, 0, 1], vec![0, 1, 1]));
 
-// ...so any operation works on any value types.
-let labels = a.zip_with(&b, None, None, |x, y| format!("{x}/{y}"))?;
-
-// Operators pad the shorter side with zero and merge the result.
-assert_eq!((&a + &b).to_dense(), vec![11, 21, 21, 22, 22]);
+    // ...so any function works on any value types.
+    let labels = a.zip_with(&b, None, None, |x, y| format!("{x}/{y}"))?;
+    assert_eq!(labels.values(), &["1/10", "1/20", "2/20"]);
+    Ok(())
+}
 ```
 
-## What's in it
-
-| Area | API |
+| Crate | Contents |
 |---|---|
-| Sequences | `Rle<V>` (owned), `RleRef<V>` (borrowed), shared methods on `RleLike` |
-| Combining | `plan`, `zip_with`, `zip_with_raw`, `+ - * / & \| ^`, unary `-` and `!`, `elem_eq/ne/lt/le/gt/ge` |
-| Merging | `merge`, `merge_by(pred)`, `merge_mask(mask, Keep)`, `merge_plan(mask)`, `is_merged` |
-| Slicing | `get`, `slice`, `getitems` (many slices → batch), `slice_view` and `slice_reduce` (reduce many slices without copying) |
-| Rearranging | `shift`, `reversed`, `concat`, `ranges_where` |
-| Many inputs | `plan_many`, `zip_many` |
-| Reductions | `sum`, `mean`, `variance(ddof)`, `std(ddof)`, `min`, `max` (all weighted by run length) |
-| Batches | `RleBatch<K, V>`: many sequences under any hashable keys, joins with `How::{Outer, Inner, Left, Right}`, `collapse`, `concat`, `shift`, `reversed`, `slice_reduce`, parallel with rayon |
-| Coverage | `coverage_sum`, `coverage_count`, `coverage_max`, `coverage_min` (with `_by_key` variants), and `overlap_plan` / `overlap_plan_by_key` for any other aggregation |
+| [`runlength`](https://docs.rs/runlength) | The core: `Rle<V>` and `RleBatch<K, V>` for any value and key types, plans, merging, coverage. Depends only on rayon and rustc-hash. |
+| [`runlength-arrow`](https://docs.rs/runlength-arrow) | The same over Apache Arrow arrays: values of any Arrow type, batch keys as Arrow tables. |
+| `runlength-py` | The `runlength` Python package (pyo3). |
 
-## Conventions
+## Benchmarks
 
-- Positions are `i64`; every sequence starts at 0; intervals are `[start, end)`.
-- Neighbouring runs merge when values are *identical*: `NaN` merges with `NaN`,
-  `-0.0` does not merge with `0.0`.
-- Operations merge by default; `_raw` variants and plans do not.
-- Combining sequences of different lengths pads the shorter one with a fill
-  value. Operators use zero. With `zip_with`, passing `None` makes unequal
-  lengths an error.
+The Python package against Bioconductor's
+[IRanges](https://bioconductor.org/packages/IRanges/) (R), the standard
+run-length encoding in genomics, on 1M random intervals over a sequence of
+length 100M (about 2M runs). Best of three runs, on an Apple M3 Pro.
 
-See [docs/design.md](docs/design.md) for the reasoning behind these choices.
+| Operation | runlength | IRanges | Speed-up |
+|---|--:|--:|--:|
+| Coverage of 1M intervals | 38 ms | 334 ms | 8.8× |
+| `a + b` (3.9M runs out) | 20 ms | 197 ms | 9.9× |
+| `a < b` | 18 ms | 139 ms | 7.7× |
+| `a.mean()` | 2 ms | 18 ms | 9× |
+| Sum over 1M slices of length 1000 | 34 ms | 125 ms | 3.7× |
+| Coverage of 1M intervals over 25 keys | 34 ms | 351 ms | 10× |
+| `batch + batch`, 25 keys | 10 ms | 59 ms | 5.9× |
+
+The Rust core is faster still, and pyrle slower; see the
+[benchmarks page](https://pyranges.github.io/runlength/benchmarks/) for all
+of them and how to run them.
 
 ## Development
 
 ```sh
 cargo test                                        # unit, property and doc tests
+cargo run --example tour                          # the examples on the docs' Rust page
 PROPTEST_CASES=5000 cargo test --release          # more property-test cases
-cargo run --release --example bench               # rough timings
-cd crates/runlength-py && maturin develop --release && pytest tests
-
-# Regenerate the pyrle cross-check cases (needs a Python that imports pyrle):
-PYTHONPATH=~/code/pyrle python3.12 scripts/gen_pyrle_fixtures.py
-
-# Check the reference port of pyranges' to_rle / to_bigwig against
-# pyranges1 + pyrle (needs both installed, plus pyBigWig):
-PYTHONPATH=~/code/pyrle python scripts/pyranges_port.py 1000
+cd crates/runlength-py && maturin develop --release && cd ../..
+pytest crates/runlength-py/tests                  # including every example in the docs
+mkdocs serve                                      # the documentation site
 ```
+
+The examples in this README, `docs/` and the Python docstrings are tested.
+After changing one (or a repr), regenerate their output, and after changing a
+doc comment in `crates/runlength-py/src`, copy it into the type stub:
+
+```sh
+python scripts/update_doc_examples.py
+python scripts/sync_stub.py
+```
+
+Benchmarks: `cargo run --release --example bench`, `python scripts/bench.py`
+and `Rscript scripts/bench_r.R`. `scripts/gen_pyrle_fixtures.py` regenerates
+the pyrle cross-check cases, and `scripts/pyranges_port.py` checks the port of
+pyranges' `to_rle` and `to_bigwig`.
 
 ## Releasing
 
@@ -119,10 +181,6 @@ git tag rust-v0.2.0 && git push origin rust-v0.2.0   # runlength, runlength-arro
 ```
 
 `.github/workflows/release.yml` checks that the tag matches the crate
-versions, builds wheels for Linux (x86_64, aarch64), macOS (universal2) and
-Windows, tests them, and publishes. Run it by hand from the Actions tab to
-build and test the wheels without publishing.
-
-One-time setup: add `pyranges/runlength` with workflow `release.yml` as a
-trusted publisher on PyPI, and save a crates.io token as the
-`CARGO_REGISTRY_TOKEN` repository secret.
+versions, builds wheels for Linux (x86_64 and aarch64, glibc and musl), macOS
+(universal2) and Windows, tests them, and publishes. Run it by hand from the
+Actions tab to build and test the wheels without publishing.

@@ -1,12 +1,15 @@
 //! Length-weighted reductions for sequences of numeric values.
 //!
 //! These borrow the Arrow values directly, without copying, and use the core
-//! crate's reductions. Values must be a numeric type without nulls.
+//! crate's reductions. Values must be a numeric type without nulls, except
+//! for `min` and `max`, which work on any type Arrow can sort.
 
 use std::sync::Arc;
 
 use arrow_array::cast::AsArray;
-use arrow_array::{Array, ArrayRef, ArrowPrimitiveType, PrimitiveArray};
+use arrow_array::{Array, ArrayRef, ArrowPrimitiveType, PrimitiveArray, new_null_array};
+use arrow_ord::sort::{SortOptions, sort_to_indices};
+use arrow_select::take::take;
 use runlength::{RleLike, RleRef};
 
 use crate::error::{Error, Result};
@@ -51,16 +54,40 @@ impl ArrowRle {
     }
 
     /// The smallest value ignoring `NaN`, as one value (null if there is none).
+    /// Numbers must not be null; other types skip nulls.
     pub fn min(&self) -> Result<ArrayRef> {
+        if !self.values.data_type().is_numeric() {
+            return self.sorted_first(false);
+        }
         with_numeric_type!(self.values, |T| Ok(single::<T>(
             core_view::<T>(self)?.min().copied()
         )))
     }
 
     /// The largest value ignoring `NaN`, as one value (null if there is none).
+    /// Numbers must not be null; other types skip nulls.
     pub fn max(&self) -> Result<ArrayRef> {
+        if !self.values.data_type().is_numeric() {
+            return self.sorted_first(true);
+        }
         with_numeric_type!(self.values, |T| Ok(single::<T>(
             core_view::<T>(self)?.max().copied()
         )))
+    }
+
+    /// The first non-null value in sort order, for types other than numbers
+    /// (strings, dates, booleans, ...). Run lengths don't matter here.
+    fn sorted_first(&self, descending: bool) -> Result<ArrayRef> {
+        let options = SortOptions {
+            descending,
+            nulls_first: false,
+        };
+        let first = sort_to_indices(self.values.as_ref(), Some(options), Some(1))?;
+        Ok(match first.values().first() {
+            Some(&i) if self.values.is_valid(i as usize) => {
+                take(self.values.as_ref(), &first, None)?
+            }
+            _ => new_null_array(self.values.data_type(), 1),
+        })
     }
 }

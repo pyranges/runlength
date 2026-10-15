@@ -17,6 +17,7 @@ jobs:
       - run: cargo fmt --all --check
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace
+      - run: cargo run --example tour
 
   python:
     runs-on: ubuntu-latest
@@ -31,7 +32,9 @@ jobs:
           python -m venv .venv
           .venv/bin/pip install maturin pytest polars pandas pyarrow numpy arro3-core
           cd crates/runlength-py && ../../.venv/bin/maturin develop --release
+      # Includes every example in the README, docs/ and the docstrings.
       - run: .venv/bin/python -m pytest crates/runlength-py/tests
+      - run: .venv/bin/python scripts/sync_stub.py --check
 
   python-pandas-only:
     # A default pyranges install has pandas and numpy but not pyarrow.

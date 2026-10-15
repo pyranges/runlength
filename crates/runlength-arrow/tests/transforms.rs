@@ -134,12 +134,18 @@ fn coverage_agg_by_key_and_collapse() {
     assert!(coverage_agg_by_key(&keys, &starts, &ends, None, Agg::Max).is_err());
 
     let counts = coverage_agg_by_key(&keys, &starts, &ends, None, Agg::Count).unwrap();
-    let per_chromosome = counts.collapse(&["Chromosome"], kernels::add).unwrap();
+    let per_chromosome = counts
+        .collapse(&["Chromosome"], runlength_arrow::kernels::Kernel::Add)
+        .unwrap();
     assert_eq!(per_chromosome.keys().num_columns(), 1);
     assert_eq!(per_chromosome.len(), 2);
     assert_eq!(
         core(&per_chromosome.get_index(0).unwrap()).to_dense(),
         vec![1, 2, 3, 2, 1]
     );
-    assert!(counts.collapse(&["Nope"], kernels::add).is_err());
+    assert!(
+        counts
+            .collapse(&["Nope"], runlength_arrow::kernels::Kernel::Add)
+            .is_err()
+    );
 }

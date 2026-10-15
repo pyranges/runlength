@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use rustc_hash::{FxHashMap, FxHashSet};
 use std::sync::Arc;
 
 use arrow_array::{
@@ -14,7 +14,7 @@ use runlength::How;
 
 use crate::error::{Error, Result};
 use crate::kernels::Kernel;
-use crate::rle::{ArrowRle, default_fill};
+use crate::rle::ArrowRle;
 
 /// Many Arrow-backed sequences, each identified by a row of a key table.
 ///
@@ -100,7 +100,7 @@ impl ArrowRleBatch {
         }
         let converter = key_converter(&keys)?;
         let rows = key_rows(&converter, &keys)?;
-        let mut seen = HashSet::with_capacity(n);
+        let mut seen = FxHashSet::with_capacity_and_hasher(n, Default::default());
         for (position, row) in rows.iter().enumerate() {
             if !seen.insert(row) {
                 return Err(runlength::Error::DuplicateKey { position }.into());
@@ -156,6 +156,7 @@ impl ArrowRleBatch {
         self.keys.num_rows()
     }
 
+    /// Whether the batch holds no sequences.
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
@@ -165,6 +166,8 @@ impl ArrowRleBatch {
         &self.keys
     }
 
+    /// Run boundaries per sequence: sequence `i` has runs
+    /// `offsets[i]..offsets[i + 1]`; `len() + 1` entries.
     pub fn offsets(&self) -> &[usize] {
         &self.offsets
     }
@@ -203,7 +206,7 @@ impl ArrowRleBatch {
         self.check_key_schema(keys)?;
         let converter = key_converter(&self.keys)?;
         let mine = key_rows(&converter, &self.keys)?;
-        let index: HashMap<_, _> = mine.iter().enumerate().map(|(i, row)| (row, i)).collect();
+        let index: FxHashMap<_, _> = mine.iter().enumerate().map(|(i, row)| (row, i)).collect();
         let theirs = key_rows(&converter, keys)?;
         Ok(theirs.iter().map(|row| index.get(&row).copied()).collect())
     }
@@ -237,8 +240,8 @@ impl ArrowRleBatch {
             key_rows(&converter, &self.keys)?,
             key_rows(&converter, &other.keys)?,
         );
-        let index_a: HashMap<_, _> = rows_a.iter().enumerate().map(|(i, row)| (row, i)).collect();
-        let index_b: HashMap<_, _> = rows_b.iter().enumerate().map(|(j, row)| (row, j)).collect();
+        let index_a: FxHashMap<_, _> = rows_a.iter().enumerate().map(|(i, row)| (row, i)).collect();
+        let index_b: FxHashMap<_, _> = rows_b.iter().enumerate().map(|(j, row)| (row, j)).collect();
 
         let (mut sources, mut pairs) = (Vec::new(), Vec::new());
         for (i, row) in rows_a.iter().enumerate() {
@@ -277,6 +280,15 @@ impl ArrowRleBatch {
     where
         F: Fn(&dyn Array, &dyn Array) -> std::result::Result<ArrayRef, ArrowError> + Sync,
     {
+        self.join_rles(other, how, |a, b| a.zip_with(b, fill_a, fill_b, &f))
+    }
+
+    /// Joins the keys of both batches and combines each pair of sequences with
+    /// `f`, in parallel. A key missing on one side is an empty sequence there.
+    fn join_rles<F>(&self, other: &ArrowRleBatch, how: How, f: F) -> Result<ArrowRleBatch>
+    where
+        F: Fn(&ArrowRle, &ArrowRle) -> Result<ArrowRle> + Sync,
+    {
         let (sources, pairs) = self.join(other, how)?;
         let rles = pairs
             .par_iter()
@@ -290,8 +302,7 @@ impl ArrowRleBatch {
                     || ArrowRle::empty(other.values.data_type()),
                     |j| other.rle_at(j),
                 );
-                a.zip_with(&b, fill_a, fill_b, &f)
-                    .map_err(|e| e.in_key(position))
+                f(&a, &b).map_err(|e| e.in_key(position))
             })
             .collect::<Result<Vec<_>>>()?;
 
@@ -363,22 +374,20 @@ impl ArrowRleBatch {
         )?)
     }
 
-    /// Combines with `other` by an outer join, using [`default_fill`] on each
+    /// Combines with `other` by an outer join, using [`default_fill`](crate::default_fill) on each
     /// side, and merges.
-    pub fn zip_with_default(&self, other: &ArrowRleBatch, f: Kernel) -> Result<ArrowRleBatch> {
-        self.op(other, f)
+    pub fn zip_with_default(&self, other: &ArrowRleBatch, kernel: Kernel) -> Result<ArrowRleBatch> {
+        self.op(other, kernel)
     }
 
-    fn op(&self, other: &ArrowRleBatch, f: Kernel) -> Result<ArrowRleBatch> {
-        let fill_a = default_fill(self.values.data_type());
-        let fill_b = default_fill(other.values.data_type());
-        self.zip_with(other, How::Outer, fill_a.as_deref(), fill_b.as_deref(), f)
+    fn op(&self, other: &ArrowRleBatch, kernel: Kernel) -> Result<ArrowRleBatch> {
+        self.join_rles(other, How::Outer, |a, b| a.op(b, kernel))
     }
 }
 
 crate::kernels::kernel_methods!(
     ArrowRleBatch,
-    " Keys are outer-joined and shorter sides padded with [`default_fill`]."
+    " Keys are outer-joined and shorter sides padded with [`default_fill`](crate::default_fill)."
 );
 
 impl PartialEq for ArrowRleBatch {

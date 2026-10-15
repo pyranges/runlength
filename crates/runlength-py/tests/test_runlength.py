@@ -1,3 +1,4 @@
+import datetime
 import math
 
 import numpy as np
@@ -58,6 +59,24 @@ def test_strings_and_nulls():
     assert r[0] == "a"
     assert r[2] is None
     assert r[-1] == "b"
+    # Strings are quoted in the repr, so the string "null" differs from a null.
+    assert 'values: ["x", null, "null"]' in repr(rl.Rle([1, 1, 1], ["x", None, "null"]))
+
+
+def test_lists_of_other_types_go_through_pyarrow():
+    days = rl.Rle([2, 1], [datetime.date(2026, 1, 1), datetime.date(2026, 2, 1)])
+    assert days.dtype == "Date32"
+    assert (days.min(), days.max()) == (datetime.date(2026, 1, 1), datetime.date(2026, 2, 1))
+    assert rl.Rle([1, 2], ["b", None]).min() == "b"
+
+
+@pytest.mark.parametrize(
+    "name,dtype",
+    [("float64", "Float64"), ("Float64", "Float64"), ("int32", "Int32"), ("uint8", "UInt8"),
+     ("bool", "Boolean"), ("string", "Utf8")],
+)
+def test_cast_accepts_arrow_and_numpy_names(name, dtype):
+    assert rl.Rle([3, 2], [0, 1]).cast(name).dtype == dtype
 
 
 # Indexing --------------------------------------------------------------------

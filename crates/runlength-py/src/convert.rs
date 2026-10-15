@@ -20,7 +20,7 @@ use arrow_select::concat::{concat, concat_batches};
 use pyo3::exceptions::{PyTypeError, PyValueError};
 use pyo3::intern;
 use pyo3::prelude::*;
-use pyo3::types::{PyCapsule, PyDict};
+use pyo3::types::{PyCapsule, PyDict, PyList, PyTuple};
 use pyo3_arrow::ffi::{ArrayIterator, to_stream_pycapsule};
 use pyo3_arrow::input::{AnyArray, AnyRecordBatch};
 use pyo3_arrow::{PyArray, PyScalar, PyTable};
@@ -119,6 +119,17 @@ pub fn array_from_py(obj: &Bound<'_, PyAny>) -> PyResult<ArrayRef> {
     }
     if let Ok(values) = obj.extract::<Vec<Option<String>>>() {
         return Ok(Arc::new(StringArray::from(values)));
+    }
+    let is_list = obj.cast::<PyList>().is_ok() || obj.cast::<PyTuple>().is_ok();
+    // Lists of other values (dates, decimals, ...): let pyarrow infer the type.
+    if is_list && let Ok(pyarrow) = py.import(intern!(py, "pyarrow")) {
+        return array_from_py(&pyarrow.call_method1(intern!(py, "array"), (obj,))?);
+    }
+    if is_list {
+        return Err(PyTypeError::new_err(
+            "lists can hold bools, ints, floats, strings and None; for other values \
+             pass a polars Series or a pyarrow array",
+        ));
     }
     Err(PyTypeError::new_err(format!(
         "expected an Arrow array, polars or pandas Series, numpy array or list, got {}",

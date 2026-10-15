@@ -65,10 +65,43 @@ pub(crate) fn getitems<V: Clone>(
     ends: &[i64],
 ) -> Result<RleBatch<usize, V>> {
     validate_intervals(starts, ends)?;
+    let runs = slice_runs(rle.ends, starts, ends);
     Ok(RleBatch::from_slices(
         (0..starts.len()).collect(),
-        |k, out_ends, out_values| slice_into(rle, starts[k], ends[k], out_ends, out_values),
+        |k, out_ends, out_values| {
+            if let Some((first, last)) = runs[k] {
+                let (start, end) = (starts[k], ends[k].min(rle.len()));
+                out_ends.extend(rle.ends[first..last].iter().map(|&e| e - start));
+                out_ends.push(end - start);
+                out_values.extend_from_slice(&rle.values[first..=last]);
+            }
+        },
     ))
+}
+
+/// For each slice `starts[k]..ends[k]` (clamped to the sequence), the first
+/// and last run it touches, or `None` if it's empty.
+///
+/// Copying many slices is dominated by these binary searches, so they run in
+/// parallel. They only read the run ends, so values needn't be `Sync`.
+pub(crate) fn slice_runs(
+    run_ends: &[i64],
+    starts: &[i64],
+    ends: &[i64],
+) -> Vec<Option<(usize, usize)>> {
+    let len = run_ends.last().copied().unwrap_or(0);
+    (0..starts.len())
+        .into_par_iter()
+        .with_min_len(SLICES_PER_TASK)
+        .map(|k| {
+            let (start, end) = (starts[k].max(0), ends[k].min(len));
+            (start < end).then(|| {
+                let first = run_ends.partition_point(|&e| e <= start);
+                let last = run_ends.partition_point(|&e| e < end);
+                (first, last)
+            })
+        })
+        .collect()
 }
 
 /// A borrowed slice `start..end` of a sequence that is not copied, for
@@ -126,6 +159,7 @@ impl<'a, V> SliceView<'a, V> {
         self.end - self.start
     }
 
+    /// Whether the slice has no positions.
     pub fn is_empty(&self) -> bool {
         self.start == self.end
     }

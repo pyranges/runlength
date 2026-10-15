@@ -1,0 +1,72 @@
+site_name: runlength
+site_description: Run-length encoded sequences of any type, in Rust and Python.
+site_url: https://pyranges.github.io/runlength/
+repo_url: https://github.com/pyranges/runlength
+repo_name: pyranges/runlength
+edit_uri: edit/master/docs/
+
+nav:
+  - Home: index.md
+  - Tutorial: tutorial.md
+  - User guide:
+      - Combining sequences: guide/combining.md
+      - Coverage and intervals: guide/coverage.md
+      - Batches: guide/batches.md
+      - Merging runs: guide/merging.md
+      - polars, pandas, numpy and pyarrow: guide/interop.md
+  - Coming from pyrle: pyrle.md
+  - Benchmarks: benchmarks.md
+  - Rust: rust.md
+  - API reference: reference.md
+  - Design notes: design.md
+
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - navigation.sections
+    - navigation.footer
+    - search.highlight
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.snippets:
+      base_path: ["."]
+      check_paths: true
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          # Read the type stub, so building the docs doesn't need Rust.
+          paths: [crates/runlength-py/python]
+          options:
+            allow_inspection: false
+            docstring_style: google
+            show_root_heading: true
+            show_root_full_path: false
+            show_source: false
+            show_signature_annotations: true
+            separate_signature: true
+            members_order: source
+            filters: ["!^_"]
+            heading_level: 3

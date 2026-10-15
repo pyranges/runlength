@@ -49,3 +49,10 @@ def test_outputs_to_pandas_and_numpy(df):
 def test_pyarrow_is_really_absent():
     with pytest.raises(ImportError):
         import pyarrow  # noqa: F401
+
+
+def test_lists_of_other_types_need_pyarrow():
+    import datetime
+
+    with pytest.raises(TypeError, match="pass a polars Series or a pyarrow array"):
+        rl.Rle([1], [datetime.date(2026, 1, 1)])

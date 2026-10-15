@@ -15,6 +15,7 @@ pub trait Num:
 {
     /// Converts a run length to this type (with `as` semantics).
     fn from_i64(n: i64) -> Self;
+    /// Converts to `f64` (with `as` semantics), for means and variances.
     fn to_f64(self) -> f64;
 }
 

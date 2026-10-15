@@ -1,5 +1,5 @@
+use rustc_hash::FxHashMap;
 use std::borrow::Borrow;
-use std::collections::HashMap;
 use std::fmt;
 use std::hash::Hash;
 use std::ops::{Add, BitAnd, BitOr, BitXor, Div, Mul, Sub};
@@ -45,7 +45,7 @@ pub struct RleBatch<K, V> {
     ends: Vec<i64>,
     values: Vec<V>,
     /// Key → position, built on the first lookup by key.
-    index: OnceLock<HashMap<K, usize>>,
+    index: OnceLock<FxHashMap<K, usize>>,
 }
 
 impl<K, V> RleBatch<K, V> {
@@ -97,10 +97,12 @@ impl<K, V> RleBatch<K, V> {
         self.keys.len()
     }
 
+    /// Whether the batch holds no sequences.
     pub fn is_empty(&self) -> bool {
         self.keys.is_empty()
     }
 
+    /// The keys, one per sequence, in order.
     pub fn keys(&self) -> &[K] {
         &self.keys
     }
@@ -203,7 +205,7 @@ impl<K, V> RleBatch<K, V> {
         F: Fn(&K) -> K2,
         G: Fn(&V, &V) -> V + Sync,
     {
-        let mut positions: HashMap<K2, usize> = HashMap::new();
+        let mut positions: FxHashMap<K2, usize> = FxHashMap::default();
         let mut unique = Vec::new();
         let mut groups: Vec<Vec<usize>> = Vec::new();
         for (i, k) in self.keys.iter().enumerate() {
@@ -278,7 +280,7 @@ impl<K: Hash + Eq + Clone, V> RleBatch<K, V> {
                 source: Box::new(source),
             })?;
         }
-        let mut index = HashMap::with_capacity(keys.len());
+        let mut index = FxHashMap::with_capacity_and_hasher(keys.len(), Default::default());
         for (position, key) in keys.iter().enumerate() {
             if index.insert(key.clone(), position).is_some() {
                 return Err(Error::DuplicateKey { position });
@@ -293,7 +295,7 @@ impl<K: Hash + Eq + Clone, V> RleBatch<K, V> {
         })
     }
 
-    fn index(&self) -> &HashMap<K, usize> {
+    fn index(&self) -> &FxHashMap<K, usize> {
         self.index.get_or_init(|| {
             self.keys
                 .iter()
@@ -411,7 +413,7 @@ impl<K: Hash + Eq + Clone, V> RleBatch<K, V> {
         V: Clone + Identical + Send + Sync,
     {
         let mut keys: Vec<K> = Vec::new();
-        let mut seen: HashMap<&K, usize> = HashMap::new();
+        let mut seen: FxHashMap<&K, usize> = FxHashMap::default();
         for batch in batches {
             for key in &batch.keys {
                 seen.entry(key).or_insert_with(|| {

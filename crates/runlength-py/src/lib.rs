@@ -61,6 +61,20 @@ fn apply_fill(py: Python<'_>, rle: ArrowRle, agg: Agg, fill: &FillArg) -> PyResu
 /// "min" (numbers or strings). Uncovered positions hold `fill`, 0 by
 /// default; `fill=None` leaves them null. The result covers 0..max(end), or
 /// 0..length if given.
+///
+/// Examples:
+///     >>> rl.coverage([0, 2], [3, 4])
+///     Rle(length=4, runs=3, dtype=Int64)
+///       runs:   [2, 1, 1]
+///       values: [1, 2, 1]
+///     >>> rl.coverage([0, 2], [3, 4], values=[1.5, 2.0])
+///     Rle(length=4, runs=3, dtype=Float64)
+///       runs:   [2, 1, 1]
+///       values: [1.5, 3.5, 2.0]
+///     >>> rl.coverage([0, 2], [3, 4], values=[1.5, 2.0], agg="max", fill=None, length=6)
+///     Rle(length=6, runs=3, dtype=Float64)
+///       runs:   [2, 2, 2]
+///       values: [1.5, 2.0, null]
 #[pyfunction]
 #[pyo3(signature = (starts, ends, values=None, length=None, agg="sum", fill=FillArg::Default))]
 fn coverage(
@@ -96,6 +110,13 @@ fn coverage(
 /// Table, or a dict of columns (for example Chromosome and Strand). Keys
 /// appear in order of first appearance; each Rle covers 0..max(end) of its
 /// own intervals. `agg` and `fill` are as in `coverage`.
+///
+/// Examples:
+///     >>> keys = pl.DataFrame({"chrom": ["chr1", "chr1", "chr2"]})
+///     >>> rl.coverage_by_key(keys, [0, 2, 5], [3, 4, 7])
+///     RleBatch(keys=2, runs=5, dtype=Int64)
+///       ('chr1',): length=4, runs=[2, 1, 1], values=[1, 2, 1]
+///       ('chr2',): length=7, runs=[5, 2], values=[0, 1]
 #[pyfunction]
 #[pyo3(signature = (keys, starts, ends, values=None, agg="sum", fill=FillArg::Default))]
 fn coverage_by_key(
@@ -142,6 +163,12 @@ fn coverage_by_key(
 /// Joins Rles end to end, merging identical neighbours. Given RleBatches,
 /// joins them key by key: each key's Rles are joined in order, and a batch
 /// without the key adds nothing.
+///
+/// Examples:
+///     >>> rl.concat([rl.Rle([2], [1]), rl.Rle([1, 2], [1, 3])])
+///     Rle(length=5, runs=2, dtype=Int64)
+///       runs:   [3, 2]
+///       values: [1, 3]
 #[pyfunction]
 fn concat(py: Python<'_>, items: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
     if let Ok(rles) = items.extract::<Vec<PyRef<'_, PyRle>>>() {
@@ -162,6 +189,11 @@ fn concat(py: Python<'_>, items: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
 
 /// The plan for combining several Rles: (ends, [idx per Rle]). An index
 /// equal to that Rle's number of runs means the segment is past its end.
+///
+/// Examples:
+///     >>> ends, (i, j, k) = rl.plan_many([rl.Rle([2, 2], [1, 2]), rl.Rle([3], [5]), rl.Rle([1, 3], [7, 8])])
+///     >>> ends.to_pylist(), i.to_pylist(), j.to_pylist(), k.to_pylist()
+///     ([1, 2, 3, 4], [0, 0, 1, 1], [0, 0, 0, 1], [0, 1, 1, 1])
 #[pyfunction]
 fn plan_many(rles: Vec<PyRef<'_, PyRle>>) -> (PyArray, Vec<PyArray>) {
     let ends: Vec<&[i64]> = rles.iter().map(|r| r.inner.ends()).collect();
@@ -174,6 +206,13 @@ fn plan_many(rles: Vec<PyRef<'_, PyRle>>) -> (PyArray, Vec<PyArray>) {
 /// array per Rle (their values on each segment) and returns one value per
 /// segment. Shorter Rles are padded with `fill` (one value for all; by
 /// default unequal lengths are an error). `backend` is as in `Rle.zip_with`.
+///
+/// Examples:
+///     >>> rles = [rl.Rle([2, 2], [1, 2]), rl.Rle([3, 1], [5, 6]), rl.Rle([4], [100])]
+///     >>> rl.zip_many(rles, lambda a, b, c: a + b + c, backend="numpy")
+///     Rle(length=4, runs=3, dtype=Int64)
+///       runs:   [2, 1, 1]
+///       values: [106, 107, 108]
 #[pyfunction]
 #[pyo3(signature = (rles, func, fill=None, backend="arrow"))]
 fn zip_many(
@@ -201,6 +240,11 @@ fn zip_many(
 /// ends at ends[s] and is covered by intervals ids[offsets[s]:offsets[s+1]].
 /// Aggregate interval values per segment in any way, for example with a
 /// polars group_by.
+///
+/// Examples:
+///     >>> ends, offsets, ids = rl.overlap_plan([0, 2], [3, 4])
+///     >>> ends.to_pylist(), offsets.to_pylist(), ids.to_pylist()
+///     ([2, 3, 4], [0, 1, 3, 4], [0, 0, 1, 1])
 #[pyfunction]
 #[pyo3(signature = (starts, ends, length=None))]
 fn overlap_plan(
@@ -225,6 +269,22 @@ fn overlap_plan(
 /// of each segment and ids, a list of the intervals covering it (row numbers
 /// in the input). `keys` is as in `coverage_by_key`. Explode ids and join
 /// interval values onto them to aggregate per segment in any way.
+///
+/// Examples:
+///     >>> keys = {"chrom": ["chr1", "chr1", "chr2"]}
+///     >>> pl.DataFrame(rl.overlap_plan_by_key(keys, [0, 2, 5], [3, 4, 7]))
+///     shape: (5, 4)
+///     ┌───────┬───────┬─────┬───────────┐
+///     │ chrom ┆ start ┆ end ┆ ids       │
+///     │ ---   ┆ ---   ┆ --- ┆ ---       │
+///     │ str   ┆ i64   ┆ i64 ┆ list[i64] │
+///     ╞═══════╪═══════╪═════╪═══════════╡
+///     │ chr1  ┆ 0     ┆ 2   ┆ [0]       │
+///     │ chr1  ┆ 2     ┆ 3   ┆ [0, 1]    │
+///     │ chr1  ┆ 3     ┆ 4   ┆ [1]       │
+///     │ chr2  ┆ 0     ┆ 5   ┆ []        │
+///     │ chr2  ┆ 5     ┆ 7   ┆ [2]       │
+///     └───────┴───────┴─────┴───────────┘
 #[pyfunction]
 fn overlap_plan_by_key(
     py: Python<'_>,

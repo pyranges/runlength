@@ -6,7 +6,9 @@
 //! interval end.
 
 use std::cmp::Ordering;
-use std::collections::{BinaryHeap, HashMap};
+use std::collections::BinaryHeap;
+
+use rustc_hash::FxHashMap;
 use std::hash::Hash;
 
 use rayon::prelude::*;
@@ -39,14 +41,17 @@ fn sweep<V: Num>(
     idx: &[usize],
     weight: impl Fn(usize) -> V,
 ) -> Sweep<V> {
-    let mut by_start: Vec<usize> = idx
+    // Sort (position, interval) pairs rather than indices by an indirect key:
+    // contiguous keys sort much faster. Ties break by interval, so float sums
+    // always add up in the same order.
+    let mut by_start: Vec<(i64, usize)> = idx
         .iter()
-        .copied()
-        .filter(|&i| starts[i] < ends[i])
+        .filter(|&&i| starts[i] < ends[i])
+        .map(|&i| (starts[i], i))
         .collect();
-    let mut by_end = by_start.clone();
-    by_start.sort_unstable_by_key(|&i| starts[i]);
-    by_end.sort_unstable_by_key(|&i| ends[i]);
+    let mut by_end: Vec<(i64, usize)> = by_start.iter().map(|&(_, i)| (ends[i], i)).collect();
+    sort_pairs(&mut by_start);
+    sort_pairs(&mut by_end);
 
     let mut out = Sweep {
         length: idx.iter().map(|&i| ends[i]).max().unwrap_or(0),
@@ -59,21 +64,21 @@ fn sweep<V: Num>(
     let mut sum = V::default();
     let mut count = 0i64;
     while e < by_end.len() {
-        let next_start = by_start.get(s).map_or(i64::MAX, |&i| starts[i]);
-        let p = next_start.min(ends[by_end[e]]);
+        let next_start = by_start.get(s).map_or(i64::MAX, |&(p, _)| p);
+        let p = next_start.min(by_end[e].0);
         if p > pos {
             out.ends.push(p);
             out.sums.push(sum);
             out.counts.push(count);
             pos = p;
         }
-        while s < by_start.len() && starts[by_start[s]] == p {
-            sum = sum + weight(by_start[s]);
+        while s < by_start.len() && by_start[s].0 == p {
+            sum = sum + weight(by_start[s].1);
             count += 1;
             s += 1;
         }
-        while e < by_end.len() && ends[by_end[e]] == p {
-            sum = sum - weight(by_end[e]);
+        while e < by_end.len() && by_end[e].0 == p {
+            sum = sum - weight(by_end[e].1);
             count -= 1;
             e += 1;
         }
@@ -82,6 +87,15 @@ fn sweep<V: Num>(
         }
     }
     out
+}
+
+/// Sorts in parallel when there is enough work to split.
+fn sort_pairs(pairs: &mut [(i64, usize)]) {
+    if pairs.len() > 1 << 16 {
+        pairs.par_sort_unstable();
+    } else {
+        pairs.sort_unstable();
+    }
 }
 
 /// Turns a sweep into a sequence; `value(sum, count)` gives each segment's
@@ -171,7 +185,7 @@ pub fn coverage_count(starts: &[i64], ends: &[i64], length: Option<i64>) -> Resu
 
 /// Groups interval indices by key, in order of first appearance.
 fn group_by_key<K: Hash + Eq + Clone>(keys: &[K]) -> (Vec<K>, Vec<Vec<usize>>) {
-    let mut positions: HashMap<&K, usize> = HashMap::new();
+    let mut positions: FxHashMap<&K, usize> = FxHashMap::default();
     let mut unique = Vec::new();
     let mut groups: Vec<Vec<usize>> = Vec::new();
     for (i, key) in keys.iter().enumerate() {
@@ -496,12 +510,17 @@ where
 /// maxima and minima, the `coverage_*` functions avoid building them.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct OverlapPlan {
+    /// Cumulative ends of the segments.
     pub ends: Vec<i64>,
+    /// Where each segment's ids start in `interval_ids`; `num_segments() + 1`
+    /// entries.
     pub offsets: Vec<usize>,
+    /// The intervals covering each segment, as positions in the input.
     pub interval_ids: Vec<usize>,
 }
 
 impl OverlapPlan {
+    /// The number of segments.
     pub fn num_segments(&self) -> usize {
         self.ends.len()
     }

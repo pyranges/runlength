@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use rustc_hash::FxHashMap;
 
 use arrow_array::cast::AsArray;
 use arrow_array::{Array, ArrayRef, RecordBatch, RecordBatchOptions, UInt64Array};
@@ -13,7 +13,7 @@ use runlength::{Rle, RleLike, plan_many};
 use crate::batch::{ArrowRleBatch, key_converter, key_rows};
 use crate::error::{Error, Result};
 use crate::kernels::Kernel;
-use crate::rle::{ArrowRle, default_fill};
+use crate::rle::ArrowRle;
 
 /// Joins sequences end to end and merges identical neighbours, including at
 /// the joins. All sequences must have the same value type.
@@ -145,7 +145,7 @@ impl ArrowRleBatch {
     ///
     /// For example, keeping only `Chromosome` with [`kernels::add`] adds the
     /// strands of each chromosome together. Sequences of different lengths
-    /// are padded with [`default_fill`].
+    /// are padded with [`default_fill`](crate::default_fill).
     ///
     /// [`kernels::add`]: crate::kernels::add
     pub fn collapse(&self, keep: &[&str], kernel: Kernel) -> Result<ArrowRleBatch> {
@@ -160,7 +160,7 @@ impl ArrowRleBatch {
 
         let mut groups: Vec<Vec<usize>> = Vec::new();
         let mut first_rows = Vec::new();
-        let mut positions = HashMap::new();
+        let mut positions = FxHashMap::default();
         for (i, row) in rows.iter().enumerate() {
             let g = *positions.entry(row).or_insert_with(|| {
                 first_rows.push(i as u64);
@@ -171,7 +171,6 @@ impl ArrowRleBatch {
         }
 
         let data_type = self.values().data_type();
-        let fill = default_fill(data_type);
         let rles = groups
             .par_iter()
             .enumerate()
@@ -180,7 +179,7 @@ impl ArrowRleBatch {
                     let mut acc = self.get_index(members[0]).expect("in range").merge()?;
                     for &i in &members[1..] {
                         let next = self.get_index(i).expect("in range");
-                        acc = acc.zip_with(&next, fill.as_deref(), fill.as_deref(), kernel)?;
+                        acc = acc.op(&next, kernel)?;
                     }
                     Ok(acc)
                 };
@@ -239,7 +238,7 @@ impl ArrowRleBatch {
         };
         let converter = key_converter(first.keys())?;
         let mut groups: Vec<Vec<(usize, usize)>> = Vec::new();
-        let mut positions = HashMap::new();
+        let mut positions = FxHashMap::default();
         for (b, batch) in batches.iter().enumerate() {
             first.check_key_schema(batch.keys())?;
             let rows = key_rows(&converter, batch.keys())?;

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use rustc_hash::FxHashMap;
 use std::sync::Arc;
 
 use arrow_array::cast::AsArray;
@@ -204,7 +204,7 @@ fn group_indices(ids: &[usize], n: usize) -> Vec<Vec<usize>> {
 fn group_rows(keys: &RecordBatch) -> Result<(Vec<usize>, Vec<u64>)> {
     let converter = key_converter(keys)?;
     let rows = key_rows(&converter, keys)?;
-    let mut groups = HashMap::new();
+    let mut groups = FxHashMap::default();
     let mut first_rows = Vec::new();
     let ids = rows
         .iter()
