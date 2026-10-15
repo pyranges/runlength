@@ -9,7 +9,7 @@ use pyo3::prelude::*;
 use pyo3::types::{PyCapsule, PySlice, PyTuple};
 use pyo3_arrow::PyArray;
 use runlength::Keep;
-use runlength_arrow::kernels::{self, Kernel};
+use runlength_arrow::kernels::Kernel;
 use runlength_arrow::{ArrowRle, SliceAgg, common_numeric_type};
 
 use crate::batch::PyRleBatch;
@@ -21,12 +21,47 @@ use crate::convert::{
 
 /// A run-length encoded sequence of values of any Arrow type.
 ///
-/// Rle(runs, values)
-///
 /// `runs` are the run lengths and `values` one value per run. Both can be
 /// polars or pandas Series, pyarrow or numpy arrays, or lists. Zero-length
 /// runs are dropped; neighbouring identical values are kept as given (see
-/// `merge`).
+/// `merge`). Every sequence starts at position 0.
+///
+/// Arithmetic (`+ - * /`), logic (`& | ~`) and comparisons (`== != < <= > >=`)
+/// work position by position, with another Rle or a single value. Between
+/// two Rles the shorter one is padded with zero, and the result is merged.
+/// `/` divides integers as floats, as Python does.
+///
+/// `len(rle)` is the number of positions, `rle[i]` the value at position `i`
+/// and `rle[a:b]` a new sequence starting at 0; negative positions count from
+/// the end.
+///
+/// Examples:
+///     >>> rl.Rle([3, 2], [1.5, 0.0])
+///     Rle(length=5, runs=2, dtype=Float64)
+///       runs:   [3, 2]
+///       values: [1.5, 0.0]
+///     >>> rl.Rle([2, 1], ["a", "b"]).to_dense().to_pylist()
+///     ['a', 'a', 'b']
+///     >>> a = rl.Rle([3, 2], [1, 2])
+///     >>> b = rl.Rle([1, 4], [10, 20])
+///     >>> a + b
+///     Rle(length=5, runs=3, dtype=Int64)
+///       runs:   [1, 2, 2]
+///       values: [11, 21, 22]
+///     >>> a / 2
+///     Rle(length=5, runs=2, dtype=Float64)
+///       runs:   [3, 2]
+///       values: [0.5, 1.0]
+///     >>> a < b
+///     Rle(length=5, runs=1, dtype=Boolean)
+///       runs:   [5]
+///       values: [true]
+///     >>> len(a), a[3], a[-1]
+///     (5, 2, 2)
+///     >>> a[2:4]
+///     Rle(length=2, runs=2, dtype=Int64)
+///       runs:   [1, 1]
+///       values: [1, 2]
 #[pyclass(module = "runlength", name = "Rle", frozen, skip_from_py_object)]
 #[derive(Clone)]
 pub struct PyRle {
@@ -113,12 +148,12 @@ pub(crate) fn scalar_operand(other: &Bound<'_, PyAny>, owner: &str) -> PyResult<
 
 pub(crate) fn kernel_for(op: CompareOp) -> Kernel {
     match op {
-        CompareOp::Lt => kernels::lt,
-        CompareOp::Le => kernels::le,
-        CompareOp::Eq => kernels::eq,
-        CompareOp::Ne => kernels::ne,
-        CompareOp::Gt => kernels::gt,
-        CompareOp::Ge => kernels::ge,
+        CompareOp::Lt => Kernel::Lt,
+        CompareOp::Le => Kernel::Le,
+        CompareOp::Eq => Kernel::Eq,
+        CompareOp::Ne => Kernel::Ne,
+        CompareOp::Gt => Kernel::Gt,
+        CompareOp::Ge => Kernel::Ge,
     }
 }
 
@@ -212,18 +247,52 @@ pub(crate) fn fill_of(
     fill.map(|f| scalar_of_type(f, data_type)).transpose()
 }
 
+/// Reads an Arrow type name, also accepting the lowercase names numpy and
+/// pyarrow use ("float64", "int32", "bool", "string").
+fn parse_dtype(dtype: &str) -> PyResult<DataType> {
+    let arrow_name = match dtype.to_ascii_lowercase().as_str() {
+        "bool" | "boolean" => "Boolean".to_string(),
+        "str" | "string" | "utf8" => "Utf8".to_string(),
+        "large_string" | "large_utf8" => "LargeUtf8".to_string(),
+        "string_view" | "utf8_view" => "Utf8View".to_string(),
+        "float16" | "float32" | "float64" | "int8" | "int16" | "int32" | "int64" | "uint8"
+        | "uint16" | "uint32" | "uint64" => {
+            let (first, rest) = dtype.split_at(1);
+            let name = format!(
+                "{}{}",
+                first.to_ascii_uppercase(),
+                rest.to_ascii_lowercase()
+            );
+            name.replace("Uint", "UInt")
+        }
+        _ => dtype.to_string(),
+    };
+    arrow_name
+        .parse()
+        .map_err(|e: ArrowError| PyValueError::new_err(e.to_string()))
+}
+
 pub(crate) fn format_values(values: &dyn Array, limit: usize) -> String {
     let Ok(formatter) =
         ArrayFormatter::try_new(values, &FormatOptions::default().with_null("null"))
     else {
         return "[...]".to_string();
     };
+    // Quote strings, so that the string "null" and a null look different.
+    let quote = matches!(
+        values.data_type(),
+        DataType::Utf8 | DataType::LargeUtf8 | DataType::Utf8View
+    );
+    let show = |i: usize| match formatter.value(i).to_string() {
+        s if quote && values.is_valid(i) => format!("{s:?}"),
+        s => s,
+    };
     let n = values.len();
     let shown: Vec<String> = if n <= limit {
-        (0..n).map(|i| formatter.value(i).to_string()).collect()
+        (0..n).map(show).collect()
     } else {
-        let head = (0..limit / 2).map(|i| formatter.value(i).to_string());
-        let tail = (n - limit / 2..n).map(|i| formatter.value(i).to_string());
+        let head = (0..limit / 2).map(show);
+        let tail = (n - limit / 2..n).map(show);
         head.chain(std::iter::once("...".to_string()))
             .chain(tail)
             .collect()
@@ -290,6 +359,12 @@ impl PyRle {
     }
 
     /// Encodes one value per position, merging identical neighbours.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle.from_dense([1, 1, 1, 2, 2, None, None])
+    ///     Rle(length=7, runs=3, dtype=Int64)
+    ///       runs:   [3, 2, 2]
+    ///       values: [1, 2, null]
     #[staticmethod]
     fn from_dense(values: &Bound<'_, PyAny>) -> PyResult<Self> {
         Ok(ArrowRle::from_dense(array_from_py(values)?)
@@ -298,6 +373,12 @@ impl PyRle {
     }
 
     /// Builds a sequence from cumulative run ends and one value per run.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle.from_ends([3, 5], ["x", "y"])
+    ///     Rle(length=5, runs=2, dtype=Utf8)
+    ///       runs:   [3, 2]
+    ///       values: ["x", "y"]
     #[staticmethod]
     fn from_ends(ends: &Bound<'_, PyAny>, values: &Bound<'_, PyAny>) -> PyResult<Self> {
         let ends = ints_from_py(ends, "ends")?;
@@ -307,18 +388,30 @@ impl PyRle {
     }
 
     /// The length of each run.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1, 2]).runs.to_pylist()
+    ///     [3, 2]
     #[getter]
     fn runs(&self) -> PyArray {
         array_to_py(Arc::new(Int64Array::from(self.inner.runs())))
     }
 
     /// The cumulative end of each run.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1, 2]).ends.to_pylist()
+    ///     [3, 5]
     #[getter]
     fn ends(&self) -> PyArray {
         array_to_py(Arc::new(Int64Array::from(self.inner.ends().to_vec())))
     }
 
     /// The start of each run.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1, 2]).starts.to_pylist()
+    ///     [0, 3]
     #[getter]
     fn starts(&self) -> PyArray {
         let mut starts = Vec::with_capacity(self.inner.num_runs());
@@ -331,17 +424,30 @@ impl PyRle {
     }
 
     /// One value per run.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1, 2]).values.to_pylist()
+    ///     [1, 2]
     #[getter]
     fn values(&self) -> PyArray {
         array_to_py(self.inner.values().clone())
     }
 
     /// The Arrow type of the values.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1.0, 2.0]).dtype
+    ///     'Float64'
     #[getter]
     fn dtype(&self) -> String {
         self.inner.data_type().to_string()
     }
 
+    /// The number of runs.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1, 2]).num_runs
+    ///     2
     #[getter]
     fn num_runs(&self) -> usize {
         self.inner.num_runs()
@@ -378,6 +484,13 @@ impl PyRle {
 
     /// Many slices at once, as an RleBatch keyed by slice number. Ends past the
     /// sequence are clamped.
+    ///
+    /// Examples:
+    ///     >>> r = rl.Rle([3, 2], [1, 2])
+    ///     >>> r.getitems([0, 2], [2, 5])
+    ///     RleBatch(keys=2, runs=3, dtype=Int64)
+    ///       (0,): length=2, runs=[2], values=[1]
+    ///       (1,): length=3, runs=[1, 2], values=[1, 2]
     fn getitems(
         &self,
         py: Python<'_>,
@@ -398,6 +511,13 @@ impl PyRle {
     /// `agg` is "sum", "count", "mean", "var", "std", "min" or "max"; nulls
     /// are skipped and `ddof` applies to "var" and "std". Values must be
     /// numeric or boolean.
+    ///
+    /// Examples:
+    ///     >>> r = rl.Rle([3, 2], [1, 2])
+    ///     >>> r.slice_agg([0, 2], [2, 5], agg="sum").to_pylist()
+    ///     [2, 5]
+    ///     >>> r.slice_agg([0, 2], [2, 5]).to_pylist()
+    ///     [1.0, 1.6666666666666667]
     #[pyo3(signature = (starts, ends, agg="mean", ddof=1))]
     fn slice_agg(
         &self,
@@ -421,6 +541,17 @@ impl PyRle {
     /// are identical (NaN with NaN, null with null). With a mask (one boolean
     /// per pair of neighbouring runs), run i + 1 merges into run i where
     /// mask[i] is true, keeping the "first" or "last" value of each group.
+    ///
+    /// Examples:
+    ///     >>> r = rl.Rle([1, 1, 2], [5, 5, 7])
+    ///     >>> r.merge()
+    ///     Rle(length=4, runs=2, dtype=Int64)
+    ///       runs:   [2, 2]
+    ///       values: [5, 7]
+    ///     >>> r.merge(mask=[False, True], keep="last")
+    ///     Rle(length=4, runs=2, dtype=Int64)
+    ///       runs:   [1, 3]
+    ///       values: [5, 7]
     #[pyo3(signature = (mask=None, keep="first"))]
     fn merge(&self, mask: Option<&Bound<'_, PyAny>>, keep: &str) -> PyResult<Self> {
         let keep = parse_keep(keep)?;
@@ -434,6 +565,12 @@ impl PyRle {
 
     /// Groups runs by a mask without touching values: returns (ends, offsets),
     /// where group g is runs offsets[g]:offsets[g + 1] and ends at ends[g].
+    ///
+    /// Examples:
+    ///     >>> r = rl.Rle([1, 1, 2], [5, 5, 7])
+    ///     >>> ends, offsets = r.merge_plan([False, True])
+    ///     >>> ends.to_pylist(), offsets.to_pylist()
+    ///     ([1, 4], [0, 1, 3])
     fn merge_plan(&self, mask: &Bound<'_, PyAny>) -> PyResult<(PyArray, PyArray)> {
         let plan = runlength::merge_plan(self.inner.ends(), &bools_from_py(mask)?)
             .map_err(|e| PyValueError::new_err(e.to_string()))?;
@@ -444,6 +581,10 @@ impl PyRle {
     }
 
     /// Whether no two neighbouring runs hold identical values.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([1, 1], [5, 5]).is_merged()
+    ///     False
     fn is_merged(&self) -> PyResult<bool> {
         self.inner.is_merged().or_raise()
     }
@@ -453,6 +594,13 @@ impl PyRle {
     /// Segment k ends at ends[k] and is covered by run idx_self[k] of this
     /// sequence and run idx_other[k] of `other`. An index equal to that side's
     /// number of runs means the segment lies past its end.
+    ///
+    /// Examples:
+    ///     >>> a = rl.Rle([3, 2], [1, 2])
+    ///     >>> b = rl.Rle([1, 4], [10, 20])
+    ///     >>> ends, idx_a, idx_b = a.plan(b)
+    ///     >>> ends.to_pylist(), idx_a.to_pylist(), idx_b.to_pylist()
+    ///     ([1, 3, 5], [0, 0, 1], [0, 1, 1])
     fn plan(&self, other: PyRef<'_, PyRle>) -> (PyArray, PyArray, PyArray) {
         let p = self.inner.plan_with(&other.inner);
         (
@@ -471,6 +619,18 @@ impl PyRle {
     ///
     /// `backend` picks what `func` receives: "arrow" (objects with the Arrow
     /// PyCapsule interface), "pyarrow", "polars" or "numpy".
+    ///
+    /// Examples:
+    ///     >>> a = rl.Rle([3, 2], ["x", "y"])
+    ///     >>> b = rl.Rle([1, 4], ["p", "q"])
+    ///     >>> a.zip_with(b, lambda x, y: [i + j for i, j in zip(x.to_pylist(), y.to_pylist())])
+    ///     Rle(length=5, runs=3, dtype=Utf8)
+    ///       runs:   [1, 2, 2]
+    ///       values: ["xp", "xq", "yq"]
+    ///     >>> a.zip_with(b, lambda x, y: x + y, backend="polars")
+    ///     Rle(length=5, runs=3, dtype=Utf8View)
+    ///       runs:   [1, 2, 2]
+    ///       values: ["xp", "xq", "yq"]
     #[pyo3(signature = (other, func, fill_self=None, fill_other=None, merge=true, backend="arrow"))]
     fn zip_with(
         &self,
@@ -496,6 +656,12 @@ impl PyRle {
 
     /// Applies `func` to the run values and merges the result. `func` must
     /// return one value per run; `backend` is as in `zip_with`.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1, 2]).map(lambda v: v * 10, backend="numpy")
+    ///     Rle(length=5, runs=2, dtype=Int64)
+    ///       runs:   [3, 2]
+    ///       values: [10, 20]
     #[pyo3(signature = (func, backend="arrow"))]
     fn map(&self, func: &Bound<'_, PyAny>, backend: &str) -> PyResult<Self> {
         let backend = parse_backend(backend)?;
@@ -508,16 +674,30 @@ impl PyRle {
 
     /// Casts the values to another Arrow type, given as a string such as
     /// "float64" or "int32".
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1, 2]).cast("float64")
+    ///     Rle(length=5, runs=2, dtype=Float64)
+    ///       runs:   [3, 2]
+    ///       values: [1.0, 2.0]
     fn cast(&self, dtype: &str) -> PyResult<Self> {
-        let data_type: DataType = dtype
-            .parse()
-            .map_err(|e: ArrowError| PyValueError::new_err(e.to_string()))?;
-        Ok(self.inner.cast(&data_type).or_raise()?.into())
+        Ok(self.inner.cast(&parse_dtype(dtype)?).or_raise()?.into())
     }
 
     /// Shifts values `distance` positions right (left if negative), keeping
     /// the length. Positions shifted in hold `fill`: by default 0 for numbers,
     /// false for booleans and null otherwise; `fill=None` means null.
+    ///
+    /// Examples:
+    ///     >>> r = rl.Rle([3, 2], [1, 2])
+    ///     >>> r.shift(2)
+    ///     Rle(length=5, runs=2, dtype=Int64)
+    ///       runs:   [2, 3]
+    ///       values: [0, 1]
+    ///     >>> r.shift(-1, fill=None)
+    ///     Rle(length=5, runs=3, dtype=Int64)
+    ///       runs:   [2, 2, 1]
+    ///       values: [1, 2, null]
     #[pyo3(signature = (distance, fill=FillArg::Default))]
     fn shift(&self, py: Python<'_>, distance: i64, fill: FillArg) -> PyResult<Self> {
         let fill = fill_array(py, fill, self.inner.data_type())?;
@@ -525,12 +705,24 @@ impl PyRle {
     }
 
     /// The sequence back to front.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1, 2]).reverse()
+    ///     Rle(length=5, runs=2, dtype=Int64)
+    ///       runs:   [2, 3]
+    ///       values: [2, 1]
     fn reverse(&self) -> PyResult<Self> {
         Ok(self.inner.reversed().or_raise()?.into())
     }
 
     /// For a boolean Rle, the ranges where it is true, as (starts, ends);
     /// nulls count as false. For example `(coverage > 0).ranges()`.
+    ///
+    /// Examples:
+    ///     >>> cov = rl.coverage([0, 2, 8], [3, 4, 10])
+    ///     >>> starts, ends = (cov > 0).ranges()
+    ///     >>> starts.to_pylist(), ends.to_pylist()
+    ///     ([0, 8], [4, 10])
     fn ranges(&self) -> PyResult<(PyArray, PyArray)> {
         let (starts, ends) = self.inner.true_ranges().or_raise()?;
         Ok((
@@ -540,6 +732,12 @@ impl PyRle {
     }
 
     /// Replaces nulls with `value`.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([2, 3], [None, 1]).fill_null(0)
+    ///     Rle(length=5, runs=2, dtype=Int64)
+    ///       runs:   [2, 3]
+    ///       values: [0, 1]
     fn fill_null(&self, value: &Bound<'_, PyAny>) -> PyResult<Self> {
         let fill = scalar_of_type(value, self.inner.data_type())?;
         Ok(self.inner.fill_null(fill.as_ref()).or_raise()?.into())
@@ -547,21 +745,45 @@ impl PyRle {
 
     /// Whether both sequences hold identical values at every position,
     /// however their runs are split. (`==` compares element-wise.)
+    ///
+    /// Examples:
+    ///     >>> a = rl.Rle([2, 1], [1, 2])
+    ///     >>> b = rl.Rle([1, 1, 1], [1, 1, 2])
+    ///     >>> a.equals(b)
+    ///     True
+    ///     >>> a == b
+    ///     Rle(length=3, runs=1, dtype=Boolean)
+    ///       runs:   [3]
+    ///       values: [true]
     fn equals(&self, other: PyRef<'_, PyRle>) -> bool {
         self.inner == other.inner
     }
 
     /// The sum over all positions.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1, 2]).sum()
+    ///     7
     fn sum(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
         value_to_py(py, &self.inner.sum().or_raise()?, 0)
     }
 
     /// The mean over all positions, or None if empty.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1, 2]).mean()
+    ///     1.4
     fn mean(&self) -> PyResult<Option<f64>> {
         self.inner.mean().or_raise()
     }
 
     /// The variance over all positions, with `ddof` delta degrees of freedom.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1, 2]).var()
+    ///     0.3
+    ///     >>> rl.Rle([3, 2], [1, 2]).var(ddof=0)
+    ///     0.24
     #[pyo3(signature = (ddof=1))]
     fn var(&self, ddof: i64) -> PyResult<Option<f64>> {
         self.inner.variance(ddof).or_raise()
@@ -569,43 +791,92 @@ impl PyRle {
 
     /// The standard deviation over all positions, with `ddof` delta degrees of
     /// freedom.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1, 2]).std(ddof=0)
+    ///     0.4898979485566356
     #[pyo3(signature = (ddof=1))]
     fn std(&self, ddof: i64) -> PyResult<Option<f64>> {
         self.inner.std(ddof).or_raise()
     }
 
     /// The smallest value, ignoring NaN.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1.0, float("nan")]).min()
+    ///     1.0
     fn min(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
         value_to_py(py, &self.inner.min().or_raise()?, 0)
     }
 
     /// The largest value, ignoring NaN.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1.0, float("nan")]).max()
+    ///     1.0
     fn max(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
         value_to_py(py, &self.inner.max().or_raise()?, 0)
     }
 
     /// One value per position, as an Arrow array.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1, 2]).to_dense().to_pylist()
+    ///     [1, 1, 1, 2, 2]
     fn to_dense(&self) -> PyResult<PyArray> {
         Ok(array_to_py(self.inner.to_dense().or_raise()?))
     }
 
     /// One value per position, as a numpy array.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1, 2]).to_numpy()
+    ///     array([1, 1, 1, 2, 2])
     fn to_numpy<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         py.import("numpy")?
             .call_method1("asarray", (self.to_dense()?,))
     }
 
     /// The runs as a pyarrow Table with columns start, end and value.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1, 2]).to_arrow()
+    ///     pyarrow.Table
+    ///     start: int64 not null
+    ///     end: int64 not null
+    ///     value: int64
+    ///     ----
+    ///     start: [[0,3]]
+    ///     end: [[3,5]]
+    ///     value: [[1,2]]
     fn to_arrow<'py>(slf: &Bound<'py, Self>) -> PyResult<Bound<'py, PyAny>> {
         to_arrow(slf.as_any())
     }
 
     /// The runs as a polars DataFrame with columns start, end and value.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1, 2]).to_polars()
+    ///     shape: (2, 3)
+    ///     ┌───────┬─────┬───────┐
+    ///     │ start ┆ end ┆ value │
+    ///     │ ---   ┆ --- ┆ ---   │
+    ///     │ i64   ┆ i64 ┆ i64   │
+    ///     ╞═══════╪═════╪═══════╡
+    ///     │ 0     ┆ 3   ┆ 1     │
+    ///     │ 3     ┆ 5   ┆ 2     │
+    ///     └───────┴─────┴───────┘
     fn to_polars<'py>(slf: &Bound<'py, Self>) -> PyResult<Bound<'py, PyAny>> {
         to_polars(slf.as_any())
     }
 
     /// The runs as a pandas DataFrame with columns start, end and value.
+    ///
+    /// Examples:
+    ///     >>> rl.Rle([3, 2], [1, 2]).to_pandas()
+    ///        start  end  value
+    ///     0      0    3      1
+    ///     1      3    5      2
     fn to_pandas<'py>(slf: &Bound<'py, Self>) -> PyResult<Bound<'py, PyAny>> {
         to_pandas(slf.as_any(), || slf.get().run_table())
     }
@@ -621,41 +892,41 @@ impl PyRle {
     }
 
     fn __add__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(other, kernels::add, false)
+        self.binary(other, Kernel::Add, false)
     }
     fn __radd__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(other, kernels::add, true)
+        self.binary(other, Kernel::Add, true)
     }
     fn __sub__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(other, kernels::sub, false)
+        self.binary(other, Kernel::Sub, false)
     }
     fn __rsub__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(other, kernels::sub, true)
+        self.binary(other, Kernel::Sub, true)
     }
     fn __mul__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(other, kernels::mul, false)
+        self.binary(other, Kernel::Mul, false)
     }
     fn __rmul__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(other, kernels::mul, true)
+        self.binary(other, Kernel::Mul, true)
     }
     /// True division, as in Python: integers are divided as floats.
     fn __truediv__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary_as(other, kernels::div, false, true)
+        self.binary_as(other, Kernel::Div, false, true)
     }
     fn __rtruediv__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary_as(other, kernels::div, true, true)
+        self.binary_as(other, Kernel::Div, true, true)
     }
     fn __and__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(other, kernels::and, false)
+        self.binary(other, Kernel::And, false)
     }
     fn __rand__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(other, kernels::and, true)
+        self.binary(other, Kernel::And, true)
     }
     fn __or__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(other, kernels::or, false)
+        self.binary(other, Kernel::Or, false)
     }
     fn __ror__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(other, kernels::or, true)
+        self.binary(other, Kernel::Or, true)
     }
 
     /// Element-wise comparison, returning an Rle of booleans.

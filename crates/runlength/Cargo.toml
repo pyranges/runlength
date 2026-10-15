@@ -12,6 +12,7 @@ rust-version.workspace = true
 
 [dependencies]
 rayon = "1.10"
+rustc-hash = "2"
 
 [dev-dependencies]
 proptest = "1.5"

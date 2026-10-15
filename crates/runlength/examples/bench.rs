@@ -1,5 +1,7 @@
-//! Rough timings on large random inputs: `cargo run --release --example bench`.
-//! `scripts/bench_pyrle.py` runs the same workload with pyrle.
+//! Timings on large random inputs: `cargo run --release --example bench`.
+//! `scripts/bench.py` runs the same workload with the Python package and
+//! pyrle, and `scripts/bench_r.R` with Bioconductor. Each timing is the best
+//! of three runs.
 
 use std::time::Instant;
 
@@ -19,13 +21,17 @@ impl Lcg {
     }
 }
 
-fn time<T>(label: &str, f: impl FnOnce() -> T) -> T {
+fn time<T>(label: &str, f: impl Fn() -> T) -> T {
+    let mut best = f64::INFINITY;
+    for _ in 0..2 {
+        let start = Instant::now();
+        std::hint::black_box(f());
+        best = best.min(start.elapsed().as_secs_f64());
+    }
     let start = Instant::now();
     let out = std::hint::black_box(f());
-    println!(
-        "{label:<40} {:>8.1} ms",
-        start.elapsed().as_secs_f64() * 1e3
-    );
+    best = best.min(start.elapsed().as_secs_f64());
+    println!("{label:<40} {:>8.0} ms", best * 1e3);
     out
 }
 
@@ -38,11 +44,9 @@ fn main() {
     let a = time("coverage_count, 1M intervals", || {
         coverage_count(&starts, &ends, None).unwrap()
     });
-    let b = time("coverage_count, 1M more intervals", || {
-        let starts: Vec<i64> = (0..n).map(|_| rng.below(100_000_000)).collect();
-        let ends: Vec<i64> = starts.iter().map(|&s| s + 100).collect();
-        coverage_count(&starts, &ends, None).unwrap()
-    });
+    let starts2: Vec<i64> = (0..n).map(|_| rng.below(100_000_000)).collect();
+    let ends2: Vec<i64> = starts2.iter().map(|&s| s + 100).collect();
+    let b = coverage_count(&starts2, &ends2, None).unwrap();
     println!("  runs: {} and {}", a.num_runs(), b.num_runs());
 
     let sum = time("a + b", || &a + &b);

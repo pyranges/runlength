@@ -234,10 +234,12 @@ pub trait RleLike<V> {
         self.ends().last().copied().unwrap_or(0)
     }
 
+    /// Whether the sequence has no positions.
     fn is_empty(&self) -> bool {
         self.ends().is_empty()
     }
 
+    /// The number of runs.
     fn num_runs(&self) -> usize {
         self.ends().len()
     }

@@ -47,6 +47,8 @@
 //!   merges with `NaN`, `-0.0` does not merge with `0.0`.
 //! * Operations merge their result by default; `_raw` variants do not.
 
+#![warn(missing_docs)]
+
 mod batch;
 mod coverage;
 mod error;
@@ -77,6 +79,12 @@ pub use plan::{Plan, plan};
 pub use rle::{Rle, RleLike, RleRef};
 pub use slice::SliceView;
 pub use transform::concat;
+
+// Tests the Rust example in the README. Only compiled for doctests, so the
+// published crate doesn't need the file.
+#[cfg(doctest)]
+#[doc = include_str!("../../../README.md")]
+struct ReadmeDoctests;
 
 /// The types and traits needed for everyday use.
 pub mod prelude {

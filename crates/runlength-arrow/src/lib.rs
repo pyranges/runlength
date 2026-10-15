@@ -26,9 +26,12 @@
 //! assert_eq!(same.runs(), vec![1, 2, 2]);
 //! ```
 
+#![warn(missing_docs)]
+
 mod batch;
 mod coverage;
 mod error;
+mod fused;
 mod identical;
 pub mod kernels;
 mod numeric;

@@ -10,6 +10,7 @@ use arrow_schema::{ArrowError, DataType};
 use arrow_select::concat::concat;
 use arrow_select::filter::filter;
 use arrow_select::take::take;
+use rayon::prelude::*;
 use runlength::{Keep, Plan, Rle, RleLike, merge_plan, plan};
 
 use crate::batch::ArrowRleBatch;
@@ -176,6 +177,7 @@ impl ArrowRle {
         &self.values
     }
 
+    /// The Arrow type of the values.
     pub fn data_type(&self) -> &DataType {
         self.values.data_type()
     }
@@ -185,10 +187,12 @@ impl ArrowRle {
         self.ends.last().copied().unwrap_or(0)
     }
 
+    /// Whether the sequence has no positions.
     pub fn is_empty(&self) -> bool {
         self.ends.is_empty()
     }
 
+    /// The number of runs.
     pub fn num_runs(&self) -> usize {
         self.ends.len()
     }
@@ -206,6 +210,7 @@ impl ArrowRle {
             .collect()
     }
 
+    /// The run ends and values, without copying.
     pub fn into_parts(self) -> (Vec<i64>, ArrayRef) {
         (self.ends, self.values)
     }
@@ -238,18 +243,38 @@ impl ArrowRle {
     /// the slice number. Each interval needs `0 <= start <= end`.
     pub fn getitems(&self, starts: &[i64], ends: &[i64]) -> Result<ArrowRleBatch> {
         check_same_len("starts and ends", starts.len(), ends.len())?;
-        let mut offsets = Vec::with_capacity(starts.len() + 1);
-        offsets.push(0);
-        let mut out_ends = Vec::new();
-        let mut run_ids = Vec::new();
         for (index, (&start, &end)) in starts.iter().zip(ends).enumerate() {
             if start < 0 || end < start {
                 return Err(runlength::Error::InvalidInterval { index, start, end }.into());
             }
-            let (start, end) = (start, end.min(self.len()));
-            if start < end {
-                let first = self.ends.partition_point(|&e| e <= start);
-                let last = self.ends.partition_point(|&e| e < end);
+        }
+        // The binary searches dominate, so find each slice's runs in parallel
+        // first, then copy in order.
+        let len = self.len();
+        let runs: Vec<Option<(usize, usize)>> = (0..starts.len())
+            .into_par_iter()
+            .with_min_len(1024)
+            .map(|k| {
+                let end = ends[k].min(len);
+                (starts[k] < end).then(|| {
+                    let first = self.ends.partition_point(|&e| e <= starts[k]);
+                    let last = self.ends.partition_point(|&e| e < end);
+                    (first, last)
+                })
+            })
+            .collect();
+        let total: usize = runs
+            .iter()
+            .flatten()
+            .map(|(first, last)| last - first + 1)
+            .sum();
+        let mut offsets = Vec::with_capacity(starts.len() + 1);
+        offsets.push(0);
+        let mut out_ends = Vec::with_capacity(total);
+        let mut run_ids = Vec::with_capacity(total);
+        for (k, slice_runs) in runs.into_iter().enumerate() {
+            if let Some((first, last)) = slice_runs {
+                let (start, end) = (starts[k], ends[k].min(len));
                 out_ends.extend(self.ends[first..last].iter().map(|&e| e - start));
                 out_ends.push(end - start);
                 run_ids.extend(first as u64..=last as u64);
@@ -413,14 +438,19 @@ impl ArrowRle {
     }
 
     /// Combines with `other` using [`default_fill`] on each side, and merges.
-    pub fn zip_with_default(&self, other: &ArrowRle, f: Kernel) -> Result<ArrowRle> {
-        self.op(other, f)
+    pub fn zip_with_default(&self, other: &ArrowRle, kernel: Kernel) -> Result<ArrowRle> {
+        self.op(other, kernel)
     }
 
-    fn op(&self, other: &ArrowRle, f: Kernel) -> Result<ArrowRle> {
+    pub(crate) fn op(&self, other: &ArrowRle, kernel: Kernel) -> Result<ArrowRle> {
+        if let Some(out) = crate::fused::fused(self, other, kernel) {
+            return Ok(out);
+        }
         let fill_a = default_fill(self.data_type());
         let fill_b = default_fill(other.data_type());
-        self.zip_with(other, fill_a.as_deref(), fill_b.as_deref(), f)
+        self.zip_with(other, fill_a.as_deref(), fill_b.as_deref(), |a, b| {
+            kernel.apply(a, b)
+        })
     }
 }
 

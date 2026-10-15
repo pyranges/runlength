@@ -146,6 +146,26 @@ fn strings_with_nulls() {
 }
 
 #[test]
+fn min_and_max_of_sortable_types_skip_nulls() {
+    let rle = ArrowRle::from_dense(strings(&[Some("b"), None, Some("a"), Some("c")])).unwrap();
+    assert_eq!(rle.min().unwrap().as_string::<i32>().value(0), "a");
+    assert_eq!(rle.max().unwrap().as_string::<i32>().value(0), "c");
+
+    let dates: ArrayRef = Arc::new(arrow_array::Date32Array::from(vec![20_000, 19_000]));
+    let rle = ArrowRle::from_dense(dates).unwrap();
+    let min = rle.min().unwrap();
+    assert_eq!(min.data_type(), &DataType::Date32);
+    assert_eq!(
+        min.as_primitive::<arrow_array::types::Date32Type>()
+            .value(0),
+        19_000
+    );
+
+    let nulls = ArrowRle::from_dense(strings(&[None, None])).unwrap();
+    assert!(nulls.max().unwrap().is_null(0));
+}
+
+#[test]
 fn nested_values_merge() {
     let mut builder = ListBuilder::new(Int32Builder::new());
     for list in [vec![1, 2], vec![1, 2], vec![3], vec![3], vec![1, 2]] {

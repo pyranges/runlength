@@ -13,6 +13,7 @@ rust-version.workspace = true
 [dependencies]
 runlength = { path = "../runlength", version = "0.1.0" }
 rayon = "1.10"
+rustc-hash = "2"
 # Kept on the same Arrow release as pyo3-arrow, which the Python bindings use.
 arrow-arith = "59"
 arrow-array = "59"

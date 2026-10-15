@@ -12,6 +12,7 @@ use crate::rle::{Rle, RleLike, RleRef};
 /// its end.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PlanMany {
+    /// Cumulative ends of the output segments.
     pub ends: Vec<i64>,
     /// One index vector per input.
     pub idx: Vec<Vec<usize>>,

@@ -9,30 +9,66 @@ use std::fmt;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Error {
     /// A run length was negative.
-    NegativeRun { index: usize, run: i64 },
+    NegativeRun {
+        /// The position of the run.
+        index: usize,
+        /// Its length.
+        run: i64,
+    },
     /// Two inputs that must have the same number of elements did not.
     LengthMismatch {
+        /// What the two inputs were.
         what: &'static str,
+        /// The number of elements in the first.
         left: usize,
+        /// The number of elements in the second.
         right: usize,
     },
     /// Run ends were not strictly increasing and positive.
-    InvalidEnds { index: usize },
+    InvalidEnds {
+        /// The position of the first invalid end.
+        index: usize,
+    },
     /// An interval had a negative start or ended before it started.
-    InvalidInterval { index: usize, start: i64, end: i64 },
+    InvalidInterval {
+        /// The position of the interval.
+        index: usize,
+        /// Its start.
+        start: i64,
+        /// Its end.
+        end: i64,
+    },
     /// Batch offsets did not start at 0, decreased, or did not end at the
     /// number of runs.
     InvalidOffsets,
     /// The total length did not fit in an `i64`.
     Overflow,
     /// Two sequences had different lengths and the shorter had no fill value.
-    UnequalLength { left: i64, right: i64 },
+    UnequalLength {
+        /// The length of the left sequence.
+        left: i64,
+        /// The length of the right sequence.
+        right: i64,
+    },
     /// A requested length was shorter than the sequence it applies to.
-    LengthTooShort { requested: i64, required: i64 },
+    LengthTooShort {
+        /// The length asked for.
+        requested: i64,
+        /// The length of the sequence.
+        required: i64,
+    },
     /// A key occurred more than once in a batch.
-    DuplicateKey { position: usize },
+    DuplicateKey {
+        /// The position of the second occurrence.
+        position: usize,
+    },
     /// An operation failed for the key at `position` in the output.
-    InKey { position: usize, source: Box<Error> },
+    InKey {
+        /// The position of the key in the output.
+        position: usize,
+        /// What went wrong.
+        source: Box<Error>,
+    },
 }
 
 impl fmt::Display for Error {
@@ -87,4 +123,5 @@ impl std::error::Error for Error {
     }
 }
 
+/// A `Result` with this crate's [`Error`].
 pub type Result<T> = std::result::Result<T, Error>;

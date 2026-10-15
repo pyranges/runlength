@@ -28,9 +28,15 @@ pub enum SliceAgg {
     Mean,
     /// The variance with `ddof` delta degrees of freedom (`Float64`), null if
     /// there are `ddof` or fewer non-null positions.
-    Var { ddof: i64 },
+    Var {
+        /// Delta degrees of freedom: the divisor is `count - ddof`.
+        ddof: i64,
+    },
     /// The square root of [`SliceAgg::Var`].
-    Std { ddof: i64 },
+    Std {
+        /// Delta degrees of freedom, as for [`SliceAgg::Var`].
+        ddof: i64,
+    },
     /// The smallest value ignoring `NaN`, in the values' type; null if none.
     Min,
     /// The largest value ignoring `NaN`, in the values' type; null if none.

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use arrow_array::{Array, ArrayRef, Float64Array, RecordBatch, RecordBatchOptions};
+use arrow_array::{Array, ArrayRef, Float64Array, Int64Array, RecordBatch, RecordBatchOptions};
 use arrow_cast::cast;
 use arrow_schema::{DataType, Field, Schema};
 use arrow_select::concat::concat;
@@ -10,7 +10,7 @@ use pyo3::prelude::*;
 use pyo3::types::{PyCapsule, PyTuple};
 use pyo3_arrow::{PyArray, PyTable};
 use runlength::How;
-use runlength_arrow::kernels::{self, Kernel};
+use runlength_arrow::kernels::Kernel;
 use runlength_arrow::{ArrowRle, ArrowRleBatch, common_numeric_type};
 
 use crate::convert::{
@@ -28,6 +28,24 @@ use crate::rle::{
 /// Build one with `coverage_by_key`, `Rle.getitems` or `RleBatch.from_rles`.
 /// Operators combine two batches key by key (an outer join, padding missing
 /// keys and shorter sequences with zero), in parallel.
+///
+/// `len(batch)` is the number of Rles and `batch[i]` the Rle at position `i`;
+/// look one up by key with `get`.
+///
+/// Examples:
+///     >>> keys = pl.DataFrame({"chrom": ["chr1", "chr1", "chr2"], "strand": ["+", "-", "+"]})
+///     >>> batch = rl.coverage_by_key(keys, [0, 2, 5], [3, 4, 7])
+///     >>> batch
+///     RleBatch(keys=3, runs=5, dtype=Int64)
+///       ('chr1', '+'): length=3, runs=[3], values=[1]
+///       ('chr1', '-'): length=4, runs=[2, 2], values=[0, 1]
+///       ('chr2', '+'): length=7, runs=[5, 2], values=[0, 1]
+///     >>> len(batch)
+///     3
+///     >>> batch[-1]
+///     Rle(length=7, runs=2, dtype=Int64)
+///       runs:   [5, 2]
+///       values: [0, 1]
 #[pyclass(module = "runlength", name = "RleBatch", frozen, skip_from_py_object)]
 #[derive(Clone)]
 pub struct PyRleBatch {
@@ -58,12 +76,12 @@ impl StrOrList {
 
 pub(crate) fn binary_kernel(op: &str) -> PyResult<Kernel> {
     match op {
-        "add" => Ok(kernels::add),
-        "sub" => Ok(kernels::sub),
-        "mul" => Ok(kernels::mul),
-        "div" => Ok(kernels::div),
-        "and" => Ok(kernels::and),
-        "or" => Ok(kernels::or),
+        "add" => Ok(Kernel::Add),
+        "sub" => Ok(Kernel::Sub),
+        "mul" => Ok(Kernel::Mul),
+        "div" => Ok(Kernel::Div),
+        "and" => Ok(Kernel::And),
+        "or" => Ok(Kernel::Or),
         other => Err(PyValueError::new_err(format!(
             "op must be 'add', 'sub', 'mul', 'div', 'and' or 'or', got {other:?}"
         ))),
@@ -226,6 +244,12 @@ impl PyRleBatch {
     /// Builds a batch from a key table (one row per Rle: a polars or pandas
     /// DataFrame, pyarrow Table, or dict of columns) and a list of Rles with
     /// the same value type.
+    ///
+    /// Examples:
+    ///     >>> rl.RleBatch.from_rles({"name": ["a", "b"]}, [rl.Rle([2], [1]), rl.Rle([1, 1], [3, 4])])
+    ///     RleBatch(keys=2, runs=3, dtype=Int64)
+    ///       ('a',): length=2, runs=[2], values=[1]
+    ///       ('b',): length=2, runs=[1, 1], values=[3, 4]
     #[staticmethod]
     fn from_rles(keys: &Bound<'_, PyAny>, rles: Vec<PyRef<'_, PyRle>>) -> PyResult<Self> {
         let keys = keys_from_py(keys)?;
@@ -239,12 +263,29 @@ impl PyRleBatch {
     }
 
     /// The key table, one row per Rle.
+    ///
+    /// Examples:
+    ///     >>> batch = rl.coverage_by_key({"chrom": ["chr1", "chr2"]}, [0, 5], [3, 7])
+    ///     >>> pl.DataFrame(batch.keys)
+    ///     shape: (2, 1)
+    ///     ┌───────┐
+    ///     │ chrom │
+    ///     │ ---   │
+    ///     │ str   │
+    ///     ╞═══════╡
+    ///     │ chr1  │
+    ///     │ chr2  │
+    ///     └───────┘
     #[getter]
     fn keys(&self) -> PyResult<PyTable> {
         table_to_py(self.inner.keys().clone())
     }
 
     /// The Arrow type of the values.
+    ///
+    /// Examples:
+    ///     >>> rl.coverage_by_key({"chrom": ["chr1"]}, [0], [3], values=[0.5]).dtype
+    ///     'Float64'
     #[getter]
     fn dtype(&self) -> String {
         self.inner.values().data_type().to_string()
@@ -273,6 +314,15 @@ impl PyRleBatch {
 
     /// The Rle for a key, or None. A key is a tuple with one value per key
     /// column, or a single value if there is one key column.
+    ///
+    /// Examples:
+    ///     >>> batch = rl.coverage_by_key({"chrom": ["chr1", "chr1"], "strand": ["+", "-"]}, [0, 2], [3, 4])
+    ///     >>> batch.get(("chr1", "-"))
+    ///     Rle(length=4, runs=2, dtype=Int64)
+    ///       runs:   [2, 2]
+    ///       values: [0, 1]
+    ///     >>> batch.get(("chr9", "+")) is None
+    ///     True
     fn get(&self, key: &Bound<'_, PyAny>) -> PyResult<Option<PyRle>> {
         let keys = self.inner.keys();
         let parts: Vec<Bound<'_, PyAny>> = match key.cast::<PyTuple>() {
@@ -299,6 +349,11 @@ impl PyRleBatch {
     }
 
     /// (key tuple, Rle) pairs in key order.
+    ///
+    /// Examples:
+    ///     >>> batch = rl.coverage_by_key({"chrom": ["chr1", "chr2"]}, [0, 5], [3, 7])
+    ///     >>> [(key, rle.num_runs) for key, rle in batch.items()]
+    ///     [(('chr1',), 1), (('chr2',), 2)]
     fn items<'py>(&self, py: Python<'py>) -> PyResult<Vec<(Bound<'py, PyTuple>, PyRle)>> {
         (0..self.inner.len())
             .map(|i| {
@@ -313,6 +368,22 @@ impl PyRleBatch {
     /// Combines with `other` key by key using `func`; see `Rle.zip_with`.
     /// `how` is "outer", "inner", "left" or "right". A key missing on one
     /// side is an empty Rle there, padded with that side's fill value.
+    ///
+    /// Examples:
+    ///     >>> a = rl.coverage_by_key({"chrom": ["chr1", "chr2"]}, [0, 5], [3, 7])
+    ///     >>> b = rl.coverage_by_key({"chrom": ["chr1", "chr3"]}, [1, 0], [2, 2])
+    ///     >>> a.zip_with(b, lambda x, y: x * y, how="inner", fill_other=0, backend="numpy")
+    ///     RleBatch(keys=1, runs=3, dtype=Int64)
+    ///       ('chr1',): length=3, runs=[1, 1, 1], values=[0, 1, 0]
+    ///     >>> a.zip_with(b, lambda x, y: x + y, how="left", fill_self=0, fill_other=0, backend="numpy")
+    ///     RleBatch(keys=2, runs=5, dtype=Int64)
+    ///       ('chr1',): length=3, runs=[1, 1, 1], values=[1, 2, 1]
+    ///       ('chr2',): length=7, runs=[5, 2], values=[0, 1]
+    ///     >>> a + b
+    ///     RleBatch(keys=3, runs=6, dtype=Int64)
+    ///       ('chr1',): length=3, runs=[1, 1, 1], values=[1, 2, 1]
+    ///       ('chr2',): length=7, runs=[5, 2], values=[0, 1]
+    ///       ('chr3',): length=2, runs=[2], values=[1]
     #[pyo3(signature = (other, func, how="outer", fill_self=None, fill_other=None, backend="arrow"))]
     #[allow(clippy::too_many_arguments)]
     fn zip_with(
@@ -346,6 +417,14 @@ impl PyRleBatch {
     /// `op` ("add", "sub", "mul", "div", "and" or "or"), padding with zero.
     /// Give the columns to `keep` or to `drop`, for example
     /// `batch.collapse(drop="Strand")` to add up the strands.
+    ///
+    /// Examples:
+    ///     >>> keys = {"chrom": ["chr1", "chr1", "chr2"], "strand": ["+", "-", "+"]}
+    ///     >>> batch = rl.coverage_by_key(keys, [0, 2, 5], [3, 4, 7])
+    ///     >>> batch.collapse(drop="strand")
+    ///     RleBatch(keys=2, runs=5, dtype=Int64)
+    ///       ('chr1',): length=4, runs=[2, 1, 1], values=[1, 2, 1]
+    ///       ('chr2',): length=7, runs=[5, 2], values=[0, 1]
     #[pyo3(signature = (keep=None, drop=None, op="add"))]
     fn collapse(
         &self,
@@ -379,6 +458,11 @@ impl PyRleBatch {
     /// with the batch's key columns, or one array if there is one key
     /// column). A key not in the batch gives an empty slice. `agg` and `ddof`
     /// are as in `Rle.slice_agg`.
+    ///
+    /// Examples:
+    ///     >>> batch = rl.coverage_by_key({"chrom": ["chr1", "chr1", "chr2"]}, [0, 2, 5], [3, 4, 7])
+    ///     >>> batch.slice_agg(["chr1", "chr2"], [0, 4], [4, 7], agg="max").to_pylist()
+    ///     [2, 1]
     #[pyo3(signature = (keys, starts, ends, agg="mean", ddof=1))]
     fn slice_agg(
         &self,
@@ -401,6 +485,13 @@ impl PyRleBatch {
     }
 
     /// Shifts every Rle; see `Rle.shift`.
+    ///
+    /// Examples:
+    ///     >>> batch = rl.coverage_by_key({"chrom": ["chr1", "chr2"]}, [0, 5], [3, 7])
+    ///     >>> batch.shift(1)
+    ///     RleBatch(keys=2, runs=4, dtype=Int64)
+    ///       ('chr1',): length=3, runs=[1, 2], values=[0, 1]
+    ///       ('chr2',): length=7, runs=[6, 1], values=[0, 1]
     #[pyo3(signature = (distance, fill=FillArg::Default))]
     fn shift(&self, py: Python<'_>, distance: i64, fill: FillArg) -> PyResult<Self> {
         let fill = fill_array(py, fill, self.inner.values().data_type())?;
@@ -412,56 +503,177 @@ impl PyRleBatch {
     }
 
     /// Reverses every Rle.
+    ///
+    /// Examples:
+    ///     >>> batch = rl.coverage_by_key({"chrom": ["chr1", "chr2"]}, [0, 5], [3, 7])
+    ///     >>> batch.reverse()
+    ///     RleBatch(keys=2, runs=3, dtype=Int64)
+    ///       ('chr1',): length=3, runs=[3], values=[1]
+    ///       ('chr2',): length=7, runs=[2, 5], values=[1, 0]
     fn reverse(&self) -> PyResult<Self> {
         Ok(self.inner.reversed().or_raise()?.into())
     }
 
     /// Sum per key, as a table of the key columns plus `sum`.
+    ///
+    /// Examples:
+    ///     >>> batch = rl.coverage_by_key({"chrom": ["chr1", "chr1", "chr2"]}, [0, 2, 5], [3, 4, 7])
+    ///     >>> pl.DataFrame(batch.sum())
+    ///     shape: (2, 2)
+    ///     ┌───────┬─────┐
+    ///     │ chrom ┆ sum │
+    ///     │ ---   ┆ --- │
+    ///     │ str   ┆ i64 │
+    ///     ╞═══════╪═════╡
+    ///     │ chr1  ┆ 5   │
+    ///     │ chr2  ┆ 2   │
+    ///     └───────┴─────┘
     fn sum(&self) -> PyResult<PyTable> {
         self.aggregate("sum", |r| r.sum())
     }
 
     /// Mean per key, as a table of the key columns plus `mean`.
+    ///
+    /// Examples:
+    ///     >>> batch = rl.coverage_by_key({"chrom": ["chr1", "chr1", "chr2"]}, [0, 2, 5], [3, 4, 7])
+    ///     >>> pl.DataFrame(batch.mean())
+    ///     shape: (2, 2)
+    ///     ┌───────┬──────────┐
+    ///     │ chrom ┆ mean     │
+    ///     │ ---   ┆ ---      │
+    ///     │ str   ┆ f64      │
+    ///     ╞═══════╪══════════╡
+    ///     │ chr1  ┆ 1.25     │
+    ///     │ chr2  ┆ 0.285714 │
+    ///     └───────┴──────────┘
     fn mean(&self) -> PyResult<PyTable> {
         self.float_aggregate("mean", |r| r.mean())
     }
 
     /// Variance per key, as a table of the key columns plus `var`.
+    ///
+    /// Examples:
+    ///     >>> batch = rl.coverage_by_key({"chrom": ["chr1", "chr1", "chr2"]}, [0, 2, 5], [3, 4, 7])
+    ///     >>> pl.DataFrame(batch.var())
+    ///     shape: (2, 2)
+    ///     ┌───────┬──────────┐
+    ///     │ chrom ┆ var      │
+    ///     │ ---   ┆ ---      │
+    ///     │ str   ┆ f64      │
+    ///     ╞═══════╪══════════╡
+    ///     │ chr1  ┆ 0.25     │
+    ///     │ chr2  ┆ 0.238095 │
+    ///     └───────┴──────────┘
     #[pyo3(signature = (ddof=1))]
     fn var(&self, ddof: i64) -> PyResult<PyTable> {
         self.float_aggregate("var", |r| r.variance(ddof))
     }
 
     /// Standard deviation per key, as a table of the key columns plus `std`.
+    ///
+    /// Examples:
+    ///     >>> batch = rl.coverage_by_key({"chrom": ["chr1", "chr1", "chr2"]}, [0, 2, 5], [3, 4, 7])
+    ///     >>> pl.DataFrame(batch.std(ddof=0))
+    ///     shape: (2, 2)
+    ///     ┌───────┬──────────┐
+    ///     │ chrom ┆ std      │
+    ///     │ ---   ┆ ---      │
+    ///     │ str   ┆ f64      │
+    ///     ╞═══════╪══════════╡
+    ///     │ chr1  ┆ 0.433013 │
+    ///     │ chr2  ┆ 0.451754 │
+    ///     └───────┴──────────┘
     #[pyo3(signature = (ddof=1))]
     fn std(&self, ddof: i64) -> PyResult<PyTable> {
         self.float_aggregate("std", |r| r.std(ddof))
     }
 
     /// Minimum per key, as a table of the key columns plus `min`.
+    ///
+    /// Examples:
+    ///     >>> batch = rl.coverage_by_key({"chrom": ["chr1", "chr1", "chr2"]}, [0, 2, 5], [3, 4, 7])
+    ///     >>> pl.DataFrame(batch.min())
+    ///     shape: (2, 2)
+    ///     ┌───────┬─────┐
+    ///     │ chrom ┆ min │
+    ///     │ ---   ┆ --- │
+    ///     │ str   ┆ i64 │
+    ///     ╞═══════╪═════╡
+    ///     │ chr1  ┆ 1   │
+    ///     │ chr2  ┆ 0   │
+    ///     └───────┴─────┘
     fn min(&self) -> PyResult<PyTable> {
         self.aggregate("min", |r| r.min())
     }
 
     /// Maximum per key, as a table of the key columns plus `max`.
+    ///
+    /// Examples:
+    ///     >>> batch = rl.coverage_by_key({"chrom": ["chr1", "chr1", "chr2"]}, [0, 2, 5], [3, 4, 7])
+    ///     >>> pl.DataFrame(batch.max())
+    ///     shape: (2, 2)
+    ///     ┌───────┬─────┐
+    ///     │ chrom ┆ max │
+    ///     │ ---   ┆ --- │
+    ///     │ str   ┆ i64 │
+    ///     ╞═══════╪═════╡
+    ///     │ chr1  ┆ 2   │
+    ///     │ chr2  ┆ 1   │
+    ///     └───────┴─────┘
     fn max(&self) -> PyResult<PyTable> {
         self.aggregate("max", |r| r.max())
     }
 
     /// The runs of all keys as a pyarrow Table: the key columns, then start,
     /// end and value.
+    ///
+    /// Examples:
+    ///     >>> batch = rl.coverage_by_key({"chrom": ["chr1", "chr2"]}, [0, 5], [3, 7])
+    ///     >>> batch.to_arrow()
+    ///     pyarrow.Table
+    ///     chrom: string not null
+    ///     start: int64 not null
+    ///     end: int64 not null
+    ///     value: int64
+    ///     ----
+    ///     chrom: [["chr1","chr2","chr2"]]
+    ///     start: [[0,0,5]]
+    ///     end: [[3,5,7]]
+    ///     value: [[1,0,1]]
     fn to_arrow<'py>(slf: &Bound<'py, Self>) -> PyResult<Bound<'py, PyAny>> {
         to_arrow(slf.as_any())
     }
 
     /// The runs of all keys as a polars DataFrame: the key columns, then
     /// start, end and value.
+    ///
+    /// Examples:
+    ///     >>> batch = rl.coverage_by_key({"chrom": ["chr1", "chr2"]}, [0, 5], [3, 7])
+    ///     >>> batch.to_polars()
+    ///     shape: (3, 4)
+    ///     ┌───────┬───────┬─────┬───────┐
+    ///     │ chrom ┆ start ┆ end ┆ value │
+    ///     │ ---   ┆ ---   ┆ --- ┆ ---   │
+    ///     │ str   ┆ i64   ┆ i64 ┆ i64   │
+    ///     ╞═══════╪═══════╪═════╪═══════╡
+    ///     │ chr1  ┆ 0     ┆ 3   ┆ 1     │
+    ///     │ chr2  ┆ 0     ┆ 5   ┆ 0     │
+    ///     │ chr2  ┆ 5     ┆ 7   ┆ 1     │
+    ///     └───────┴───────┴─────┴───────┘
     fn to_polars<'py>(slf: &Bound<'py, Self>) -> PyResult<Bound<'py, PyAny>> {
         to_polars(slf.as_any())
     }
 
     /// The runs of all keys as a pandas DataFrame: the key columns, then
     /// start, end and value.
+    ///
+    /// Examples:
+    ///     >>> batch = rl.coverage_by_key({"chrom": ["chr1", "chr2"]}, [0, 5], [3, 7])
+    ///     >>> batch.to_pandas()
+    ///       chrom  start  end  value
+    ///     0  chr1      0    3      1
+    ///     1  chr2      0    5      0
+    ///     2  chr2      5    7      1
     fn to_pandas<'py>(slf: &Bound<'py, Self>) -> PyResult<Bound<'py, PyAny>> {
         to_pandas(slf.as_any(), || {
             slf.get().inner.to_record_batch().or_raise()
@@ -483,41 +695,41 @@ impl PyRleBatch {
     }
 
     fn __add__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(py, other, kernels::add, false, false)
+        self.binary(py, other, Kernel::Add, false, false)
     }
     fn __radd__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(py, other, kernels::add, true, false)
+        self.binary(py, other, Kernel::Add, true, false)
     }
     fn __sub__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(py, other, kernels::sub, false, false)
+        self.binary(py, other, Kernel::Sub, false, false)
     }
     fn __rsub__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(py, other, kernels::sub, true, false)
+        self.binary(py, other, Kernel::Sub, true, false)
     }
     fn __mul__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(py, other, kernels::mul, false, false)
+        self.binary(py, other, Kernel::Mul, false, false)
     }
     fn __rmul__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(py, other, kernels::mul, true, false)
+        self.binary(py, other, Kernel::Mul, true, false)
     }
     /// True division, as in Python: integers are divided as floats.
     fn __truediv__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(py, other, kernels::div, false, true)
+        self.binary(py, other, Kernel::Div, false, true)
     }
     fn __rtruediv__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(py, other, kernels::div, true, true)
+        self.binary(py, other, Kernel::Div, true, true)
     }
     fn __and__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(py, other, kernels::and, false, false)
+        self.binary(py, other, Kernel::And, false, false)
     }
     fn __rand__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(py, other, kernels::and, true, false)
+        self.binary(py, other, Kernel::And, true, false)
     }
     fn __or__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(py, other, kernels::or, false, false)
+        self.binary(py, other, Kernel::Or, false, false)
     }
     fn __ror__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<Self> {
-        self.binary(py, other, kernels::or, true, false)
+        self.binary(py, other, Kernel::Or, true, false)
     }
 
     /// Element-wise comparison with another batch (per key) or a single
@@ -533,6 +745,13 @@ impl PyRleBatch {
 
     /// Applies `func` to the run values of every Rle and merges each result;
     /// see `Rle.map`. Keys are processed in parallel.
+    ///
+    /// Examples:
+    ///     >>> batch = rl.coverage_by_key({"chrom": ["chr1", "chr2"]}, [0, 5], [3, 7])
+    ///     >>> batch.map(lambda v: v > 0, backend="numpy")
+    ///     RleBatch(keys=2, runs=3, dtype=Boolean)
+    ///       ('chr1',): length=3, runs=[3], values=[true]
+    ///       ('chr2',): length=7, runs=[5, 2], values=[false, true]
     #[pyo3(signature = (func, backend="arrow"))]
     fn map(&self, py: Python<'_>, func: &Bound<'_, PyAny>, backend: &str) -> PyResult<Self> {
         let backend = parse_backend(backend)?;
@@ -563,10 +782,12 @@ impl PyRleBatch {
         )];
         for i in (0..n).take(5) {
             let rle = self.inner.get_index(i).expect("in range");
+            let runs = Int64Array::from(rle.runs());
             lines.push(format!(
-                "  {}: length={}, values={}",
+                "  {}: length={}, runs={}, values={}",
                 self.key_tuple(py, i)?.repr()?,
                 rle.len(),
+                format_values(&runs, 6),
                 format_values(rle.values().as_ref(), 6)
             ));
         }

@@ -11,12 +11,20 @@ pub enum Error {
     Arrow(ArrowError),
     /// A fill value was not a single value of the right type.
     InvalidFill {
+        /// The type of the sequence.
         expected: DataType,
+        /// The type of the fill value.
         actual: DataType,
+        /// The number of fill values (must be 1).
         len: usize,
     },
     /// An operation returned a different number of values than it was given.
-    WrongLength { expected: usize, actual: usize },
+    WrongLength {
+        /// The number of values given.
+        expected: usize,
+        /// The number of values returned.
+        actual: usize,
+    },
     /// Two batches have keys with different column names or types.
     KeySchemaMismatch,
     /// The values have a type this operation does not support.
@@ -28,7 +36,12 @@ pub enum Error {
     /// An operation needs at least one input but was given none.
     NoInputs,
     /// An operation failed for the key at `position` in the output.
-    InKey { position: usize, source: Box<Error> },
+    InKey {
+        /// The position of the key in the output.
+        position: usize,
+        /// What went wrong.
+        source: Box<Error>,
+    },
 }
 
 impl Error {
@@ -94,4 +107,5 @@ impl From<ArrowError> for Error {
     }
 }
 
+/// A `Result` with this crate's [`Error`].
 pub type Result<T> = std::result::Result<T, Error>;

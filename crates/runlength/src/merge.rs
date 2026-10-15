@@ -5,8 +5,10 @@ use crate::rle::{Rle, RleRef};
 /// Which value a merged group keeps when its runs hold different values.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum Keep {
+    /// The value of the group's first run.
     #[default]
     First,
+    /// The value of the group's last run.
     Last,
 }
 
@@ -24,6 +26,7 @@ pub struct MergePlan {
 }
 
 impl MergePlan {
+    /// The number of groups, that is, runs after merging.
     pub fn num_groups(&self) -> usize {
         self.ends.len()
     }
@@ -54,9 +57,13 @@ fn check_mask(num_runs: usize, mask: &[bool]) -> Result<()> {
 /// See [`MergePlan`].
 pub fn merge_plan(ends: &[i64], mask: &[bool]) -> Result<MergePlan> {
     check_mask(ends.len(), mask)?;
+    // Counting first avoids growing the vectors one push at a time.
+    let groups = ends.len() - mask.iter().filter(|&&m| m).count();
+    let mut offsets = Vec::with_capacity(groups + 1);
+    offsets.push(0);
     let mut out = MergePlan {
-        ends: Vec::new(),
-        offsets: vec![0],
+        ends: Vec::with_capacity(groups),
+        offsets,
     };
     for (r, &end) in ends.iter().enumerate() {
         if mask.get(r).copied().unwrap_or(false) {

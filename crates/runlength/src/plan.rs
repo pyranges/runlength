@@ -35,6 +35,7 @@ pub struct Plan {
 }
 
 impl Plan {
+    /// The number of output segments.
     pub fn num_segments(&self) -> usize {
         self.ends.len()
     }
@@ -105,6 +106,15 @@ impl Iterator for Segments<'_> {
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
+        // While both sides have runs left, advance without branching on which
+        // end comes first: on real data that branch is unpredictable.
+        if let (Some(&x), Some(&y)) = (self.a.get(self.i), self.b.get(self.j)) {
+            let end = x.min(y);
+            let item = (end, self.i, self.j);
+            self.i += usize::from(x == end);
+            self.j += usize::from(y == end);
+            return Some(item);
+        }
         let end_a = self.a.get(self.i).copied();
         let end_b = self.b.get(self.j).copied();
         let end = match (end_a, end_b) {

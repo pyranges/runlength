@@ -1,7 +1,9 @@
 # Bioconductor S4Vectors/IRanges timings for the workload in
-# crates/runlength/examples/bench.rs.
+# scripts/bench.py and crates/runlength/examples/bench.rs.
 #
 #     Rscript scripts/bench_r.R
+#
+# Each timing is the best of three runs.
 suppressPackageStartupMessages({
   library(S4Vectors)
   library(IRanges)
@@ -9,36 +11,37 @@ suppressPackageStartupMessages({
 })
 set.seed(42)
 N <- 1e6
+# R recycles the shorter Rle in arithmetic, so give both the same length.
+WIDTH <- 1e8 + 100
 
-timed <- function(label, expr) {
-  t <- proc.time()[["elapsed"]]
-  out <- force(expr)
-  cat(sprintf("%-40s %8.1f ms\n", label, (proc.time()[["elapsed"]] - t) * 1e3))
+timed <- function(label, f) {
+  best <- Inf
+  for (i in 1:3) {
+    t <- proc.time()[["elapsed"]]
+    out <- f()
+    best <- min(best, proc.time()[["elapsed"]] - t)
+  }
+  cat(sprintf("%-40s %8.0f ms\n", label, best * 1e3))
   invisible(out)
 }
 
 starts <- sample.int(1e8, N, replace = TRUE)
-a <- timed("coverage_count, 1M intervals", coverage(IRanges(starts, width = 100)))
 starts2 <- sample.int(1e8, N, replace = TRUE)
-b <- timed("coverage_count, 1M more intervals", coverage(IRanges(starts2, width = 100)))
-cat(sprintf("  runs: %d and %d\n", nrun(a), nrun(b)))
-cat(sprintf("  memory: %.1f MB (%.1f bytes per run)\n",
-            object.size(a) / 1e6, as.numeric(object.size(a)) / nrun(a)))
-
-s <- timed("a + b", a + b)
-cat(sprintf("  runs: %d\n", nrun(s)))
-timed("a < b", a < b)
-timed("a.mean()", mean(a))
-af <- a * 1.0  # double values, as in pyrle and the f64 benchmarks
-timed("a + b (double)", af + b)
-
 slice_starts <- sample.int(99e6, N, replace = TRUE)
-timed("getitems, 1M slices of 1000",
-      as(Views(a, IRanges(slice_starts, width = 1000)), "RleList"))
-timed("  viewSums over the same slices",
-      viewSums(Views(a, IRanges(slice_starts, width = 1000))))
-
 seqs <- paste0("k", sample.int(25, N, replace = TRUE))
+
+a <- timed("coverage, 1M intervals",
+           function() coverage(IRanges(starts, width = 100), width = WIDTH))
+b <- coverage(IRanges(starts2, width = 100), width = WIDTH)
+cat(sprintf("  runs: %d and %d\n", nrun(a), nrun(b)))
+s <- timed("a + b", function() a + b)
+cat(sprintf("  runs: %d\n", nrun(s)))
+timed("a < b", function() a < b)
+timed("a.mean()", function() mean(a))
+views <- Views(a, IRanges(slice_starts, width = 1000))
+x <- timed("1M slices of 1000, copied", function() as(views, "RleList"))
+cat(sprintf("  total length: %.0f\n", sum(as.numeric(lengths(x)))))
+timed("sum of 1M slices of 1000", function() viewSums(views))
 gr <- GRanges(seqs, IRanges(starts, width = 100))
-batch <- timed("coverage_sum_by_key, 25 keys", coverage(gr))
-timed("batch + batch, 25 keys", batch + batch)
+batch <- timed("coverage, 1M intervals, 25 keys", function() coverage(gr))
+timed("batch + batch, 25 keys", function() batch + batch)

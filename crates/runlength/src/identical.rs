@@ -9,6 +9,7 @@
 /// Every merge in this crate uses this rule, so results do not depend on which
 /// code path produced them.
 pub trait Identical {
+    /// Whether `self` and `other` count as the same value for merging.
     fn identical(&self, other: &Self) -> bool;
 }
 
