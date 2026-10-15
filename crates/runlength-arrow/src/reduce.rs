@@ -8,13 +8,28 @@ use std::sync::Arc;
 
 use arrow_array::cast::AsArray;
 use arrow_array::{Array, ArrayRef, ArrowPrimitiveType, PrimitiveArray, new_null_array};
+use arrow_cast::cast;
 use arrow_ord::sort::{SortOptions, sort_to_indices};
+use arrow_schema::DataType;
 use arrow_select::take::take;
 use runlength::{RleLike, RleRef};
 
 use crate::error::{Error, Result};
 use crate::numeric::with_numeric_type;
 use crate::rle::ArrowRle;
+
+/// Booleans count as 0 and 1 in sums, means and variances, as in numpy and
+/// polars.
+fn as_numbers(rle: &ArrowRle) -> Result<std::borrow::Cow<'_, ArrowRle>> {
+    if rle.data_type() == &DataType::Boolean {
+        let values = cast(rle.values.as_ref(), &DataType::Int64)?;
+        return Ok(std::borrow::Cow::Owned(ArrowRle {
+            ends: rle.ends.clone(),
+            values,
+        }));
+    }
+    Ok(std::borrow::Cow::Borrowed(rle))
+}
 
 fn core_view<'a, T: ArrowPrimitiveType>(rle: &'a ArrowRle) -> Result<RleRef<'a, T::Native>> {
     let values = rle.values.as_primitive::<T>();
@@ -29,23 +44,28 @@ fn single<T: ArrowPrimitiveType>(value: Option<T::Native>) -> ArrayRef {
 }
 
 impl ArrowRle {
-    /// The sum over all positions, as one value of the values' type. Integer
-    /// sums wrap on overflow.
+    /// The sum over all positions, as one value of the values' type
+    /// (`Int64` for booleans, counting the true positions). Integer sums wrap
+    /// on overflow.
     pub fn sum(&self) -> Result<ArrayRef> {
-        with_numeric_type!(self.values, |T| Ok(single::<T>(Some(
-            core_view::<T>(self)?.sum()
+        let rle = as_numbers(self)?;
+        with_numeric_type!(rle.values, |T| Ok(single::<T>(Some(
+            core_view::<T>(&rle)?.sum()
         ))))
     }
 
-    /// The mean over all positions, or `None` if the sequence is empty.
+    /// The mean over all positions (for booleans, the fraction that is true),
+    /// or `None` if the sequence is empty.
     pub fn mean(&self) -> Result<Option<f64>> {
-        with_numeric_type!(self.values, |T| Ok(core_view::<T>(self)?.mean()))
+        let rle = as_numbers(self)?;
+        with_numeric_type!(rle.values, |T| Ok(core_view::<T>(&rle)?.mean()))
     }
 
     /// The variance over all positions with `ddof` delta degrees of freedom,
     /// or `None` if `len() <= ddof`.
     pub fn variance(&self, ddof: i64) -> Result<Option<f64>> {
-        with_numeric_type!(self.values, |T| Ok(core_view::<T>(self)?.variance(ddof)))
+        let rle = as_numbers(self)?;
+        with_numeric_type!(rle.values, |T| Ok(core_view::<T>(&rle)?.variance(ddof)))
     }
 
     /// The standard deviation; see [`variance`](ArrowRle::variance).

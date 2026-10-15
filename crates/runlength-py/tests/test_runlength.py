@@ -63,6 +63,17 @@ def test_strings_and_nulls():
     assert 'values: ["x", null, "null"]' in repr(rl.Rle([1, 1, 1], ["x", None, "null"]))
 
 
+def test_strings_compare_across_encodings():
+    # polars gives Utf8View, lists and Python strings Utf8.
+    from_polars = rl.Rle.from_ends(pl.Series([2, 5]), pl.Series(["x", "y"]))
+    from_list = rl.Rle([3, 2], ["x", "z"])
+    assert dense(from_polars == "y") == [False, False, True, True, True]
+    assert dense(from_polars != from_list) == [False, False, True, True, True]
+    batch = rl.RleBatch.from_rles({"k": ["a"]}, [from_polars])
+    other = rl.RleBatch.from_rles({"k": ["a"]}, [from_list])
+    assert dense((batch == other)[0]) == [True, True, False, False, False]
+
+
 def test_lists_of_other_types_go_through_pyarrow():
     days = rl.Rle([2, 1], [datetime.date(2026, 1, 1), datetime.date(2026, 2, 1)])
     assert days.dtype == "Date32"
@@ -225,6 +236,13 @@ def test_reductions_are_weighted_by_run_length():
     assert r.var(ddof=0) == pytest.approx(np.var(values))
     assert (r.min(), r.max()) == (1, 3)
     assert rl.Rle([], pa.array([], pa.int64())).mean() is None
+
+
+def test_boolean_reductions_count_true_positions():
+    r = rl.Rle([2, 3], [True, False])
+    assert r.sum() == 2
+    assert r.mean() == pytest.approx(0.4)
+    assert r.var(ddof=0) == pytest.approx(0.24)
 
 
 def test_conversions():
