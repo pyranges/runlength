@@ -58,13 +58,75 @@ Rle(length=5, runs=3, dtype=Int64)
   values: [9, 19, 18]
 ```
 
-`backend` picks what your function receives: `"numpy"` arrays, `"polars"`
-Series, `"pyarrow"` arrays, or `"arrow"` (the default), objects that any of
-those libraries can read. So you can use whichever library you know, for any
-value type:
+### Choosing a backend
+
+runlength can't tell which library your function is written in, so
+`backend` says what to pass it:
+
+| `backend` | your function receives | write it with |
+| --- | --- | --- |
+| `"numpy"` | numpy arrays | numpy operators and functions |
+| `"polars"` | polars Series | polars operators and methods |
+| `"pyarrow"` | pyarrow arrays | `pyarrow.compute` |
+| `"arrow"` (default) | bare Arrow arrays | conversion to one of the above |
+
+Here is the same function written for each:
 
 ```python
 >>> import polars as pl
+>>> import pyarrow.compute as pc
+>>> a.zip_with(b, lambda x, y: x + y, backend="numpy")
+Rle(length=5, runs=3, dtype=Int64)
+  runs:   [1, 2, 2]
+  values: [11, 21, 22]
+>>> a.zip_with(b, lambda x, y: x + y, backend="polars")
+Rle(length=5, runs=3, dtype=Int64)
+  runs:   [1, 2, 2]
+  values: [11, 21, 22]
+>>> a.zip_with(b, lambda x, y: pc.add(x, y), backend="pyarrow")
+Rle(length=5, runs=3, dtype=Int64)
+  runs:   [1, 2, 2]
+  values: [11, 21, 22]
+>>> a.zip_with(b, lambda x, y: x.to_numpy() + y.to_numpy())
+Rle(length=5, runs=3, dtype=Int64)
+  runs:   [1, 2, 2]
+  values: [11, 21, 22]
+```
+
+The default objects have no operators or compute methods, only conversions
+such as `to_numpy()` and `to_pylist()`; any of the libraries above can also
+read them directly (`pl.Series(x)`, `pa.array(x)`). Use the default when your
+function does its own conversion, or when it only passes the arrays on.
+
+If the function is written for a different library than `backend` names, you
+get that library's error:
+
+```python
+>>> a.zip_with(b, lambda x, y: x + y)
+Traceback (most recent call last):
+    ...
+TypeError: unsupported operand type(s) for +: 'arro3.core._core.Array' and 'arro3.core._core.Array'
+```
+
+Use numpy for numbers. numpy arrays can't hold nulls, so sequences with
+missing values fail before your function is called; polars handles them:
+
+```python
+>>> gappy = rl.Rle([2, 1], [1, None])
+>>> gappy.map(lambda v: v * 10, backend="numpy")
+Traceback (most recent call last):
+    ...
+ValueError: Cannot create numpy array from arrow array with nulls.
+>>> gappy.map(lambda v: v * 10, backend="polars")
+Rle(length=3, runs=2, dtype=Int64)
+  runs:   [2, 1]
+  values: [10, null]
+```
+
+Use polars for strings, casts, nulls and anything else polars has an
+expression for:
+
+```python
 >>> names = rl.Rle([2, 1], ["ann", "bob"])
 >>> ages = rl.Rle([1, 2], [31, 45])
 >>> names.zip_with(ages, lambda n, a: n + " (" + a.cast(pl.String) + ")", backend="polars")
@@ -73,8 +135,26 @@ Rle(length=3, runs=3, dtype=Utf8View)
   values: ["ann (31)", "ann (45)", "bob (45)"]
 ```
 
-The function can return a list, or an array or Series from any of the
-libraries above.
+Use pyarrow if you already know `pyarrow.compute`. The library you name must
+be installed; runlength itself needs none of them.
+
+Whichever backend you pick, the function can return a list, or an array or
+Series from any of these libraries, and of any value type. It must return one
+value per segment:
+
+```python
+>>> a.zip_with(b, lambda x, y: [f"{i}/{j}" for i, j in zip(x, y)], backend="numpy")
+Rle(length=5, runs=3, dtype=Utf8)
+  runs:   [1, 2, 2]
+  values: ["1/10", "1/20", "2/20"]
+>>> a.zip_with(b, lambda x, y: x[:1], backend="numpy")
+Traceback (most recent call last):
+    ...
+ValueError: operation returned 1 values for 3 segments
+```
+
+`map`, `zip_many` and the batch versions of `map` and `zip_with` take
+`backend` the same way.
 
 ### Different lengths
 

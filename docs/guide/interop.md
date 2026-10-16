@@ -96,6 +96,12 @@ position:
 array([1.5, 1.5, 1.5, 2.5, 2.5])
 ```
 
+## Your own functions
+
+Functions you pass to `zip_with`, `map` and `zip_many` receive numpy arrays,
+polars Series or pyarrow arrays, whichever you name with `backend`. See
+[Choosing a backend](combining.md#choosing-a-backend).
+
 ## Value types
 
 Values keep their Arrow type through every operation, and `rle.dtype` shows

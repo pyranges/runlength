@@ -94,6 +94,10 @@ Rle(length=5, runs=3, dtype=Utf8View)
   values: ["x=10", "x=20", "y=20"]
 ```
 
+`backend` names the library your function is written in, so it receives
+polars Series here; `"numpy"` and `"pyarrow"` work the same way. See
+[choosing a backend](https://pyranges.github.io/runlength/guide/combining/#choosing-a-backend).
+
 ## Rust
 
 ```rust
