@@ -440,7 +440,8 @@ class RleBatch:
     """Many Rles, each identified by a row of key columns of any types (for
     example Chromosome and Strand).
 
-    Build one with `coverage_by_key`, `Rle.getitems` or `RleBatch.from_rles`.
+    Build one with `coverage_by_key`, `Rle.getitems`, `RleBatch.from_table` or
+    `RleBatch.from_rles`.
     Operators combine two batches key by key (an outer join, padding missing
     keys and shorter sequences with zero), in parallel.
 
@@ -463,6 +464,43 @@ class RleBatch:
           values: [0, 1]
     """
 
+    @staticmethod
+    def from_table(
+        table: TableLike,
+        keys: str | Sequence[str],
+        values: str = "value",
+        starts: str | None = "start",
+        ends: str = "end",
+        runs: str | None = None,
+    ) -> RleBatch:
+        """Builds a batch from a table with one row per run: a polars or pandas
+        DataFrame, pyarrow Table, or dict of columns. This is the inverse of
+        `to_polars`, `to_pandas` and `to_arrow`.
+
+        `keys` names the key column(s). Each run lies at `starts`..`ends`;
+        each key's runs must start at 0 and follow each other without gaps
+        (for intervals with gaps, use `coverage_by_key`). With `starts=None`,
+        each run ends at `ends` and starts where the previous one ended, and
+        with `runs`, each run has that length. Keys appear in order of first
+        appearance, and a key's rows need not be adjacent, but they must be in
+        position order.
+
+        Examples:
+            >>> table = pl.DataFrame({
+            ...     "chrom": ["chr1", "chr1", "chr2"],
+            ...     "start": [0, 3, 0],
+            ...     "end": [3, 5, 4],
+            ...     "value": [1, 2, 7],
+            ... })
+            >>> rl.RleBatch.from_table(table, "chrom")
+            RleBatch(keys=2, runs=3, dtype=Int64)
+              ('chr1',): length=5, runs=[3, 2], values=[1, 2]
+              ('chr2',): length=4, runs=[4], values=[7]
+            >>> lengths = {"chrom": ["chr1", "chr1"], "width": [3, 2], "score": [0.5, 1.5]}
+            >>> rl.RleBatch.from_table(lengths, "chrom", values="score", runs="width")
+            RleBatch(keys=1, runs=2, dtype=Float64)
+              ('chr1',): length=5, runs=[3, 2], values=[0.5, 1.5]
+        """
     @staticmethod
     def from_rles(keys: KeysLike, rles: Sequence[Rle]) -> RleBatch:
         """Builds a batch from a key table (one row per Rle: a polars or pandas

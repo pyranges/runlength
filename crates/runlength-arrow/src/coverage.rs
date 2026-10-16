@@ -1,4 +1,3 @@
-use rustc_hash::FxHashMap;
 use std::sync::Arc;
 
 use arrow_array::cast::AsArray;
@@ -13,7 +12,7 @@ use arrow_select::take::take;
 use rayon::prelude::*;
 use runlength::{Rle, RleBatch};
 
-use crate::batch::{ArrowRleBatch, key_converter, key_rows};
+use crate::batch::{ArrowRleBatch, group_rows};
 use crate::error::{Error, Result};
 use crate::numeric::with_numeric_type;
 use crate::rle::ArrowRle;
@@ -197,26 +196,6 @@ fn group_indices(ids: &[usize], n: usize) -> Vec<Vec<usize>> {
         groups[g].push(i);
     }
     groups
-}
-
-/// Numbers each key row by first appearance; returns the group of every row
-/// and the first row of every group.
-fn group_rows(keys: &RecordBatch) -> Result<(Vec<usize>, Vec<u64>)> {
-    let converter = key_converter(keys)?;
-    let rows = key_rows(&converter, keys)?;
-    let mut groups = FxHashMap::default();
-    let mut first_rows = Vec::new();
-    let ids = rows
-        .iter()
-        .enumerate()
-        .map(|(i, row)| {
-            *groups.entry(row).or_insert_with(|| {
-                first_rows.push(i as u64);
-                first_rows.len() - 1
-            })
-        })
-        .collect();
-    Ok((ids, first_rows))
 }
 
 fn into_arrow_batch<T: ArrowPrimitiveType>(

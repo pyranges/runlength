@@ -40,7 +40,7 @@ fn validate_ends(ends: &[i64]) -> Result<()> {
     Ok(())
 }
 
-fn check_same_len(what: &'static str, left: usize, right: usize) -> Result<()> {
+pub(crate) fn check_same_len(what: &'static str, left: usize, right: usize) -> Result<()> {
     if left != right {
         return Err(runlength::Error::LengthMismatch { what, left, right }.into());
     }

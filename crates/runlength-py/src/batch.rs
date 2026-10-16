@@ -11,11 +11,12 @@ use pyo3::types::{PyCapsule, PyTuple};
 use pyo3_arrow::{PyArray, PyTable};
 use runlength::How;
 use runlength_arrow::kernels::Kernel;
-use runlength_arrow::{ArrowRle, ArrowRleBatch, common_numeric_type};
+use runlength_arrow::{ArrowRle, ArrowRleBatch, RunExtents, common_numeric_type};
 
 use crate::convert::{
-    FillArg, OrRaise, array_to_py, ints_from_py, is_table_like, keys_from_py, scalar_of_type,
-    table_capsule, table_to_py, to_arrow, to_pandas, to_polars, value_to_py,
+    FillArg, OrRaise, array_to_py, ints_from_array, ints_from_py, is_table_like, keys_from_py,
+    scalar_of_type, table_capsule, table_from_py, table_to_py, to_arrow, to_pandas, to_polars,
+    value_to_py,
 };
 use crate::rle::{
     PyRle, call_python, combine_scalar, fill_array, fill_of, format_values, kernel_for,
@@ -25,7 +26,8 @@ use crate::rle::{
 /// Many Rles, each identified by a row of key columns of any types (for
 /// example Chromosome and Strand).
 ///
-/// Build one with `coverage_by_key`, `Rle.getitems` or `RleBatch.from_rles`.
+/// Build one with `coverage_by_key`, `Rle.getitems`, `RleBatch.from_table` or
+/// `RleBatch.from_rles`.
 /// Operators combine two batches key by key (an outer join, padding missing
 /// keys and shorter sequences with zero), in parallel.
 ///
@@ -266,6 +268,85 @@ impl PyRleBatch {
         Ok(ArrowRleBatch::from_rles(keys, rles, &data_type)
             .or_raise()?
             .into())
+    }
+
+    /// Builds a batch from a table with one row per run: a polars or pandas
+    /// DataFrame, pyarrow Table, or dict of columns. This is the inverse of
+    /// `to_polars`, `to_pandas` and `to_arrow`.
+    ///
+    /// `keys` names the key column(s). Each run lies at `starts`..`ends`;
+    /// each key's runs must start at 0 and follow each other without gaps
+    /// (for intervals with gaps, use `coverage_by_key`). With `starts=None`,
+    /// each run ends at `ends` and starts where the previous one ended, and
+    /// with `runs`, each run has that length. Keys appear in order of first
+    /// appearance, and a key's rows need not be adjacent, but they must be in
+    /// position order.
+    ///
+    /// Examples:
+    ///     >>> table = pl.DataFrame({
+    ///     ...     "chrom": ["chr1", "chr1", "chr2"],
+    ///     ...     "start": [0, 3, 0],
+    ///     ...     "end": [3, 5, 4],
+    ///     ...     "value": [1, 2, 7],
+    ///     ... })
+    ///     >>> rl.RleBatch.from_table(table, "chrom")
+    ///     RleBatch(keys=2, runs=3, dtype=Int64)
+    ///       ('chr1',): length=5, runs=[3, 2], values=[1, 2]
+    ///       ('chr2',): length=4, runs=[4], values=[7]
+    ///     >>> lengths = {"chrom": ["chr1", "chr1"], "width": [3, 2], "score": [0.5, 1.5]}
+    ///     >>> rl.RleBatch.from_table(lengths, "chrom", values="score", runs="width")
+    ///     RleBatch(keys=1, runs=2, dtype=Float64)
+    ///       ('chr1',): length=5, runs=[3, 2], values=[0.5, 1.5]
+    #[staticmethod]
+    #[pyo3(signature = (table, keys, values="value", starts=Some("start"), ends="end", runs=None))]
+    fn from_table(
+        py: Python<'_>,
+        table: &Bound<'_, PyAny>,
+        keys: StrOrList,
+        values: &str,
+        starts: Option<&str>,
+        ends: &str,
+        runs: Option<&str>,
+    ) -> PyResult<Self> {
+        let table = table_from_py(table)?;
+        let column = |name: &str| {
+            table.column_by_name(name).cloned().ok_or_else(|| {
+                let hint = if Some(name) == starts {
+                    "; pass starts=None if each run starts where the previous one ended"
+                } else {
+                    ""
+                };
+                PyValueError::new_err(format!("table has no column {name:?}{hint}"))
+            })
+        };
+        let keys = keys.into_vec();
+        if keys.is_empty() {
+            return Err(PyValueError::new_err("keys must name at least one column"));
+        }
+        let key_columns = keys
+            .iter()
+            .map(|k| Ok((k.as_str(), column(k)?)))
+            .collect::<PyResult<Vec<_>>>()?;
+        let key_table = RecordBatch::try_from_iter(key_columns).or_raise()?;
+        let values = column(values)?;
+        let (lengths, start_values, end_values);
+        let extents = if let Some(runs) = runs {
+            lengths = ints_from_array(&column(runs)?, "runs")?;
+            RunExtents::Lengths(&lengths)
+        } else {
+            end_values = ints_from_array(&column(ends)?, "ends")?;
+            match starts {
+                Some(starts) => {
+                    start_values = ints_from_array(&column(starts)?, "starts")?;
+                    RunExtents::StartsEnds(&start_values, &end_values)
+                }
+                None => RunExtents::Ends(&end_values),
+            }
+        };
+        let batch = py
+            .detach(|| ArrowRleBatch::from_run_table(&key_table, extents, values))
+            .or_raise()?;
+        Ok(batch.into())
     }
 
     /// The key table, one row per Rle.

@@ -14,7 +14,7 @@ use runlength::How;
 
 use crate::error::{Error, Result};
 use crate::kernels::Kernel;
-use crate::rle::ArrowRle;
+use crate::rle::{ArrowRle, check_same_len};
 
 /// Many Arrow-backed sequences, each identified by a row of a key table.
 ///
@@ -44,6 +44,47 @@ pub(crate) fn single_key_column(name: &str, column: ArrayRef) -> RecordBatch {
 /// Encodes key rows so they can be hashed and compared across batches.
 pub(crate) fn key_rows(converter: &RowConverter, keys: &RecordBatch) -> Result<Rows> {
     Ok(converter.convert_columns(keys.columns())?)
+}
+
+/// Numbers each key row by first appearance; returns the group of every row
+/// and the first row of every group.
+pub(crate) fn group_rows(keys: &RecordBatch) -> Result<(Vec<usize>, Vec<u64>)> {
+    let converter = key_converter(keys)?;
+    let rows = key_rows(&converter, keys)?;
+    let mut groups = FxHashMap::default();
+    let mut first_rows = Vec::new();
+    let ids = rows
+        .iter()
+        .enumerate()
+        .map(|(i, row)| {
+            *groups.entry(row).or_insert_with(|| {
+                first_rows.push(i as u64);
+                first_rows.len() - 1
+            })
+        })
+        .collect();
+    Ok((ids, first_rows))
+}
+
+/// Where each run of a run table lies; see [`ArrowRleBatch::from_run_table`].
+#[derive(Clone, Copy, Debug)]
+pub enum RunExtents<'a> {
+    /// The length of each run.
+    Lengths(&'a [i64]),
+    /// The end of each run. A key's first run starts at 0.
+    Ends(&'a [i64]),
+    /// The start and end of each run. A key's runs must start at 0 and
+    /// follow each other without gaps.
+    StartsEnds(&'a [i64], &'a [i64]),
+}
+
+impl RunExtents<'_> {
+    fn len(&self) -> usize {
+        match self {
+            RunExtents::Lengths(runs) => runs.len(),
+            RunExtents::Ends(ends) | RunExtents::StartsEnds(_, ends) => ends.len(),
+        }
+    }
 }
 
 pub(crate) fn key_converter(keys: &RecordBatch) -> Result<RowConverter> {
@@ -149,6 +190,95 @@ impl ArrowRleBatch {
         }
         let values = concat_values(&rles, data_type)?;
         Self::try_new(keys, offsets, ends, values)
+    }
+
+    /// Builds a batch from a table with one row per run: `keys` gives each
+    /// run's key, `extents` where it lies and `values` its value. This is
+    /// the inverse of [`to_record_batch`](Self::to_record_batch).
+    ///
+    /// Keys appear in order of first appearance, and a key's rows need not
+    /// be adjacent, but they must be in position order. Zero-length runs are
+    /// dropped; neighbouring identical values are kept as they are.
+    pub fn from_run_table(
+        keys: &RecordBatch,
+        extents: RunExtents<'_>,
+        values: ArrayRef,
+    ) -> Result<Self> {
+        let n = keys.num_rows();
+        check_same_len("keys and runs", n, extents.len())?;
+        check_same_len("keys and values", n, values.len())?;
+        let (ids, first_rows) = group_rows(keys)?;
+        // Rows in key order: stable, so each key keeps its rows' order.
+        let mut offsets = vec![0; first_rows.len() + 1];
+        for &id in &ids {
+            offsets[id + 1] += 1;
+        }
+        for k in 0..first_rows.len() {
+            offsets[k + 1] += offsets[k];
+        }
+        let order: Option<Vec<usize>> = if ids.is_sorted() {
+            None
+        } else {
+            let mut next = offsets.clone();
+            let mut order = vec![0; n];
+            for (row, &id) in ids.iter().enumerate() {
+                order[next[id]] = row;
+                next[id] += 1;
+            }
+            Some(order)
+        };
+        let row_at = |i: usize| order.as_ref().map_or(i, |o| o[i]);
+
+        let mut ends = Vec::with_capacity(n);
+        let mut kept = Vec::with_capacity(n);
+        let mut out_offsets = Vec::with_capacity(offsets.len());
+        out_offsets.push(0);
+        for w in offsets.windows(2) {
+            let mut total: i64 = 0;
+            for i in w[0]..w[1] {
+                let row = row_at(i);
+                let run = match extents {
+                    RunExtents::Lengths(runs) => runs[row],
+                    RunExtents::Ends(e) => e[row] - total,
+                    RunExtents::StartsEnds(s, e) => {
+                        if s[row] != total {
+                            return Err(Error::NotContiguous {
+                                row,
+                                start: s[row],
+                                expected: total,
+                            });
+                        }
+                        e[row] - s[row]
+                    }
+                };
+                if run < 0 {
+                    return Err(runlength::Error::NegativeRun { index: row, run }.into());
+                }
+                if run > 0 {
+                    total = total.checked_add(run).ok_or(runlength::Error::Overflow)?;
+                    ends.push(total);
+                    kept.push(row as u64);
+                }
+            }
+            out_offsets.push(ends.len());
+        }
+        let values = if order.is_none() && kept.len() == n {
+            values
+        } else {
+            take(values.as_ref(), &UInt64Array::from(kept), None)?
+        };
+        let first_rows = UInt64Array::from(first_rows);
+        let columns = keys
+            .columns()
+            .iter()
+            .map(|c| take(c.as_ref(), &first_rows, None))
+            .collect::<std::result::Result<Vec<_>, _>>()?;
+        let keys = RecordBatch::try_new_with_options(
+            keys.schema(),
+            columns,
+            &RecordBatchOptions::new().with_row_count(Some(first_rows.len())),
+        )?;
+        Self::from_parts_unchecked(keys, out_offsets, ends, values)
     }
 
     /// The number of sequences.

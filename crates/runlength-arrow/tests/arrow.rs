@@ -10,7 +10,7 @@ use arrow_schema::{DataType, Field, Schema};
 use proptest::prelude::*;
 use runlength::prelude::*;
 use runlength_arrow::{
-    ArrowRle, ArrowRleBatch, coverage, coverage_by_key, identical_neighbours, kernels,
+    ArrowRle, ArrowRleBatch, RunExtents, coverage, coverage_by_key, identical_neighbours, kernels,
 };
 
 fn rle() -> impl Strategy<Value = Rle<i64>> {
@@ -289,4 +289,88 @@ fn invalid_input() {
     assert!(
         ArrowRleBatch::from_rles(duplicate, vec![rle.clone(), rle], &DataType::UInt64).is_err()
     );
+}
+
+#[test]
+fn run_table_groups_keys_by_first_appearance() {
+    // chr2 + comes first; chr1 +'s rows are split by it.
+    let keys = keys_of(&[("chr2", "+"), ("chr1", "+"), ("chr2", "+"), ("chr1", "+")]);
+    let values: ArrayRef = Arc::new(Int64Array::from(vec![1, 2, 3, 4]));
+    let starts = vec![0, 0, 2, 3];
+    let ends = vec![2, 3, 5, 4];
+    let lengths = vec![2, 3, 3, 1];
+    for extents in [
+        RunExtents::StartsEnds(&starts, &ends),
+        RunExtents::Ends(&ends),
+        RunExtents::Lengths(&lengths),
+    ] {
+        let batch = ArrowRleBatch::from_run_table(&keys, extents, values.clone()).unwrap();
+        assert_eq!(batch.len(), 2);
+        assert_eq!(batch.offsets(), &[0, 2, 4]);
+        assert_eq!(batch.ends(), &[2, 5, 3, 4]);
+        let values = batch.values().as_primitive::<Int64Type>().values().to_vec();
+        assert_eq!(values, vec![1, 3, 2, 4]);
+        let chroms = batch.keys().column(0).as_string::<i32>();
+        assert_eq!(
+            chroms.iter().flatten().collect::<Vec<_>>(),
+            ["chr2", "chr1"]
+        );
+    }
+}
+
+#[test]
+fn run_table_round_trips() {
+    let a = ArrowRle::from_runs(&[3, 2], strings(&[Some("x"), None])).unwrap();
+    let b = ArrowRle::from_runs(&[4], strings(&[Some("y")])).unwrap();
+    let batch = ArrowRleBatch::from_rles(
+        keys_of(&[("chr1", "+"), ("chr1", "-")]),
+        vec![a, b],
+        &DataType::Utf8,
+    )
+    .unwrap();
+    let table = batch.to_record_batch().unwrap();
+    let column = |name: &str| table.column_by_name(name).unwrap().clone();
+    let starts = column("start")
+        .as_primitive::<Int64Type>()
+        .values()
+        .to_vec();
+    let ends = column("end").as_primitive::<Int64Type>().values().to_vec();
+    let keys = table.project(&[0, 1]).unwrap();
+    let back = ArrowRleBatch::from_run_table(
+        &keys,
+        RunExtents::StartsEnds(&starts, &ends),
+        column("value"),
+    )
+    .unwrap();
+    assert_eq!(back.to_record_batch().unwrap(), table);
+}
+
+#[test]
+fn run_table_drops_empty_runs_and_rejects_bad_extents() {
+    let keys = keys_of(&[("chr1", "+"), ("chr1", "+"), ("chr1", "+")]);
+    let values: ArrayRef = Arc::new(Int64Array::from(vec![1, 2, 3]));
+    let batch =
+        ArrowRleBatch::from_run_table(&keys, RunExtents::Lengths(&[2, 0, 1]), values.clone())
+            .unwrap();
+    assert_eq!(batch.ends(), &[2, 3]);
+    assert_eq!(
+        batch.values().as_primitive::<Int64Type>().values().to_vec(),
+        vec![1, 3]
+    );
+
+    let gap = ArrowRleBatch::from_run_table(
+        &keys,
+        RunExtents::StartsEnds(&[0, 2, 5], &[2, 4, 6]),
+        values.clone(),
+    )
+    .unwrap_err();
+    assert_eq!(
+        gap.to_string(),
+        "row 2 starts at 5, expected 4: each key's runs must start at 0 and follow each other without gaps"
+    );
+    let unsorted =
+        ArrowRleBatch::from_run_table(&keys, RunExtents::Ends(&[2, 1, 3]), values.clone());
+    assert!(unsorted.is_err());
+    let short = ArrowRleBatch::from_run_table(&keys, RunExtents::Lengths(&[1, 1]), values);
+    assert!(short.is_err());
 }

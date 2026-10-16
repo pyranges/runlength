@@ -100,16 +100,13 @@ differentiation:
 ## Many chromosomes
 
 With one sequence per chromosome in a batch, the same code runs on every
-chromosome at once, in parallel. Build a batch from each sample's table,
-grouped by chromosome:
+chromosome at once, in parallel. `from_table` builds a batch from each
+sample's table, one sequence per chromosome. The tables have no start
+column, since each segment starts where the previous one ended:
 
 ```python
 >>> def segmentation(df):
-...     parts = df.partition_by("chrom", maintain_order=True)
-...     return rl.RleBatch.from_rles(
-...         {"chrom": [p["chrom"][0] for p in parts]},
-...         [rl.Rle.from_ends(p["end"], p["state"]) for p in parts],
-...     )
+...     return rl.RleBatch.from_table(df, "chrom", values="state", starts=None)
 >>> stem_all = segmentation(pl.DataFrame({
 ...     "chrom": ["chr1", "chr1", "chr2", "chr2"],
 ...     "end": [500, 1000, 200, 800],

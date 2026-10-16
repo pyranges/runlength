@@ -35,6 +35,15 @@ pub enum Error {
     MissingValues,
     /// An operation needs at least one input but was given none.
     NoInputs,
+    /// A run did not start where the previous run of its key ended (or at 0).
+    NotContiguous {
+        /// The row of the run in the input.
+        row: usize,
+        /// Its start.
+        start: i64,
+        /// Where it should have started.
+        expected: i64,
+    },
     /// An operation failed for the key at `position` in the output.
     InKey {
         /// The position of the key in the output.
@@ -77,6 +86,15 @@ impl fmt::Display for Error {
             Error::UnexpectedNulls => write!(f, "values must not contain nulls"),
             Error::MissingValues => write!(f, "this aggregation needs values"),
             Error::NoInputs => write!(f, "this operation needs at least one input"),
+            Error::NotContiguous {
+                row,
+                start,
+                expected,
+            } => write!(
+                f,
+                "row {row} starts at {start}, expected {expected}: each key's runs must start at 0 \
+                 and follow each other without gaps"
+            ),
             Error::InKey { position, source } => {
                 write!(f, "key at output position {position}: {source}")
             }

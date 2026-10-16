@@ -292,6 +292,62 @@ def test_coverage_by_key(intervals, frame):
     assert table.columns == ["Chromosome", "Strand", "start", "end", "value"]
 
 
+@pytest.mark.parametrize("frame", ["polars", "pandas", "pyarrow"])
+def test_from_table_round_trips(intervals, frame):
+    keys = intervals.select("Chromosome", "Strand")
+    batch = rl.coverage_by_key(keys, intervals["Start"], intervals["End"], intervals["Score"])
+    table = {"polars": batch.to_polars, "pandas": batch.to_pandas, "pyarrow": batch.to_arrow}[frame]()
+    back = rl.RleBatch.from_table(table, ["Chromosome", "Strand"])
+    assert back.to_polars().equals(batch.to_polars())
+
+
+def test_from_table_extents_and_key_order():
+    # Key "b" first; key "a"'s rows are split by it.
+    table = pl.DataFrame(
+        {
+            "k": ["b", "a", "b", "a"],
+            "start": [0, 0, 2, 3],
+            "end": [2, 3, 5, 4],
+            "width": [2, 3, 3, 1],
+            "value": ["w", "x", None, "z"],
+        }
+    )
+    expected = [("b", ["w", "w", None, None, None]), ("a", ["x", "x", "x", "z"])]
+    for kwargs in [{}, {"starts": None}, {"runs": "width"}]:
+        batch = rl.RleBatch.from_table(table, "k", **kwargs)
+        assert [(k[0], r.to_dense().to_pylist()) for k, r in batch.items()] == expected
+
+
+def test_from_table_drops_empty_runs_and_keeps_neighbours():
+    batch = rl.RleBatch.from_table({"k": [1, 1, 1], "n": [2, 0, 1], "value": [5, 6, 5]}, "k", runs="n")
+    assert batch[0].runs.to_pylist() == [2, 1]
+    assert batch[0].values.to_pylist() == [5, 5]
+
+
+def test_from_table_empty():
+    table = pl.DataFrame({"k": [], "start": [], "end": [], "value": []},
+                         schema={"k": pl.String, "start": pl.Int64, "end": pl.Int64, "value": pl.Float64})
+    batch = rl.RleBatch.from_table(table, "k")
+    assert len(batch) == 0
+    assert batch.dtype == "Float64"
+
+
+def test_from_table_errors():
+    gap = {"k": ["a", "a"], "start": [0, 3], "end": [2, 5], "value": [1, 2]}
+    with pytest.raises(ValueError, match="row 1 starts at 3, expected 2"):
+        rl.RleBatch.from_table(gap, "k")
+    with pytest.raises(ValueError, match="pass starts=None"):
+        rl.RleBatch.from_table({"k": ["a"], "end": [2], "value": [1]}, "k")
+    with pytest.raises(ValueError, match="no column \"chrom\""):
+        rl.RleBatch.from_table(gap, "chrom")
+    with pytest.raises(ValueError, match="negative"):
+        rl.RleBatch.from_table({"k": ["a"], "n": [-1], "value": [1]}, "k", runs="n")
+    with pytest.raises(TypeError, match="must be integers"):
+        rl.RleBatch.from_table({"k": ["a"], "n": [1.5], "value": [1]}, "k", runs="n")
+    with pytest.raises(ValueError, match="at least one"):
+        rl.RleBatch.from_table(gap, [])
+
+
 def test_batch_arithmetic_outer_joins_keys(intervals):
     keys = intervals.select("Chromosome", "Strand")
     a = rl.coverage_by_key(keys, intervals["Start"], intervals["End"])

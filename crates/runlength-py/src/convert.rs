@@ -139,7 +139,11 @@ pub fn array_from_py(obj: &Bound<'_, PyAny>) -> PyResult<ArrayRef> {
 
 /// Reads positions or lengths: integers without nulls.
 pub fn ints_from_py(obj: &Bound<'_, PyAny>, what: &str) -> PyResult<Vec<i64>> {
-    let array = array_from_py(obj)?;
+    ints_from_array(&array_from_py(obj)?, what)
+}
+
+/// Reads positions or lengths from an Arrow array: integers without nulls.
+pub fn ints_from_array(array: &ArrayRef, what: &str) -> PyResult<Vec<i64>> {
     if array.null_count() > 0 {
         return Err(PyValueError::new_err(format!(
             "{what} must not contain nulls"

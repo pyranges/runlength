@@ -40,7 +40,7 @@ mod rle;
 mod slices;
 mod transform;
 
-pub use batch::ArrowRleBatch;
+pub use batch::{ArrowRleBatch, RunExtents};
 pub use coverage::{
     Agg, coverage, coverage_agg, coverage_agg_by_key, coverage_by_key, overlap_plan_by_key,
 };
