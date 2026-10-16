@@ -33,9 +33,29 @@ struct Sweep<V> {
 /// Sweeps over the intervals in `idx`, adding each interval's weight where it
 /// starts and subtracting it where it ends.
 ///
-/// When no interval is active the running sum is reset to exactly zero, so
-/// floating-point rounding cannot leave small non-zero values in gaps.
+/// Intervals ending at a position are removed before those starting there
+/// are added, and when no interval is active the running sum is reset to
+/// exactly zero, so floating-point rounding cannot carry one interval's value
+/// into a gap or into an interval that merely touches it. NaN and infinite
+/// weights are counted rather than summed, since subtracting them again would
+/// give NaN: a segment is NaN while a NaN (or both infinities) cover it, and
+/// infinite while one infinity does.
 fn sweep<V: Num>(
+    starts: &[i64],
+    ends: &[i64],
+    idx: &[usize],
+    weight: impl Fn(usize) -> V,
+) -> Sweep<V> {
+    // Integers are always finite, and so are most floats: skip the
+    // bookkeeping then.
+    if idx.iter().all(|&i| weight(i).to_f64().is_finite()) {
+        sweep_impl::<V, false>(starts, ends, idx, weight)
+    } else {
+        sweep_impl::<V, true>(starts, ends, idx, weight)
+    }
+}
+
+fn sweep_impl<V: Num, const NONFINITE: bool>(
     starts: &[i64],
     ends: &[i64],
     idx: &[usize],
@@ -63,30 +83,97 @@ fn sweep<V: Num>(
     let mut pos = 0;
     let mut sum = V::default();
     let mut count = 0i64;
+    let mut nonfinite = NonFinite::default();
     while e < by_end.len() {
         let next_start = by_start.get(s).map_or(i64::MAX, |&(p, _)| p);
         let p = next_start.min(by_end[e].0);
         if p > pos {
             out.ends.push(p);
-            out.sums.push(sum);
+            let value = if NONFINITE { nonfinite.value() } else { None };
+            out.sums.push(value.unwrap_or(sum));
             out.counts.push(count);
             pos = p;
         }
-        while s < by_start.len() && by_start[s].0 == p {
-            sum = sum + weight(by_start[s].1);
-            count += 1;
-            s += 1;
-        }
         while e < by_end.len() && by_end[e].0 == p {
-            sum = sum - weight(by_end[e].1);
+            let w = weight(by_end[e].1);
+            if !(NONFINITE && nonfinite.update(w, -1)) {
+                sum = sum - w;
+            }
             count -= 1;
             e += 1;
         }
         if count == 0 {
             sum = V::default();
         }
+        while s < by_start.len() && by_start[s].0 == p {
+            let w = weight(by_start[s].1);
+            if !(NONFINITE && nonfinite.update(w, 1)) {
+                sum = sum + w;
+            }
+            count += 1;
+            s += 1;
+        }
     }
     out
+}
+
+/// The NaN and infinite weights covering the current position.
+struct NonFinite<V> {
+    nan: i64,
+    pos_inf: i64,
+    neg_inf: i64,
+    /// One weight of each kind, to return as the segment's value.
+    nan_value: Option<V>,
+    pos_inf_value: Option<V>,
+    neg_inf_value: Option<V>,
+}
+
+impl<V> Default for NonFinite<V> {
+    fn default() -> Self {
+        NonFinite {
+            nan: 0,
+            pos_inf: 0,
+            neg_inf: 0,
+            nan_value: None,
+            pos_inf_value: None,
+            neg_inf_value: None,
+        }
+    }
+}
+
+impl<V: Num> NonFinite<V> {
+    /// Counts `w` in (`delta` 1) or out (-1) if it is NaN or infinite, and
+    /// returns whether it was.
+    #[inline]
+    fn update(&mut self, w: V, delta: i64) -> bool {
+        let f = w.to_f64();
+        if f.is_finite() {
+            return false;
+        }
+        let (count, value) = if f.is_nan() {
+            (&mut self.nan, &mut self.nan_value)
+        } else if f > 0.0 {
+            (&mut self.pos_inf, &mut self.pos_inf_value)
+        } else {
+            (&mut self.neg_inf, &mut self.neg_inf_value)
+        };
+        *count += delta;
+        value.get_or_insert(w);
+        true
+    }
+
+    /// The segment's value if a NaN or infinity covers it.
+    fn value(&self) -> Option<V> {
+        let pos = (self.pos_inf > 0).then_some(self.pos_inf_value).flatten();
+        let neg = (self.neg_inf > 0).then_some(self.neg_inf_value).flatten();
+        if self.nan > 0 {
+            return self.nan_value;
+        }
+        match (pos, neg) {
+            (Some(p), Some(n)) => Some(p + n),
+            (p, n) => p.or(n),
+        }
+    }
 }
 
 /// Sorts in parallel when there is enough work to split.

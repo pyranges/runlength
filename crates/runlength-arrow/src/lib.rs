@@ -46,7 +46,7 @@ pub use coverage::{
 };
 pub use error::{Error, Result};
 pub use identical::identical_neighbours;
-pub use numeric::common_numeric_type;
+pub use numeric::{cast_checked, common_numeric_type};
 pub use rle::{ArrowRle, default_fill};
 pub use runlength::{How, Keep, OverlapPlan, PlanMany, overlap_plan, plan_many};
 pub use slices::SliceAgg;

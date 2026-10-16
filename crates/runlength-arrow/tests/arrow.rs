@@ -374,3 +374,11 @@ fn run_table_drops_empty_runs_and_rejects_bad_extents() {
     let short = ArrowRleBatch::from_run_table(&keys, RunExtents::Lengths(&[1, 1]), values);
     assert!(short.is_err());
 }
+
+#[test]
+fn run_table_checks_starts_against_ends() {
+    let keys = keys_of(&[("chr1", "+")]);
+    let values: ArrayRef = Arc::new(Int64Array::from(vec![1]));
+    let result = ArrowRleBatch::from_run_table(&keys, RunExtents::StartsEnds(&[], &[1]), values);
+    assert!(result.is_err());
+}

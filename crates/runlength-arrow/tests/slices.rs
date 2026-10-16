@@ -95,7 +95,7 @@ proptest! {
         let joined = ArrowRleBatch::concat(&[a, b]).unwrap();
         let expected = [
             first[0].clone(),
-            runlength::concat([first[1].view(), second[0].view()]),
+            runlength::concat([first[1].view(), second[0].view()]).unwrap(),
             second[1].clone(),
         ];
         prop_assert_eq!(joined.keys(), &names(&["x", "y", "z"]));

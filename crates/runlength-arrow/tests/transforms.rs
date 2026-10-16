@@ -43,7 +43,7 @@ proptest! {
         prop_assert_eq!(core(&arrow(&a).shift(distance, one(7).as_ref()).unwrap()), a.shift(distance, 7));
         prop_assert_eq!(core(&arrow(&a).reversed().unwrap()), a.reversed());
         let joined = concat(&[arrow(&a), arrow(&b)]).unwrap();
-        prop_assert_eq!(core(&joined), runlength::concat([a.view(), b.view()]));
+        prop_assert_eq!(core(&joined), runlength::concat([a.view(), b.view()]).unwrap());
     }
 
     #[test]

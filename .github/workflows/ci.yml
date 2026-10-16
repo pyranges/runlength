@@ -19,6 +19,15 @@ jobs:
       - run: cargo test --workspace
       - run: cargo run --example tour
 
+  msrv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.88
+      - uses: Swatinem/rust-cache@v2
+      # The minimum version in Cargo.toml (rust-version).
+      - run: cargo check --workspace
+
   python:
     runs-on: ubuntu-latest
     steps:

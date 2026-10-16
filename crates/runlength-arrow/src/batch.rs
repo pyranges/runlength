@@ -79,10 +79,15 @@ pub enum RunExtents<'a> {
 }
 
 impl RunExtents<'_> {
-    fn len(&self) -> usize {
+    /// The number of runs, checking that starts and ends agree.
+    fn len(&self) -> Result<usize> {
         match self {
-            RunExtents::Lengths(runs) => runs.len(),
-            RunExtents::Ends(ends) | RunExtents::StartsEnds(_, ends) => ends.len(),
+            RunExtents::Lengths(runs) => Ok(runs.len()),
+            RunExtents::Ends(ends) => Ok(ends.len()),
+            RunExtents::StartsEnds(starts, ends) => {
+                check_same_len("starts and ends", starts.len(), ends.len())?;
+                Ok(ends.len())
+            }
         }
     }
 }
@@ -205,7 +210,7 @@ impl ArrowRleBatch {
         values: ArrayRef,
     ) -> Result<Self> {
         let n = keys.num_rows();
-        check_same_len("keys and runs", n, extents.len())?;
+        check_same_len("keys and runs", n, extents.len()?)?;
         check_same_len("keys and values", n, values.len())?;
         let (ids, first_rows) = group_rows(keys)?;
         // Rows in key order: stable, so each key keeps its rows' order.

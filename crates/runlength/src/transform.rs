@@ -1,20 +1,22 @@
 //! Rearranging sequences: shifting, reversing, joining, and finding ranges.
 
+use crate::error::{Error, Result};
 use crate::identical::Identical;
 use crate::rle::{Rle, RleLike, RleRef};
 
 /// Joins sequences end to end. Identical neighbours are merged, including at
-/// the joins.
+/// the joins. Fails with [`Error::Overflow`] if the total length does not
+/// fit in an `i64`.
 ///
 /// ```
 /// use runlength::{concat, Rle, RleLike};
 ///
 /// let a = Rle::from_runs(&[2], vec![1]).unwrap();
 /// let b = Rle::from_runs(&[1, 1], vec![1, 2]).unwrap();
-/// let c = concat([a.view(), b.view()]);
+/// let c = concat([a.view(), b.view()]).unwrap();
 /// assert_eq!(c.runs(), vec![3, 1]);
 /// ```
-pub fn concat<'a, V, I>(rles: I) -> Rle<V>
+pub fn concat<'a, V, I>(rles: I) -> Result<Rle<V>>
 where
     V: Clone + Identical + 'a,
     I: IntoIterator<Item = RleRef<'a, V>>,
@@ -22,11 +24,12 @@ where
     let mut out = Rle::new();
     for rle in rles {
         let offset = out.len();
+        offset.checked_add(rle.len()).ok_or(Error::Overflow)?;
         for (&end, value) in rle.ends.iter().zip(rle.values) {
             out.push_merged(offset + end, value.clone());
         }
     }
-    out
+    Ok(out)
 }
 
 pub(crate) fn shift<V: Clone + Identical>(rle: RleRef<'_, V>, distance: i64, fill: V) -> Rle<V> {

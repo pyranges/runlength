@@ -17,6 +17,7 @@ use crate::batch::ArrowRleBatch;
 use crate::error::{Error, Result};
 use crate::identical::identical_neighbours;
 use crate::kernels::Kernel;
+use crate::numeric::cast_checked;
 
 /// A run-length encoded sequence whose values are an Arrow array of any type.
 ///
@@ -86,14 +87,14 @@ pub(crate) fn array_ref(array: &dyn Array) -> ArrayRef {
 }
 
 pub(crate) fn check_fill(fill: Option<&dyn Array>, data_type: &DataType) -> Result<()> {
-    if let Some(fill) = fill {
-        if fill.len() != 1 || fill.data_type() != data_type {
-            return Err(Error::InvalidFill {
-                expected: data_type.clone(),
-                actual: fill.data_type().clone(),
-                len: fill.len(),
-            });
-        }
+    if let Some(fill) = fill
+        && (fill.len() != 1 || fill.data_type() != data_type)
+    {
+        return Err(Error::InvalidFill {
+            expected: data_type.clone(),
+            actual: fill.data_type().clone(),
+            len: fill.len(),
+        });
     }
     Ok(())
 }
@@ -424,12 +425,13 @@ impl ArrowRle {
     }
 
     /// Casts the values to `data_type` and merges any neighbours that become
-    /// identical (for example when floats are truncated to integers).
+    /// identical (for example when floats are truncated to integers). Fails
+    /// if a value doesn't fit in the new type.
     pub fn cast(&self, data_type: &DataType) -> Result<ArrowRle> {
         if self.data_type() == data_type {
             return Ok(self.clone());
         }
-        let values = cast(self.values.as_ref(), data_type)?;
+        let values = cast_checked(self.values.as_ref(), data_type)?;
         ArrowRle {
             ends: self.ends.clone(),
             values,

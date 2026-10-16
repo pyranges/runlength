@@ -22,10 +22,12 @@ pub fn concat(rles: &[ArrowRle]) -> Result<ArrowRle> {
         return Ok(ArrowRle::empty(&DataType::Null));
     };
     let mut ends = Vec::with_capacity(rles.iter().map(|r| r.num_runs()).sum());
-    let mut offset = 0;
+    let mut offset: i64 = 0;
     for rle in rles {
         ends.extend(rle.ends().iter().map(|&e| e + offset));
-        offset += rle.len();
+        offset = offset
+            .checked_add(rle.len())
+            .ok_or(runlength::Error::Overflow)?;
     }
     let values: Vec<&dyn Array> = rles.iter().map(|r| r.values().as_ref()).collect();
     let values = if values.len() == 1 {
@@ -155,19 +157,26 @@ impl ArrowRleBatch {
             .map(|name| keys.schema().index_of(name))
             .collect::<std::result::Result<Vec<_>, _>>()?;
         let kept = keys.project(&indices)?;
-        let converter = key_converter(&kept)?;
-        let rows = key_rows(&converter, &kept)?;
-
         let mut groups: Vec<Vec<usize>> = Vec::new();
         let mut first_rows = Vec::new();
-        let mut positions = FxHashMap::default();
-        for (i, row) in rows.iter().enumerate() {
-            let g = *positions.entry(row).or_insert_with(|| {
-                first_rows.push(i as u64);
-                groups.push(Vec::new());
-                groups.len() - 1
-            });
-            groups[g].push(i);
+        if kept.num_columns() == 0 {
+            // Every sequence goes into one group, with an empty key.
+            if !self.is_empty() {
+                groups.push((0..self.len()).collect());
+                first_rows.push(0);
+            }
+        } else {
+            let converter = key_converter(&kept)?;
+            let rows = key_rows(&converter, &kept)?;
+            let mut positions = FxHashMap::default();
+            for (i, row) in rows.iter().enumerate() {
+                let g = *positions.entry(row).or_insert_with(|| {
+                    first_rows.push(i as u64);
+                    groups.push(Vec::new());
+                    groups.len() - 1
+                });
+                groups[g].push(i);
+            }
         }
 
         let data_type = self.values().data_type();
@@ -193,7 +202,12 @@ impl ArrowRleBatch {
             .iter()
             .map(|c| take(c.as_ref(), &first_rows, None))
             .collect::<std::result::Result<Vec<_>, _>>()?;
-        let new_keys = RecordBatch::try_new(kept.schema(), columns)?;
+        // Keeping no columns leaves one group with an empty key.
+        let new_keys = RecordBatch::try_new_with_options(
+            kept.schema(),
+            columns,
+            &RecordBatchOptions::new().with_row_count(Some(first_rows.len())),
+        )?;
         let out_type = rles
             .first()
             .map_or(data_type.clone(), |r| r.data_type().clone());

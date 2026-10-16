@@ -1,6 +1,10 @@
 //! Dispatch from an Arrow data type to the core crate's numeric types.
 
+use arrow_array::{Array, ArrayRef};
+use arrow_cast::{CastOptions, cast_with_options};
 use arrow_schema::DataType;
+
+use crate::error::Result;
 
 /// Runs `$body` with `$T` bound to the Arrow type of `$values`, for the
 /// numeric types coverage supports.
@@ -55,8 +59,11 @@ macro_rules! with_numeric_type {
 pub(crate) use with_numeric_type;
 
 /// The type two numeric types are converted to before combining them:
-/// themselves if equal, `Float64` if either is a float, `Int64` otherwise.
-/// `None` if either is not numeric.
+/// themselves if equal, `Float64` if either is a float, `UInt64` if both are
+/// unsigned, `Int64` otherwise. `None` if either is not numeric.
+///
+/// Converting to `Int64` fails for unsigned values above `i64::MAX`; see
+/// [`cast_checked`].
 pub fn common_numeric_type(a: &DataType, b: &DataType) -> Option<DataType> {
     if !a.is_numeric() || !b.is_numeric() {
         return None;
@@ -66,7 +73,19 @@ pub fn common_numeric_type(a: &DataType, b: &DataType) -> Option<DataType> {
     }
     if a.is_floating() || b.is_floating() {
         Some(DataType::Float64)
+    } else if a.is_unsigned_integer() && b.is_unsigned_integer() {
+        Some(DataType::UInt64)
     } else {
         Some(DataType::Int64)
     }
+}
+
+/// Casts `array` to `data_type`, failing instead of turning values that
+/// don't fit (such as 300 as an `Int8`) into nulls.
+pub fn cast_checked(array: &dyn Array, data_type: &DataType) -> Result<ArrayRef> {
+    let options = CastOptions {
+        safe: false,
+        ..Default::default()
+    };
+    Ok(cast_with_options(array, data_type, &options)?)
 }

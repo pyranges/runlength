@@ -134,3 +134,39 @@ Rle(length=5, runs=2, dtype=Float32)
   runs:   [3, 2]
   values: [1.0, 2.0]
 ```
+
+### Mixing numeric types
+
+Combining two numeric types converts both to a common one first: `Float64`
+if either is a float, `UInt64` if both are unsigned, and `Int64` otherwise.
+Values are never silently changed on the way: a value that doesn't fit in
+the common type, or in the type you `cast` to, is an error rather than null:
+
+```python
+>>> import pyarrow as pa
+>>> big = rl.Rle([1], pa.array([2**64 - 1], pa.uint64()))
+>>> big + rl.Rle([1], pa.array([1], pa.uint8()))
+Traceback (most recent call last):
+    ...
+ValueError: Arithmetic overflow: Overflow happened on: 18446744073709551615 + 1
+>>> big + rl.Rle([1], [0])
+Traceback (most recent call last):
+    ...
+ValueError: Cast error: Can't cast value 18446744073709551615 to type Int64
+```
+
+Lists of Python ints become `Int64`, or `UInt64` if a value is too large
+for that. Fill values and lookup keys must also convert exactly:
+`batch.get(1.0)` finds the integer key 1, but `batch.get(1.5)` is an error.
+
+Within one type, arithmetic that overflows is an error. Reductions such as
+`sum` wrap around instead, so for small integer types, cast to a wider
+type first:
+
+```python
+>>> small = rl.Rle([2], pa.array([100], pa.int8()))
+>>> small.sum()
+-56
+>>> small.cast("int64").sum()
+200
+```

@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use arrow_array::{Array, ArrayRef, Float64Array, Int64Array, RecordBatch, RecordBatchOptions};
-use arrow_cast::cast;
 use arrow_schema::{DataType, Field, Schema};
 use arrow_select::concat::concat;
 use pyo3::basic::CompareOp;
@@ -14,9 +13,9 @@ use runlength_arrow::kernels::Kernel;
 use runlength_arrow::{ArrowRle, ArrowRleBatch, RunExtents, common_numeric_type};
 
 use crate::convert::{
-    FillArg, OrRaise, array_to_py, ints_from_array, ints_from_py, is_table_like, keys_from_py,
-    scalar_of_type, table_capsule, table_from_py, table_to_py, to_arrow, to_pandas, to_polars,
-    value_to_py,
+    FillArg, OrRaise, array_to_py, cast_exact, ints_from_array, ints_from_py, is_table_like,
+    keys_from_py, scalar_of_type, table_capsule, table_from_py, table_to_py, to_arrow, to_pandas,
+    to_polars, value_to_py,
 };
 use crate::rle::{
     PyRle, call_python, combine_scalar, fill_array, fill_of, format_values, kernel_for,
@@ -224,7 +223,7 @@ fn keys_like(batch: &ArrowRleBatch, obj: &Bound<'_, PyAny>) -> PyResult<RecordBa
             let column = column.ok_or_else(|| {
                 PyValueError::new_err(format!("keys have no column {:?}", field.name()))
             })?;
-            cast(column.as_ref(), field.data_type()).or_raise()
+            cast_exact(column.clone(), field.data_type())
         })
         .collect::<PyResult<Vec<_>>>()?;
     RecordBatch::try_new_with_options(

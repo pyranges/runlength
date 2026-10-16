@@ -7,6 +7,7 @@ use arrow_array::{
     RecordBatchOptions, StringArray, UInt64Array,
 };
 use arrow_buffer::{OffsetBuffer, ScalarBuffer};
+use arrow_cast::cast;
 use arrow_schema::{DataType, Field, Schema};
 use arrow_select::take::take;
 use rayon::prelude::*;
@@ -15,7 +16,7 @@ use runlength::{Rle, RleBatch};
 use crate::batch::{ArrowRleBatch, group_rows};
 use crate::error::{Error, Result};
 use crate::numeric::with_numeric_type;
-use crate::rle::ArrowRle;
+use crate::rle::{ArrowRle, check_same_len};
 
 fn to_array<T: ArrowPrimitiveType>(values: Vec<T::Native>) -> ArrayRef {
     Arc::new(PrimitiveArray::<T>::new(ScalarBuffer::from(values), None))
@@ -104,6 +105,11 @@ fn extreme(
     length: Option<i64>,
     max: bool,
 ) -> Result<ArrowRle> {
+    // Other string encodings (polars uses Utf8View) go through Utf8 and back.
+    if matches!(values.data_type(), DataType::LargeUtf8 | DataType::Utf8View) {
+        let utf8 = cast(values, &DataType::Utf8)?;
+        return extreme(starts, ends, utf8.as_ref(), length, max)?.cast(values.data_type());
+    }
     if let Some(strings) = values.as_string_opt::<i32>() {
         if strings.null_count() > 0 {
             return Err(Error::UnexpectedNulls);
@@ -152,6 +158,21 @@ pub fn coverage_agg(
     }
 }
 
+/// Checks that keys, starts, ends and values have one entry per interval.
+fn check_intervals(
+    keys: &RecordBatch,
+    starts: &[i64],
+    ends: &[i64],
+    values: Option<&dyn Array>,
+) -> Result<()> {
+    check_same_len("keys and starts", keys.num_rows(), starts.len())?;
+    check_same_len("starts and ends", starts.len(), ends.len())?;
+    if let Some(values) = values {
+        check_same_len("starts and values", starts.len(), values.len())?;
+    }
+    Ok(())
+}
+
 /// [`coverage_agg`] per key, computed in parallel; see [`coverage_by_key`]
 /// for the keys.
 pub fn coverage_agg_by_key(
@@ -165,6 +186,7 @@ pub fn coverage_agg_by_key(
         return coverage_by_key(keys, starts, ends, None);
     }
     let values = values.ok_or(Error::MissingValues)?;
+    check_intervals(keys, starts, ends, Some(values))?;
     let (ids, first_rows) = group_rows(keys)?;
     let groups = group_indices(&ids, first_rows.len());
     let rles = groups
@@ -225,6 +247,7 @@ pub fn coverage_by_key(
     ends: &[i64],
     values: Option<&dyn Array>,
 ) -> Result<ArrowRleBatch> {
+    check_intervals(keys, starts, ends, values)?;
     let (ids, first_rows) = group_rows(keys)?;
     let Some(values) = values else {
         let batch = runlength::coverage_count_by_key(&ids, starts, ends)?;
@@ -249,6 +272,7 @@ pub fn overlap_plan_by_key(
     starts: &[i64],
     ends: &[i64],
 ) -> Result<RecordBatch> {
+    check_intervals(keys, starts, ends, None)?;
     let (ids, first_rows) = group_rows(keys)?;
     let (groups, plans) = runlength::overlap_plan_by_key(&ids, starts, ends)?;
     debug_assert!(groups.iter().enumerate().all(|(i, &g)| i == g));

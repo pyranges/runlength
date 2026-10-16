@@ -6,4 +6,4 @@ members = ["crates/runlength", "crates/runlength-arrow", "crates/runlength-py"]
 edition = "2024"
 license = "MIT"
 repository = "https://github.com/pyranges/runlength"
-rust-version = "1.85"
+rust-version = "1.88"

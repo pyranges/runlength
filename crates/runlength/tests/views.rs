@@ -62,7 +62,7 @@ proptest! {
     #[test]
     fn batch_concat_matches_dense(parts in prop::collection::vec(batch(), 0..3)) {
         let refs: Vec<&RleBatch<u8, i64>> = parts.iter().collect();
-        let joined = RleBatch::concat(&refs);
+        let joined = RleBatch::concat(&refs).unwrap();
         for (key, rle) in joined.iter() {
             let dense: Vec<i64> = parts
                 .iter()

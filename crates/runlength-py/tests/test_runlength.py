@@ -389,3 +389,88 @@ def test_batch_errors():
         rl.RleBatch.from_rles({"k": ["x", "x"]}, [rl.Rle([1], [1]), rl.Rle([1], [1])])
     with pytest.raises(TypeError):
         a + b.keys
+
+
+def test_count_ignores_values():
+    for fill in [0, None]:
+        counts = rl.coverage([0, 1], [2, 3], values=[10, 20], agg="count", fill=fill)
+        assert dense(counts) == [1, 2, 1]
+    batch = rl.coverage_by_key({"k": [1, 1]}, [0, 1], [2, 3], values=[10, 20], agg="count")
+    assert dense(batch[0]) == [1, 2, 1]
+
+
+def test_integers_out_of_int64_range_are_rejected():
+    with pytest.raises(ValueError, match="fit in a signed 64-bit integer"):
+        rl.Rle(np.array([2**63], dtype=np.uint64), [7])
+    big = np.array([2**63], dtype=np.uint64)
+    with pytest.raises(ValueError, match="starts must fit"):
+        rl.coverage(big, big + 2)
+
+
+def test_keyed_coverage_checks_lengths():
+    for agg in ["sum", "max"]:
+        with pytest.raises(ValueError, match="different lengths"):
+            rl.coverage_by_key({"k": [1, 1, 2]}, [0, 1], [2, 3], values=[1, 2], agg=agg)
+        with pytest.raises(ValueError, match="different lengths"):
+            rl.coverage_by_key({"k": [1]}, [0, 1], [2, 3], values=[1, 2], agg=agg)
+    with pytest.raises(ValueError, match="different lengths"):
+        rl.overlap_plan_by_key({"k": [1]}, [0, 1], [2, 3])
+
+
+def test_concat_overflow():
+    with pytest.raises(ValueError, match="does not fit"):
+        rl.concat([rl.Rle([2**63 - 1], [1]), rl.Rle([1], [2])])
+
+
+def test_collapse_all_key_columns():
+    batch = rl.RleBatch.from_rles({"k": ["a", "b"]}, [rl.Rle([1], [1]), rl.Rle([2], [2])])
+    total = batch.collapse(drop="k")
+    assert len(total) == 1
+    assert dense(total[0]) == [3, 2]
+
+
+def test_numeric_promotion_keeps_values_or_raises():
+    big = rl.Rle([1], pa.array([2**64 - 1], pa.uint64()))
+    assert (big + rl.Rle([1], pa.array([0], pa.uint32()))).values.to_pylist() == [2**64 - 1]
+    assert (rl.Rle([1], pa.array([5], pa.uint64())) + rl.Rle([1], [3])).values.to_pylist() == [8]
+    with pytest.raises(ValueError, match="Can't cast"):
+        big + rl.Rle([1], [0])
+    with pytest.raises(ValueError, match="Can't cast"):
+        rl.Rle([2], [300]).cast("int8")
+
+
+def test_large_python_ints():
+    assert rl.Rle([1], [2**63 + 1]).values.to_pylist() == [2**63 + 1]
+    with pytest.raises(ValueError, match="fit in 64 bits"):
+        rl.Rle([1], [2**64])
+    assert rl.Rle([1, 1], [2**64, 0.5]).dtype == "Float64"
+
+
+def test_lookups_and_fills_must_be_exact():
+    batch = rl.RleBatch.from_rles({"k": [1, None]}, [rl.Rle([1], [5]), rl.Rle([1], [6])])
+    assert dense(batch.get(1.0)) == [5]
+    with pytest.raises(ValueError, match="exactly"):
+        batch.get(1.9)
+    with pytest.raises(ValueError):
+        batch.get(2**70)
+    with pytest.raises(ValueError, match="exactly"):
+        rl.Rle([2], [1]).shift(1, fill=1.5)
+
+
+@pytest.mark.parametrize(
+    "values",
+    [["a", "b"], pl.Series(["a", "b"]), pa.array(["a", "b"], pa.large_string())],
+    ids=["list", "polars", "large_string"],
+)
+def test_string_coverage_any_encoding(values):
+    out = rl.coverage([0, 1], [2, 3], values=values, agg="max", length=4)
+    assert out.to_dense().to_pylist() == ["a", "b", "b", None]
+    batch = rl.coverage_by_key({"k": [1, 1]}, [0, 1], [2, 3], values=values, agg="min")
+    assert batch[0].to_dense().to_pylist() == ["a", "a", "b"]
+
+
+def test_float_coverage_is_exact_across_touching_and_nonfinite_intervals():
+    assert dense(rl.coverage([0, 1], [1, 2], values=[1e16, 1.0])) == [1e16, 1.0]
+    nan = dense(rl.coverage([0, 0], [1, 3], values=[float("nan"), 1.0]))
+    assert math.isnan(nan[0]) and nan[1:] == [1.0, 1.0]
+    assert dense(rl.coverage([0, 0], [1, 3], values=[float("inf"), 1.0])) == [math.inf, 1.0, 1.0]

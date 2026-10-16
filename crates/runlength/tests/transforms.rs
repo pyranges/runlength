@@ -50,7 +50,7 @@ proptest! {
 
     #[test]
     fn concat_matches_dense(parts in prop::collection::vec(rle(), 0..4)) {
-        let joined = concat(parts.iter().map(|p| p.view()));
+        let joined = concat(parts.iter().map(|p| p.view())).unwrap();
         let dense: Vec<i64> = parts.iter().flat_map(|p| p.to_dense()).collect();
         prop_assert_eq!(joined.to_dense(), dense);
         prop_assert!(joined.is_merged());
@@ -162,4 +162,38 @@ fn coverage_max_by_key_groups() {
         batch.get(&"x").unwrap().to_dense(),
         vec![Some(1), Some(3), Some(3)]
     );
+}
+
+#[test]
+fn concat_rejects_overflowing_lengths() {
+    let long = Rle::from_runs(&[i64::MAX], vec![1]).unwrap();
+    let one = Rle::from_runs(&[1], vec![2]).unwrap();
+    assert_eq!(
+        concat([long.view(), one.view()]).unwrap_err(),
+        runlength::Error::Overflow
+    );
+}
+
+#[test]
+fn float_coverage_keeps_touching_intervals_apart() {
+    let cov = runlength::coverage_sum(&[0, 1], &[1, 2], &[1e16, 1.0], None).unwrap();
+    assert_eq!(cov.to_dense(), vec![1e16, 1.0]);
+}
+
+#[test]
+fn nonfinite_weights_only_affect_their_own_intervals() {
+    let nan = runlength::coverage_sum(&[0, 0], &[1, 3], &[f64::NAN, 1.0], None).unwrap();
+    let dense = nan.to_dense();
+    assert!(dense[0].is_nan());
+    assert_eq!(dense[1..], [1.0, 1.0]);
+
+    let inf = f64::INFINITY;
+    let cov = runlength::coverage_sum(&[0, 0, 1], &[1, 3, 2], &[inf, 1.0, -inf], None).unwrap();
+    assert_eq!(cov.to_dense()[0], inf);
+    assert_eq!(cov.to_dense()[1], -inf);
+    assert_eq!(cov.to_dense()[2], 1.0);
+
+    let both = runlength::coverage_sum(&[0, 0], &[2, 1], &[inf, -inf], None).unwrap();
+    assert!(both.to_dense()[0].is_nan());
+    assert_eq!(both.to_dense()[1], inf);
 }

@@ -837,9 +837,10 @@ def coverage(
 
     `agg` combines the intervals covering each position: "sum" of `values`
     (the number of intervals if no values are given), "count", "max" or
-    "min" (numbers or strings). Uncovered positions hold `fill`, 0 by
-    default; `fill=None` leaves them null. The result covers 0..max(end), or
-    0..length if given.
+    "min" (numbers or strings). Uncovered positions hold `fill`: by default
+    0 for numbers and null for strings; `fill=None` leaves them null. Counts are never missing, so with
+    "count" uncovered positions are always 0. The result covers 0..max(end),
+    or 0..length if given.
 
     Examples:
         >>> rl.coverage([0, 2], [3, 4])

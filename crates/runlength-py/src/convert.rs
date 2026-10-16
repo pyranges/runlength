@@ -12,7 +12,7 @@ use arrow_array::cast::AsArray;
 use arrow_array::types::Int64Type;
 use arrow_array::{
     Array, ArrayRef, BooleanArray, Float64Array, Int64Array, NullArray, RecordBatch, StringArray,
-    StructArray, new_empty_array,
+    StructArray, UInt64Array, new_empty_array,
 };
 use arrow_cast::cast;
 use arrow_schema::{ArrowError, DataType, Field};
@@ -20,10 +20,11 @@ use arrow_select::concat::{concat, concat_batches};
 use pyo3::exceptions::{PyTypeError, PyValueError};
 use pyo3::intern;
 use pyo3::prelude::*;
-use pyo3::types::{PyCapsule, PyDict, PyList, PyTuple};
+use pyo3::types::{PyCapsule, PyDict, PyInt, PyList, PyTuple};
 use pyo3_arrow::ffi::{ArrayIterator, to_stream_pycapsule};
 use pyo3_arrow::input::{AnyArray, AnyRecordBatch};
 use pyo3_arrow::{PyArray, PyScalar, PyTable};
+use runlength_arrow::cast_checked;
 
 /// Converts a `runlength_arrow` error, re-raising Python exceptions that
 /// came from a Python callback unchanged.
@@ -114,7 +115,20 @@ pub fn array_from_py(obj: &Bound<'_, PyAny>) -> PyResult<ArrayRef> {
     if let Ok(values) = obj.extract::<Vec<Option<i64>>>() {
         return Ok(Arc::new(Int64Array::from(values)));
     }
+    if let Ok(values) = obj.extract::<Vec<Option<u64>>>() {
+        return Ok(Arc::new(UInt64Array::from(values)));
+    }
     if let Ok(values) = obj.extract::<Vec<Option<f64>>>() {
+        // Python ints convert to floats too, but those that reach here don't
+        // fit in 64 bits and would lose precision.
+        let all_ints = obj.try_iter()?.all(|item| {
+            item.is_ok_and(|item| item.is_none() || item.is_exact_instance_of::<PyInt>())
+        });
+        if all_ints {
+            return Err(PyValueError::new_err(
+                "integers must fit in 64 bits; for larger numbers pass floats",
+            ));
+        }
         return Ok(Arc::new(Float64Array::from(values)));
     }
     if let Ok(values) = obj.extract::<Vec<Option<String>>>() {
@@ -156,6 +170,12 @@ pub fn ints_from_array(array: &ArrayRef, what: &str) -> PyResult<Vec<i64>> {
         )));
     }
     let array = cast(array.as_ref(), &DataType::Int64).or_raise()?;
+    // Values that don't fit in an Int64 become null.
+    if array.null_count() > 0 {
+        return Err(PyValueError::new_err(format!(
+            "{what} must fit in a signed 64-bit integer"
+        )));
+    }
     Ok(array.as_primitive::<Int64Type>().values().to_vec())
 }
 
@@ -216,13 +236,28 @@ impl<'a, 'py> FromPyObject<'a, 'py> for FillArg {
     }
 }
 
-/// Reads a single value and casts it to `data_type`.
+/// Reads a single value and casts it to `data_type`; see [`cast_exact`].
 pub fn scalar_of_type(obj: &Bound<'_, PyAny>, data_type: &DataType) -> PyResult<ArrayRef> {
-    let value = scalar_from_py(obj)?;
-    if value.data_type() == data_type {
-        return Ok(value);
+    cast_exact(scalar_from_py(obj)?, data_type)
+}
+
+/// Casts `array` to `data_type`, failing if a number would change (1.5 or
+/// 300 as an `Int8`) rather than truncating it or making it null.
+pub fn cast_exact(array: ArrayRef, data_type: &DataType) -> PyResult<ArrayRef> {
+    if array.data_type() == data_type {
+        return Ok(array);
     }
-    cast(value.as_ref(), data_type).or_raise()
+    let out = cast_checked(array.as_ref(), data_type).or_raise()?;
+    if array.data_type().is_numeric() && data_type.is_numeric() {
+        let back = cast_checked(out.as_ref(), array.data_type()).or_raise()?;
+        if back.as_ref() != array.as_ref() {
+            return Err(PyValueError::new_err(format!(
+                "{} values can't be represented exactly as {data_type}",
+                array.data_type()
+            )));
+        }
+    }
+    Ok(out)
 }
 
 /// Reads a table of key columns: anything exporting an Arrow stream (polars

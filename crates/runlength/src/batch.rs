@@ -406,8 +406,10 @@ impl<K: Hash + Eq + Clone, V> RleBatch<K, V> {
 
     /// Joins the batches end to end key by key, in parallel: each key's
     /// sequences are concatenated in batch order, and a batch without the key
-    /// contributes nothing. Keys appear in order of first appearance.
-    pub fn concat(batches: &[&RleBatch<K, V>]) -> RleBatch<K, V>
+    /// contributes nothing. Keys appear in order of first appearance. Fails
+    /// with [`Error::Overflow`] if a key's total length does not fit in an
+    /// `i64`.
+    pub fn concat(batches: &[&RleBatch<K, V>]) -> Result<RleBatch<K, V>>
     where
         K: Send + Sync,
         V: Clone + Identical + Send + Sync,
@@ -425,8 +427,8 @@ impl<K: Hash + Eq + Clone, V> RleBatch<K, V> {
         let rles = keys
             .par_iter()
             .map(|key| transform::concat(batches.iter().filter_map(|b| b.get(key))))
-            .collect();
-        RleBatch::from_rles_unchecked(keys, rles)
+            .collect::<Result<Vec<_>>>()?;
+        Ok(RleBatch::from_rles_unchecked(keys, rles))
     }
 
     /// The output keys of a join and the position of each on both sides.

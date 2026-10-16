@@ -44,13 +44,15 @@ fn zero_filled(agg: Agg, fill: &FillArg, py: Python<'_>) -> bool {
 
 /// Fills the nulls left by `coverage_agg` at uncovered positions.
 fn apply_fill(py: Python<'_>, rle: ArrowRle, agg: Agg, fill: &FillArg) -> PyResult<ArrowRle> {
-    let value = match fill {
+    let fill = match fill {
         _ if agg == Agg::Count => return Ok(rle),
         FillArg::Null => return Ok(rle),
-        FillArg::Default => 0i64.into_pyobject(py)?.into_any().unbind(),
-        FillArg::Value(value) => value.clone_ref(py),
+        FillArg::Default => match runlength_arrow::default_fill(rle.data_type()) {
+            Some(fill) => fill,
+            None => return Ok(rle),
+        },
+        FillArg::Value(value) => scalar_of_type(value.bind(py), rle.data_type())?,
     };
-    let fill = scalar_of_type(value.bind(py), rle.data_type())?;
     rle.fill_null(fill.as_ref()).or_raise()
 }
 
@@ -58,9 +60,10 @@ fn apply_fill(py: Python<'_>, rle: ArrowRle, agg: Agg, fill: &FillArg) -> PyResu
 ///
 /// `agg` combines the intervals covering each position: "sum" of `values`
 /// (the number of intervals if no values are given), "count", "max" or
-/// "min" (numbers or strings). Uncovered positions hold `fill`, 0 by
-/// default; `fill=None` leaves them null. The result covers 0..max(end), or
-/// 0..length if given.
+/// "min" (numbers or strings). Uncovered positions hold `fill`: by default
+/// 0 for numbers and null for strings; `fill=None` leaves them null. Counts are never missing, so with
+/// "count" uncovered positions are always 0. The result covers 0..max(end),
+/// or 0..length if given.
 ///
 /// Examples:
 ///     >>> rl.coverage([0, 2], [3, 4])
@@ -89,7 +92,11 @@ fn coverage(
     let agg = parse_agg(agg, values.is_some())?;
     let starts = ints_from_py(starts, "starts")?;
     let ends = ints_from_py(ends, "ends")?;
-    let values = values.map(array_from_py).transpose()?;
+    // Counting ignores the values.
+    let values = values
+        .filter(|_| agg != Agg::Count)
+        .map(array_from_py)
+        .transpose()?;
     let rle = if zero_filled(agg, &fill, py) {
         py.detach(|| runlength_arrow::coverage(&starts, &ends, values.as_deref(), length))
             .or_raise()?
@@ -132,7 +139,11 @@ fn coverage_by_key(
     let keys = keys_from_py(keys)?;
     let starts = ints_from_py(starts, "starts")?;
     let ends = ints_from_py(ends, "ends")?;
-    let values = values.map(array_from_py).transpose()?;
+    // Counting ignores the values.
+    let values = values
+        .filter(|_| agg != Agg::Count)
+        .map(array_from_py)
+        .transpose()?;
     if zero_filled(agg, &fill, py) {
         let batch = py
             .detach(|| runlength_arrow::coverage_by_key(&keys, &starts, &ends, values.as_deref()))
